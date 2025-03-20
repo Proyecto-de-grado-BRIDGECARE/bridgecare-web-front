@@ -1,0 +1,16 @@
+{
+  "projects": {
+    "sgpm": "sgpm-puj"
+  },
+  "targets": {
+    "sgpm-puj": {
+      "hosting": {
+        "sgpm": [
+          "sgpm-puj"
+        ]
+      }
+    }
+  },
+  "etags": {},
+  "dataconnectEmulatorConfig": {}
+}

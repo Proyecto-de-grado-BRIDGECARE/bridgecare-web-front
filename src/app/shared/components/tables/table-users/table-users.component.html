@@ -1,0 +1,182 @@
+<div class="position-fixed top-0 end-0 p-3" style="z-index: 11">
+  <div id="liveToast" class="toast hide" role="alert" aria-live="assertive" aria-atomic="true">
+    <div class="toast-header">
+      <svg class="bd-placeholder-img rounded me-2" width="20" height="20" xmlns="http://www.w3.org/2000/svg"
+        aria-hidden="true" preserveAspectRatio="xMidYMid slice" focusable="false">
+        <rect width="100%" height="100%" fill="#26DB00"></rect>
+      </svg>
+      <strong class="me-auto">SGPM</strong>
+      <small></small>
+      <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+    </div>
+    <div class="toast-body">
+      ¡Usuario creado exitosamente!
+    </div>
+  </div>
+</div>
+
+<div class="position-fixed top-0 end-0 p-3" style="z-index: 11">
+  <div id="liveToastDelete" class="toast hide" role="alert" aria-live="assertive" aria-atomic="true">
+    <div class="toast-header">
+      <svg class="bd-placeholder-img rounded me-2" width="20" height="20" xmlns="http://www.w3.org/2000/svg"
+        aria-hidden="true" preserveAspectRatio="xMidYMid slice" focusable="false">
+        <rect width="100%" height="100%" fill="#26DB00"></rect>
+      </svg>
+      <strong class="me-auto">SGPM</strong>
+      <small></small>
+      <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+    </div>
+    <div class="toast-body">
+      ¡Usuario eliminado exitosamente!
+    </div>
+  </div>
+</div>
+
+<div class="position-fixed top-0 end-0 p-3" style="z-index: 11">
+  <div id="liveToastEdit" class="toast hide" role="alert" aria-live="assertive" aria-atomic="true">
+    <div class="toast-header">
+      <svg class="bd-placeholder-img rounded me-2" width="20" height="20" xmlns="http://www.w3.org/2000/svg"
+        aria-hidden="true" preserveAspectRatio="xMidYMid slice" focusable="false">
+        <rect width="100%" height="100%" fill="#26DB00"></rect>
+      </svg>
+      <strong class="me-auto">SGPM</strong>
+      <small></small>
+      <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+    </div>
+    <div class="toast-body">
+      ¡Usuario actualizado exitosamente!
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-xl">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="editModalLabel">Editar Usuario</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form [formGroup]="editUserForm" (ngSubmit)="onSubmitEdit()">
+      <div class="modal-body">
+        
+        <div class="d-flex">
+          <div class="col">
+            <label for="old_name">Identificación</label>
+            <input type="text" class="form-control" [placeholder]="currentUser?.identification" id="old_identification"
+              disabled />
+            <input type="text" class="form-control" placeholder="Identificación Nueva"
+              formControlName="new_identification" id="new_identification" required />
+          </div>
+          <div class="col">
+            <label for="old_name">Correo Electrónico</label>
+            <input type="text" class="form-control" [placeholder]="currentUser?.email" id="old_email" disabled />
+            <input type="text" class="form-control" placeholder="Correo Nuevo" formControlName="new_email" id="new_email"
+              required />
+          </div>
+          <div class="col">
+            <label for="old_name">Nombre</label>
+            <input type="text" class="form-control" [placeholder]="currentUser?.name" id="old_name" disabled />
+            <input type="text" class="form-control" placeholder="Nombre Nuevo" formControlName="new_name" id="new_name"
+              required />
+          </div>
+          <div class="col">
+            <label for="old_name">Apellido</label>
+            <input type="text" class="form-control" [placeholder]="currentUser?.surname" id="old_surname" disabled />
+            <input type="text" class="form-control" placeholder="Apellido Nuevo" formControlName="new_surname"
+              id="new_surname" required />
+          </div>
+          <div class="col">
+            <label for="old_name">Municipio</label>
+            <input type="text" class="form-control" [placeholder]="currentUser?.municipality" id="old_municipality"
+              disabled />
+            <input type="text" class="form-control" placeholder="Municipio Nuevo" formControlName="new_municipality"
+              id="new_municipality" required />
+          </div>
+        </div>
+        <div class="d-flex mt-4">
+          <div class="col-md-6">
+            <label for="old_name">Cambiar Contraseña</label>
+            <input type="text" class="form-control" placeholder="Contraseña Nueva" formControlName="new_password"
+              id="new_password" required />
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="submit" class="btn btn-primary" data-bs-dismiss="toast">Guardar Cambios</button>
+      </div>
+    </form>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="deleteModalLabel">Eliminar Usuario</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        ¿Está seguro de que quiere eliminar a este usuario?
+        <br><br>
+        (Esta acción es irreversible)
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button type="submit" (click)="onSubmitDelete()" data-bs-dismiss="modal" class="btn btn-danger">Sí, eliminar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="container my-5">
+  <h1 class="text-center mb-5">Gestión de Usuarios</h1>
+
+  <div class="d-flex search mb-5">
+    <div class="input-group">
+      <app-search-bar (changeQuery)="changeQuery($event)" />
+    </div>
+    <button class="btn btn-outline-warning ms-2" (click)="isOpen = !isOpen" type="submit">Registrar Usuario</button>
+  </div>
+
+  <div [hidden]="!isOpen" [@openClose]="isOpen ? 'open' : 'closed'">
+    <div
+      class="drawer-content d-flex register justify-content-center flex-column align-items-center pb-5 mb-5 pt-5 rounded-5 border border-2">
+      <app-account-form (userRegistered)="handleUserRegistered()"></app-account-form>
+    </div>
+  </div>
+
+  <div class="table-responsive">
+    <table class="table table-borderless">
+      <thead>
+        <tr>
+          <th scope="col" class="text-center"><strong>No. Identificacion</strong></th>
+          <th scope="col" class="text-center"><strong>Correo Electronico</strong></th>
+          <th scope="col" class="text-center"><strong>Nombre</strong></th>
+          <th scope="col" class="text-center"><strong>Municipio</strong></th>
+          <th scope="col" class="text-center" style="width: 50px;"></th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (user of users$ | async; track user.id) {
+        <tr>
+          <td class="text-center">{{ user.identification }}</td>
+          <td class="text-center">{{ user.email }}</td>
+          <td class="text-center">{{ user.name }} {{ user.surname }}</td>
+          <td class="text-center">{{ user.municipality || '-' }}</td>
+          <td class="text-center">
+            <button class="btn btn-icon" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+              <app-icon-settings />
+            </button>
+            <ul class="dropdown-menu">
+              <li><button class="dropdown-item" (click)="editModal(user)"><app-icon-edit /> Editar</button></li>
+              <li><button class="dropdown-item" (click)="deleteModal(user)"><app-icon-delete /> Eliminar</button>
+              </li>
+            </ul>
+          </td>
+        </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</div>
