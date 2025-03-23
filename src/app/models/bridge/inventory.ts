@@ -1,176 +1,166 @@
 export interface Inventory {
-  inventoryDate: Date;
-  generalInformation: generalInformation;
-  steps: steps;
-  administrativeData: administrativeData;
-  technicalData: technicalData;
-  superstructurePrimary: superstructurePrimary;
-  superstructureSecondary: superstructureSecondary;
-  substructureAbutments: substructureAbutments;
-  substructureDetails: substructureDetails;
-  substructurePiles: substructurePiles;
-  substructureSignals: substructureSignals;
-  supports: supports;
-  stakeholders: stakeholders;
-  geographicPosition: geographicPosition;
-  legalTrafficLoadCapacity: legalTrafficLoadCapacity;
-  transportLoadCapacity: transportLoadCapacity;
-  observations: observations;
+  id?: number;
+  observaciones: string;
+  puenteId: number;
+  usuarioId: number;
+  fecha: Date;
 }
 
-export interface generalInformation {
-  name: string;
-  image?: string;
-  regionalIdentification: string;
-  roadIdentification: string;
-  bridgeIdentification: string;
-  road: string;
+export interface Puente {
+  id?: number;
+  nombre: string;
+  identif: string;
+  carretera: string;
   pr: string;
   regional: string;
 }
 
-export interface steps {
-  stepTypeOne: string;
-  firstOne: string;
-  supInfOne: string;
-  clearanceIOne: string;
-  clearanceIMOne: string;
-  clearanceDMOne: string;
-  clearanceDOne: string;
-  stepTypeTwo: string;
-  firstTwo: string;
-  supInfTwo: string;
-  clearanceITwo: string;
-  clearanceIMTwo: string;
-  clearanceDMTwo: string;
-  clearanceDTwo: string;
+export interface Superestructura {
+  id?: number;
+  tipo: number; // 1 = Principal, 2 = Secundario
+  disenioTipo: boolean;
+  tipoEstructuracionTransversal: number;
+  tipoEstructuracionLongitudinal: number;
+  material: number;
+  inventarioId: number;
 }
 
-export interface administrativeData {
-  constructionYear: string;
-  reconstructionYear: string;
-  absDirection: string;
-  inspectionRequirements: string;
-  inspectionSectionsNumber: string;
-  countingStation: string;
-  dataCollectionDate: Date;
-  inspectorInitials: string;
+export interface Subestructura {
+  id?: number;
+  inventarioId: number;
 }
 
-export interface technicalData {
-  lightsNumber: string;
-  minorSpanLength: string;
-  majorSpanLength: string;
-  totalLength: string;
-  boardWidth: string;
-  separatorWidth: string;
-  leftSidewalkWidth: string;
-  rightSidewalkWidth: string;
-  roadwayWidth: string;
-  curbWidth: string;
-  accessWidth: string;
-  pileHeight: string;
-  abutmentHeight: string;
-  supportLengthOnPiles: string;
-  supportLengthOnAbutments: string;
-  embankmentBridge: string;
-  curveBridge: string;
-  skewAngle: string;
-  geoImage?: string;
+export interface Pila {
+  id?: number;
+  tipo: number;
+  material: number;
+  tipoCimentacion: number;
+  subestructuraId: number;
 }
 
-export interface superstructurePrimary {
-  designType: string;
-  transversalStructuringType: string;
-  longitudinalStructuringType: string;
-  material: string;
-  image?: string;
+export interface Estribo {
+  id?: number;
+  tipo: number;
+  material: number;
+  tipoCimentacion: number;
+  subestructuraId: number;
 }
 
-export interface superstructureSecondary {
-  designType: string;
-  transversalStructuringType: string;
-  longitudinalStructuringType: string;
-  material: string;
-  image?: string;
+export interface Detalle {
+  id?: number;
+  tipoBaranda: number;
+  superficieRodadura: number;
+  juntaExpansion: number;
+  subestructuraId: number;
 }
 
-export interface substructureAbutments {
-  type: string;
-  material: string;
-  foundationType: string;
-  image?: string;
+export interface Senial {
+  id?: number;
+  cargaMaxima: string;
+  velocidadMaxima: string;
+  otra: string;
+  subestructuraId: number;
 }
 
-export interface substructureDetails {
-  railingType: string;
-  roadwaySurface: string;
-  expansionJoint: string;
-  image?: string;
+export interface Paso {
+  id?: number;
+  numero: number; // 1 o 2
+  tipoPaso: string; // 'S' o 'I'
+  primero: boolean;
+  supInf: string; // 'S' o 'I'
+  galiboI?: number;
+  galiboIm?: number;
+  galiboDm?: number;
+  galiboD?: number;
+  inventarioId: number;
 }
 
-export interface substructurePiles {
-  type: string;
-  material: string;
-  foundationType: string;
-  image?: string;
+export interface Galibo {
+  id?: number;
+  i: number;
+  im: number;
+  dm: number;
+  d: number;
+  pasoId: number;
 }
 
-export interface substructureSignals {
-  maxLoad: number;
-  maxSpeed: number;
-  otherInfo: string;
-  image?: string;
+export interface PosicionGeografica {
+  id?: number;
+  latitud: number;
+  longitud: number;
+  altitud: number;
+  coeficienteAceleracionSismica: string;
+  pasoCauce: boolean;
+  existeVariante: boolean;
+  longitudVariante: number;
+  estado: string; // 'B', 'R' o 'M'
+  inventarioId: number;
 }
 
-export interface supports {
-  fixedSupportsOnAbutments: string;
-  movableSupportsOnAbutments: string;
-  fixedSupportsOnPiles: string;
-  movableSupportsOnPiles: string;
-  fixedSupportsOnBeams: string;
-  movableSupportsOnBeams: string;
-  designVehicle: string;
-  loadDistributionClass: string;
-  image?: string;
+export interface DatosTecnicos {
+  id?: number;
+  numeroLuces: number;
+  longitudLuzMenor: number;
+  longitudLuzMayor: number;
+  longitudTotal: number;
+  anchoTablero: number;
+  anchoSeparador: number;
+  anchoAndenIzq: number;
+  anchoAndenDer: number;
+  anchoCalzada: number;
+  anchoEntreBordillos: number;
+  anchoAcceso: number;
+  alturaPilas: number;
+  alturaEstribos: number;
+  longitudApoyoPilas: number;
+  longitudApoyoEstribos: number;
+  puenteTerraplen: boolean;
+  puenteCurvaTangente: string; // 'C' o 'T'
+  esviajamiento: number;
+  inventarioId: number;
 }
 
-export interface stakeholders {
-  owner: string;
-  department: string;
-  roadManager: string;
-  designer: string;
-  municipality: string;
+export interface DatosAdministrativos {
+  id?: number;
+  anioConstruccion: number;
+  anioReconstruccion: number;
+  direccionAbscCarretera: string; // 'N', 'S', 'E', 'O'
+  requisitosInspeccion: string;
+  numeroSeccionesInspeccion: string;
+  estacionConteo: string;
+  fechaRecoleccionDatos: Date;
+  inventarioId: number;
 }
 
-export interface geographicPosition {
-  latitudeDegree: string;
-  latitudeMinute: string;
-  latitudeSecond: string;
-  longitudeDegree: string;
-  longitudeMinute: string;
-  longitudeSecond: string;
-  altitude: string;
-  seismicAccelerationCoefficient: string;
-  causewayPassage: string;
-  variantExists: string;
-  variantLength: string;
-  condition: string;
+export interface Carga {
+  id?: number;
+  longitudLuzCritica: number;
+  factorClasificacion: string;
+  fuerzaCortante: string;
+  momento: string;
+  lineaCargaPorRueda: string;
+  inventarioId: number;
 }
 
-export interface legalTrafficLoadCapacity {
-  criticalSpanLength: string;
-  classificationFactor: string;
+export interface Apoyo {
+  id?: number;
+  fijoSobreEstribo: number;
+  movilSobreEstribo: number;
+  fijoEnPila: number;
+  movilEnPila: number;
+  fijoEnViga: number;
+  movilEnViga: number;
+  vehiculoDiseno: number;
+  claseDistribucionCarga: string;
+  inventarioId: number;
 }
 
-export interface transportLoadCapacity {
-  shearForce: string;
-  moment: string;
-  wheelLoadLine: string;
+export interface MiembrosInteresados {
+  id?: number;
+  propietario: string;
+  departamento: string;
+  administradorVial: string;
+  proyectista: string;
+  municipio: string;
+  inventarioId: number;
 }
-
-export interface observations {
-  notes: string;
-  image?: string;
-}
-

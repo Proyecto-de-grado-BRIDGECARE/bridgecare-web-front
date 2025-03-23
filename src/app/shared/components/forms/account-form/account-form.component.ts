@@ -77,7 +77,7 @@ export class AccountFormComponent implements OnInit {
       
       !this.userId
         ? await this._usersService.createUser(user)
-        : await this._usersService.updateUser(this.userId, user);
+        : await this._usersService.updateUser(+this.userId, user);
       this.accountForm.reset();
       this.userRegistered.emit();
     } catch (error) {
@@ -89,17 +89,24 @@ export class AccountFormComponent implements OnInit {
 
   async setFormValues(id: string) {
     try {
-      const user = await this._usersService.getUser(id);
-      if (!user) return;
-      this.accountForm.setValue({
-        name: user.name,
-        surname: user.surname,
-        identification: user.identification,
-        email: user.email,
-        type: user.type,
-        municipality: user.municipality,
-        password: user.password
+      this._usersService.getUser(+id).subscribe({
+        next: (user) => {
+          if (!user) return;
+          this.accountForm.setValue({
+            name: user.name,
+            surname: user.surname,
+            identification: user.identification,
+            email: user.email,
+            type: user.type,
+            municipality: user.municipality,
+            password: user.password
+          });
+        },
+        error: (error) => {
+          console.error('Error al cargar usuario:', error);
+        }
       });
+      
     } catch (error) {}
   }
 

@@ -1,401 +1,481 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from "@angular/router";
-import { inventoryLists } from "../../../../models/lists/inventoryLists";
-import { NgForOf, NgIf } from "@angular/common";
-import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from "@angular/forms";
+import { FormControl, FormGroup, Validators } from "@angular/forms";
 import { InventoryServiceService } from "../../../services/bridge-services/inventory-service.service";
 import { Inventory } from "../../../../models/bridge/inventory";
+import { HttpClient } from '@angular/common/http';
+import { firstValueFrom } from 'rxjs';
+import { ReactiveFormsModule } from '@angular/forms';
 
-interface ImageFields {
-  [key: string]: keyof Inventory;
-}
 
-const imageFields: ImageFields = {
-  generalImage: 'generalInformation',
-  technicalImage: 'technicalData',
-  superstructureImage: 'superstructurePrimary',
-  superstructureSecondaryImage: 'superstructureSecondary',
-  substructureAbutmentsImage: 'substructureAbutments',
-  substructureDetailsImage: 'substructureDetails',
-  substructurePilesImage: 'substructurePiles',
-  substructureSignalsImage: 'substructureSignals',
-  supportsImage: 'supports',
-  observationsImage: 'observations'
-};
-
-function setImageUrl(inventory: Inventory, key: string, url: string) {
-  const path = imageFields[key];
-  if (path && inventory[path] && typeof inventory[path] === 'object') {
-    (inventory[path] as any).image = url;
-  }
-}
 
 @Component({
-    selector: 'app-inventory-form',
-    imports: [
-        NgForOf,
-        FormsModule,
-        ReactiveFormsModule,
-        NgIf
-    ],
-    templateUrl: './inventory-form.component.html',
-    styleUrls: ['./inventory-form.component.css']
+  selector: 'app-inventory-form',
+  templateUrl: './inventory-form.component.html',
+  styleUrls: ['./inventory-form.component.css'],
+  imports:[
+    ReactiveFormsModule
+  ]
 })
 export class InventoryFormComponent implements OnInit {
+
   form: FormGroup = new FormGroup({});
   formSubmitted = false;
-  editingInventoryId: string | null = null;
   isEditMode = false;
-  documentId: string | null = null;
   isViewMode = false;
+  editingInventoryId: number | null = null;
 
-  typeStepOptions = inventoryLists.typeStepOptions;
-  inspectionRequirementOptions = inventoryLists.inspectionRequirementOptions;
-  transversalStructuringOptions = inventoryLists.transversalStructuringOptions;
-  longitudinalStructuringOptions = inventoryLists.longitudinalStructuringOptions;
-  materialConstructionOptions = inventoryLists.materialConstructionOptions;
-  stirrupstypeOptions = inventoryLists.stirrupstypeOptions;
-  stirrupsMaterialOptions = inventoryLists.stirrupsMaterialOptions;
-  stirrupsFoundationTypeOptions = inventoryLists.stirrupsFoundationTypeOptions;
-  railingTypeOptions = inventoryLists.railingTypeOptions;
-  roadwaySurfaceOptions = inventoryLists.roadwaySurfaceOptions;
-  expansionJointOptions = inventoryLists.expansionJointOptions;
-  pileTypeOptions = inventoryLists.pileTypeOptions;
-  pileMaterialOptions = inventoryLists.pileMaterialOptions;
-  foundationTypeOptions = inventoryLists.foundationTypeOptions;
-  fixedSupportTypes = inventoryLists.fixedSupportTypes;
-  loadDistributionClasses = inventoryLists.loadDistributionClasses;
-  snOptions = inventoryLists.snOptions;
-  ctOptions = inventoryLists.ctOptions;
-  siOptions = inventoryLists.siOptions;
-  yearOptions = inventoryLists.yearOptions;
-  abscDirection = inventoryLists.abscDirection;
-  sectionOptions = inventoryLists.sectionOptions;
-  lightOptions = inventoryLists.lightOptions;
-  longitudinalOptions = inventoryLists.longitudinalOptions;
-  boardWidthOptions = inventoryLists.boardWidthOptions;
-  separatorWidthOptions = inventoryLists.separatorWidthOptions;
-  sidewalkWidthOptions = inventoryLists.sidewalkWidthOptions;
-  roadwayWidthOptions = inventoryLists.roadwayWidthOptions;
-  pileHeightOptions = inventoryLists.pileHeightOptions;
-  abutmentHeightOptions = inventoryLists.abutmentHeightOptions;
-  supportLengthOptions = inventoryLists.supportLengthOptions;
-  skewAngleOptions = inventoryLists.skewAngleOptions;
-  latitudeDegreesOptions = inventoryLists.latitudeDegreesOptions;
-  longitudeDegreesOptions = inventoryLists.longitudeDegreesOptions;
-  minutesOptions = inventoryLists.minutesOptions;
-  secondsOptions = inventoryLists.secondsOptions;
-  altitudeOptions = inventoryLists.altitudeOptions;
-  seismicAccelerationCoefficientOptions = inventoryLists.seismicAccelerationCoefficientOptions;
-  variableLengthOptions = inventoryLists.variableLengthOptions;
-  brmOptions = inventoryLists.brmOptions;
-  criticalSpanLengthOptions = inventoryLists.criticalSpanLengthOptions;
-  classificationFactorOptions = inventoryLists.classificationFactorOptions;
-  linealOptions = inventoryLists.linealOptions;
+  private apiUrl = 'https://tuservidor.com/api'; 
 
-  imageFiles: { [key: string]: File } = {};
+  regionalOptions: string[] = [
+    '1 - Antioquia', '2 - Atlántico', '3 - Bolívar', '4 - Boyacá', '5 - Caldas',
+    '6 - Caquetá', '7 - Casanare', '8 - Cauca', '9 - Cesar', '10 - Chocó',
+    '11 - Córdoba', '12 - Cundinamarca', '13 - La Guajira', '14 - Huila', '15 - Magdalena',
+    '16 - Meta', '17 - Nariño', '18 - Norte de Santander', '19 - Putumayo',
+    '20 - Quindío', '21 - Risaralda', '22 - Santander', '23 - Sucre',
+    '24 - Tolima', '25 - Valle del Cauca', '26 - Ocaña'
+  ];
 
-  constructor(private inventoryService: InventoryServiceService, private route: ActivatedRoute, private router: Router) { }
+  direccionOptions: string[] = ['N', 'S', 'E', 'O'];
+
+  constructor(
+    private inventoryService: InventoryServiceService,
+    private route: ActivatedRoute,
+    private router: Router,
+    private http: HttpClient
+  ) {}
 
   ngOnInit() {
     this.route.paramMap.subscribe(params => {
-      this.editingInventoryId = params.get('bridgeIdentification');
-      this.isViewMode = this.router.url.includes('/view-inventory-bridge');
+      this.editingInventoryId = Number(params.get('id'));
+      this.isViewMode = this.router.url.includes('/view');
+      this.isEditMode = !!this.editingInventoryId && !this.isViewMode;
+      this.initForm();
       if (this.editingInventoryId) {
-        this.isEditMode = !this.isViewMode;
         this.loadInventoryData(this.editingInventoryId);
       }
     });
+  }
 
+  datosTecnicosCampos = [
+    { name: 'numeroLuces', label: 'Número de luces', type: 'number' },
+    { name: 'longitudLuzMenor', label: 'Longitud Luz Menor (m)', type: 'number' },
+    { name: 'longitudLuzMayor', label: 'Longitud Luz Mayor (m)', type: 'number' },
+    { name: 'longitudTotal', label: 'Longitud Total (m)', type: 'number' },
+    { name: 'anchoTablero', label: 'Ancho Tablero (m)', type: 'number' },
+    { name: 'anchoSeparador', label: 'Ancho Separador (m)', type: 'number' },
+    { name: 'anchoAndenIzq', label: 'Ancho Andén Izquierdo (m)', type: 'number' },
+    { name: 'anchoAndenDer', label: 'Ancho Andén Derecho (m)', type: 'number' },
+    { name: 'anchoCalzada', label: 'Ancho Calzada (m)', type: 'number' },
+    { name: 'anchoEntreBordillos', label: 'Ancho Entre Bordillos (m)', type: 'number' },
+    { name: 'anchoAcceso', label: 'Ancho Acceso (m)', type: 'number' },
+    { name: 'alturaPilas', label: 'Altura Pilas (m)', type: 'number' },
+    { name: 'alturaEstribos', label: 'Altura Estribos (m)', type: 'number' },
+    { name: 'longitudApoyoPilas', label: 'Longitud de Apoyo en Pilas (m)', type: 'number' },
+    { name: 'longitudApoyoEstribos', label: 'Longitud Apoyo Estribos', type: 'number' },
+    {
+      name: 'puenteTerraplen',
+      label: 'Puente Terraplén',
+      type: 'dropdown',
+      options: ['Sí', 'No']
+    },
+    {
+      name: 'puenteCurvaTangente',
+      label: 'Puente Curva/Tangente',
+      type: 'dropdown',
+      options: ['C', 'T']
+    },
+    { name: 'esviajamiento', label: 'Esviajamiento (gra)', type: 'number' }
+  ];
+
+  transversalStructuringOptions = [
+    { value: 10, label: '10 - Losa' },
+    { value: 11, label: '11 - Losa/viga, 1 viga' },
+    { value: 12, label: '12 - Losa/viga, 2 vigas' },
+    { value: 13, label: '13 - Losa/viga, 3 vigas' },
+    { value: 14, label: '14 - Losa/viga, 4 ó más vigas' },
+    { value: 30, label: '30 - Viga cajón, 1 cajón' },
+    { value: 31, label: '31 - Viga cajón, 2 ó más cajones' },
+    { value: 40, label: '40 - Armadura de paso inferior' },
+    { value: 41, label: '41 - Armadura de paso superior' },
+    { value: 42, label: '42 - Armadura de paso a través' },
+    { value: 50, label: '50 - Arco superior' },
+    { value: 51, label: '51 - Arco inferior, tipo abierto' },
+    { value: 52, label: '52 - Arco inferior, tipo cerrado' },
+    { value: 80, label: '80 - Provisional, tipo Bailey' },
+    { value: 81, label: '81 - Provisional, tipo Callender Hamilton' },
+    { value: 90, label: '90 - Otro' },
+    { value: 91, label: '91 - No aplicable' },
+    { value: 92, label: '92 - Desconocido' },
+    { value: 93, label: '93 - No registrado' },
+  ];
+  
+  longitudinalStructuringOptions = [...this.transversalStructuringOptions];
+  
+  materialConstructionOptions = [
+    { value: 10, label: '10 - Concreto ciclópeo' },
+    { value: 11, label: '11 - Concreto simple' },
+    { value: 20, label: '20 - Concreto reforzado, in situ' },
+    { value: 21, label: '21 - Concreto reforzado, prefabricado' },
+    { value: 30, label: '30 - Concreto presforzado, in situ' },
+    { value: 31, label: '31 - Concreto presforzado, prefabricado' },
+    { value: 32, label: '32 - Concreto presforzado, en secciones' },
+    { value: 41, label: '41 - Concreto presforzado prefabricado & in situ' },
+    { value: 42, label: '42 - Concreto y acero' },
+    { value: 50, label: '50 - Acero' },
+    { value: 60, label: '60 - Mampostería' },
+    { value: 90, label: '90 - Otro' },
+    { value: 91, label: '91 - No aplicable' },
+    { value: 92, label: '92 - Desconocido' },
+    { value: 93, label: '93 - No registrado' },
+  ];
+  
+  snOptions = [
+    { value: true, label: 'Sí' },
+    { value: false, label: 'No' },
+  ];
+  
+  stirrupsMaterialOptions = [
+    { value: 10, label: '10 - Mampostería' },
+    { value: 20, label: '20 - Concreto ciclópeo' },
+    { value: 21, label: '21 - Concreto reforzado' },
+    { value: 30, label: '30 - Acero' },
+    { value: 40, label: '40 - Acero y concreto' },
+    { value: 50, label: '50 - Tierra armada' },
+    { value: 60, label: '60 - Ladrillo' },
+    { value: 90, label: '90 - Otro' },
+    { value: 91, label: '91 - No aplicable' },
+    { value: 92, label: '92 - Desconocido' },
+    { value: 93, label: '93 - No registrado' }
+  ];
+  
+  stirrupsFoundationTypeOptions = [
+    { value: 10, label: '10 - Cimentación superficial' },
+    { value: 20, label: '20 - Pilotes de concreto' },
+    { value: 21, label: '21 - Pilotes de acero' },
+    { value: 22, label: '22 - Pilotes de madera' },
+    { value: 30, label: '30 - Caisson de concreto' },
+    { value: 40, label: '40 - Cajón de autofundante' },
+    { value: 90, label: '90 - Otro' },
+    { value: 91, label: '91 - No aplicable' },
+    { value: 92, label: '92 - Desconocido' },
+    { value: 93, label: '93 - No registrado' }
+  ];
+
+  railingTypeOptions = [
+    { value: 10, label: '10 - Sólida, mampostería' },
+    { value: 20, label: '20 - Sólida, concreto' },
+    { value: 21, label: '21 - Sólida, concreto, con pasamanos metálicas' },
+    { value: 30, label: '30 - Pasamanos de concreto y pilastras de concreto' },
+    { value: 40, label: '40 - Pasamanos metálicas y pilastras de concreto' },
+    { value: 41, label: '41 - Pasamanos metálicas y pilastras metálicas' },
+    { value: 50, label: '50 - Construcción metálica ligera' },
+    { value: 60, label: '60 - Parte integral de la superestructura' },
+    { value: 90, label: '90 - Otro' },
+    { value: 91, label: '91 - No aplicable' },
+    { value: 92, label: '92 - Desconocido' },
+    { value: 93, label: '93 - No registrado' }
+  ];
+  
+  roadwaySurfaceOptions = [
+    { value: 10, label: '10 - Asfalto' },
+    { value: 20, label: '20 - Concreto' },
+    { value: 30, label: '30 - Acero (con dispositivo de fricción)' },
+    { value: 40, label: '40 - Afirmado' },
+    { value: 90, label: '90 - Otro' },
+    { value: 91, label: '91 - No aplicable' },
+    { value: 92, label: '92 - Desconocido' },
+    { value: 93, label: '93 - No registrado' }
+  ];
+  
+  expansionJointOptions = [
+    { value: 10, label: '10 - Placa de acero' },
+    { value: 11, label: '11 - Placa de acero cubierta de asfalto' },
+    { value: 12, label: '12 - Placas verticales / ángulos de acero' },
+    { value: 13, label: '13 - Junta dentada' },
+    { value: 20, label: '20 - Acero con sello fijo de neopreno' },
+    { value: 21, label: '21 - Acero con neopreno comprimido' },
+    { value: 30, label: '30 - Bloque de neopreno' },
+    { value: 40, label: '40 - Junta de goma asfáltica' },
+    { value: 50, label: '50 - No dispositivo de junta' },
+    { value: 51, label: '51 - Junta de cartón asfaltado' },
+    { value: 52, label: '52 - Junta de cartón asfaltado con sello' },
+    { value: 90, label: '90 - Otro' },
+    { value: 91, label: '91 - No aplicable' },
+    { value: 92, label: '92 - Desconocido' },
+    { value: 93, label: '93 - No registrado' }
+  ];
+
+  pileTypeOptions = [
+    { value: 10, label: '10 - Pila sólida' },
+    { value: 20, label: '20 - Columna sola' },
+    { value: 21, label: '21 - 2 ó más columnas sin viga cabezal' },
+    { value: 30, label: '30 - Columna sola con viga cabezal' },
+    { value: 31, label: '31 - 2 ó más columnas con vigas cabezales separadas' },
+    { value: 32, label: '32 - 2 ó más columnas con viga cabezal común' },
+    { value: 33, label: '33 - 2 ó más columnas con viga cabezal común y diafragma' },
+    { value: 40, label: '40 - Pilotes con viga cabezal' },
+    { value: 41, label: '41 - Pilotes con viga cabezal y diafragma' },
+    { value: 50, label: '50 - Mástil (Pilón)' },
+    { value: 60, label: '60 - Torre metálica' },
+    { value: 90, label: '90 - Otro' },
+    { value: 91, label: '91 - No aplicable' },
+    { value: 92, label: '92 - Desconocido' },
+    { value: 93, label: '93 - No registrado' }
+  ];
+  
+  pileMaterialOptions = [...this.stirrupsMaterialOptions]; // mismos que los estribos
+  foundationTypeOptions = [...this.stirrupsFoundationTypeOptions]; // mismos que los estribos
+
+  //apoyos
+  fixedSupportTypes = [
+    { value: 10, label: '10 - Junta de construcción (cartón asfaltado o plomo)' },
+    { value: 20, label: '20 - Balancín de concreto' },
+    { value: 30, label: '30 - Placas de neopreno' },
+    { value: 40, label: '40 - Apoyo fijo de acero' },
+    { value: 41, label: '41 - Apoyo de deslizamiento (acero)' },
+    { value: 42, label: '42 - Balancín de acero' },
+    { value: 43, label: '43 - Apoyos de rodillos (acero)' },
+    { value: 50, label: '50 - Basculante' },
+    { value: 90, label: '90 - Otro' },
+    { value: 91, label: '91 - No aplicable' },
+    { value: 92, label: '92 - Desconocido' },
+    { value: 93, label: '93 - No registrado' },
+  ];
+  
+  loadDistributionClasses = [
+    { value: 'Distribución en dos direcciones', label: 'Distribución en dos direcciones' },
+    { value: 'Distribución en una dirección', label: 'Distribución en una dirección' },
+    { value: 'No distribución', label: 'No distribución' },
+  ];
+  
+  seismicAccelerationCoefficientOptions = [
+    { value: '0.05', label: '0.05' },
+    { value: '0.10', label: '0.10' },
+    { value: '0.15', label: '0.15' },
+    { value: '0.20', label: '0.20' },
+    { value: '0.25', label: '0.25' },
+    { value: '0.30', label: '0.30' },
+    { value: '0.35', label: '0.35' },
+    { value: '0.40', label: '0.40' },
+  ];
+
+  brmOptions = [
+    { value: 'B', label: 'Bueno' },
+    { value: 'R', label: 'Regular' },
+    { value: 'M', label: 'Malo' },
+  ];
+
+  criticalSpanLengthOptions = [
+    { value: 5, label: '5 m' },
+    { value: 10, label: '10 m' },
+    { value: 15, label: '15 m' },
+    { value: 20, label: '20 m' },
+    { value: 25, label: '25 m' },
+    { value: 30, label: '30 m' }
+  ];
+  
+  classificationFactorOptions = [
+    { value: '1.0', label: '1.0' },
+    { value: '1.1', label: '1.1' },
+    { value: '1.2', label: '1.2' },
+    { value: '1.3', label: '1.3' },
+    { value: '1.4', label: '1.4' },
+    { value: '1.5', label: '1.5' },
+  ];
+  
+  linealOptions = [
+    { value: '3.0', label: '3.0 t' },
+    { value: '4.0', label: '4.0 t' },
+    { value: '5.0', label: '5.0 t' },
+    { value: '6.0', label: '6.0 t' },
+    { value: '7.0', label: '7.0 t' },
+    { value: '8.0', label: '8.0 t' },
+  ];
+  
+  
+  
+
+  initForm() {
     this.form = new FormGroup({
-      // Define todos los controles del formulario aquí...
+      observaciones: new FormControl('', Validators.required),
+      puenteId: new FormControl('', Validators.required),
+      usuarioId: new FormControl('', Validators.required),
+
+      // Información General del Puente
       nombre: new FormControl('', Validators.required),
-      identificacionRegional: new FormControl(''),
-      identificacionCarretera: new FormControl(''),
-      identificacionPuente: new FormControl('', {
-        asyncValidators: [this.inventoryService.checkBridgeIdentificationUnique()],
-        updateOn: 'blur'
-      }),
-      carretera: new FormControl(''),
-      pr: new FormControl(''),
-      regional: new FormControl(''),
+      identificador: new FormControl('', Validators.required),
+      carretera: new FormControl('', [Validators.required, Validators.maxLength(10)]),
+      pr: new FormControl('', Validators.required),
+      regional: new FormControl('', Validators.required),
 
-      tipoDePasoUno: new FormControl(''),
-      primeroUno: new FormControl(''),
-      supInfUno: new FormControl(''),
-      galiboIUno: new FormControl(''),
-      galiboIMUno: new FormControl(''),
-      galiboDMUno: new FormControl(''),
-      galiboDUno: new FormControl(''),
+      tipoPaso1: new FormControl('', Validators.required),
+      primero1: new FormControl(false),
+      supInf1: new FormControl(''),
+      galiboI1: new FormControl(null),
+      galiboIm1: new FormControl(null),
+      galiboDm1: new FormControl(null),
+      galiboD1: new FormControl(null),
 
-      tipoDePasoDos: new FormControl(''),
-      primeroDos: new FormControl(''),
-      supInfDos: new FormControl(''),
-      galiboIDos: new FormControl(''),
-      galiboIMDos: new FormControl(''),
-      galiboDMDos: new FormControl(''),
-      galiboDDos: new FormControl(''),
+      tipoPaso2: new FormControl('', Validators.required),
+      primero2: new FormControl(false),
+      supInf2: new FormControl(''),
+      galiboI2: new FormControl(null),
+      galiboIm2: new FormControl(null),
+      galiboDm2: new FormControl(null),
+      galiboD2: new FormControl(null),
 
-      anioConstruccion: new FormControl(''),
+      // datos administrativos
+      anioConstruccion: new FormControl('', Validators.required),
       anioReconstruccion: new FormControl(''),
-      direccionAbs: new FormControl(''),
+      direccionAbscCarretera: new FormControl(''),
       requisitosInspeccion: new FormControl(''),
       numeroSeccionesInspeccion: new FormControl(''),
       estacionConteo: new FormControl(''),
       fechaRecoleccionDatos: new FormControl(''),
-      inicialesInspector: new FormControl(''),
 
-      numeroLuces: new FormControl(''),
-      longitudLuzMenor: new FormControl(''),
-      longitudLuzMayor: new FormControl(''),
-      longitudTotal: new FormControl(''),
-      anchoTablero: new FormControl(''),
-      anchoSeparador: new FormControl(''),
-      anchoAndenIzquierdo: new FormControl(''),
-      anchoAndenDerecho: new FormControl(''),
-      anchoCalzada: new FormControl(''),
-      anchoEntreBordillos: new FormControl(''),
-      anchoAcceso: new FormControl(''),
-      alturaPilas: new FormControl(''),
-      alturaEstribos: new FormControl(''),
-      longitudApoyoPilas: new FormControl(''),
-      longitudApoyoEstribos: new FormControl(''),
-      puenteTerra: new FormControl(''),
-      puenteCurva: new FormControl(''),
-      esviaje: new FormControl(''),
+      // datos técnicos
+      numeroLuces: new FormControl('', Validators.required),
+      longitudLuzMenor: new FormControl('', Validators.required),
+      longitudLuzMayor: new FormControl('', Validators.required),
+      longitudTotal: new FormControl('', Validators.required),
+      anchoTablero: new FormControl('', Validators.required),
+      anchoSeparador: new FormControl('', Validators.required),
+      anchoAndenIzq: new FormControl('', Validators.required),
+      anchoAndenDer: new FormControl('', Validators.required),
+      anchoCalzada: new FormControl('', Validators.required),
+      anchoEntreBordillos: new FormControl('', Validators.required),
+      anchoAcceso: new FormControl('', Validators.required),
+      alturaPilas: new FormControl('', Validators.required),
+      alturaEstribos: new FormControl('', Validators.required),
+      longitudApoyoPilas: new FormControl('', Validators.required),
+      longitudApoyoEstribos: new FormControl('', Validators.required),
+      puenteTerraplen: new FormControl('', Validators.required),
+      puenteCurvaTangente: new FormControl('', Validators.required),
+      esviajamiento: new FormControl('', Validators.required),
 
-      disenoTipo: new FormControl(''),
-      tipoEstructuracionTransversal: new FormControl(''),
-      tipoEstructuracionLongitudinal: new FormControl(''),
-      material: new FormControl(''),
-
-      disenoTipoSec: new FormControl(''),
-      tipoEstructuracionTransversalSec: new FormControl(''),
-      tipoEstructuracionLongitudinalSec: new FormControl(''),
-      materialSec: new FormControl(''),
-
-      tipoEstribos: new FormControl(''),
-      materialEstribos: new FormControl(''),
-      tipoCimentacion: new FormControl(''),
-
-      tipoBaranda: new FormControl(''),
-      superficieRodadura: new FormControl(''),
-      juntaExpansion: new FormControl(''),
-
-      tipoPilas: new FormControl(''),
-      materialPilas: new FormControl(''),
-      tipoCimentacionPilas: new FormControl(''),
-
-      cargaMaxima: new FormControl(''),
-      velocidadMaxima: new FormControl(''),
-      otraInfo: new FormControl(''),
-
-      apoyosFijosEstribos: new FormControl(''),
-      apoyosMovilesEstribos: new FormControl(''),
-      apoyosFijosPilas: new FormControl(''),
-      apoyosMovilesPilas: new FormControl(''),
-      apoyosFijosVigas: new FormControl(''),
-      apoyosMovilesVigas: new FormControl(''),
-      vehiculoDiseno: new FormControl(''),
-      claseCarga: new FormControl(''),
-
-      propietario: new FormControl(''),
-      departamento: new FormControl(''),
-      administradorVial: new FormControl(''),
-      proyectista: new FormControl(''),
-      municipio: new FormControl(''),
-
-      latitudGrado: new FormControl(''),
-      latitudMinuto: new FormControl(''),
-      latitudSegundo: new FormControl(''),
-      longitudGrado: new FormControl(''),
-      longitudMinuto: new FormControl(''),
-      longitudSegundo: new FormControl(''),
-      altitude: new FormControl(''),
-      coefAceleracionSismica: new FormControl(''),
-      pasoCausa: new FormControl(''),
-      existeVariante: new FormControl(''),
-      longitudVariante: new FormControl(''),
-      estado: new FormControl(''),
-
-      longitudLuzCritica: new FormControl(''),
-      factorClasificacion: new FormControl(''),
-      fuerzaCortante: new FormControl(''),
-      momento: new FormControl(''),
-      lineaCargaRueda: new FormControl(''),
-
-      observaciones: new FormControl(''),
-
-      generalImage: new FormControl(''),
-      generalImageUrl: new FormControl(''),
-      technicalImage: new FormControl(''),
-      technicalImageUrl: new FormControl(''),
-      superstructureImage: new FormControl(''),
+      //super estructura
+      disenioTipo: new FormControl('', Validators.required),
+      tipoEstructuracionTransversal: new FormControl('', Validators.required),
+      tipoEstructuracionLongitudinal: new FormControl('', Validators.required),
+      material: new FormControl('', Validators.required),
       superstructureImageUrl: new FormControl(''),
-      superstructureSecondaryImage: new FormControl(''),
-      superstructureSecondaryImageUrl: new FormControl(''),
-      substructureAbutmentsImage: new FormControl(''),
-      substructureAbutmentsImageUrl: new FormControl(''),
-      substructureDetailsImage: new FormControl(''),
-      substructureDetailsImageUrl: new FormControl(''),
-      substructurePilesImage: new FormControl(''),
-      substructurePilesImageUrl: new FormControl(''),
-      substructureSignalsImage: new FormControl(''),
-      substructureSignalsImageUrl: new FormControl(''),
-      supportsImage: new FormControl(''),
-      supportsImageUrl: new FormControl(''),
-      observationsImage: new FormControl(''),
-      observationsImageUrl: new FormControl(''),
-    });
 
-    if (this.isEditMode) {
-      this.form.get('identificacionPuente')?.clearAsyncValidators();
-    }
+      //subestuctura
+
+      disenoTipoSec: new FormControl('', Validators.required),
+      tipoEstructuracionTransversalSec: new FormControl('', Validators.required),
+      tipoEstructuracionLongitudinalSec: new FormControl('', Validators.required),
+      materialSec: new FormControl('', Validators.required),
+      superstructureSecondaryImageUrl: new FormControl(''),
+
+
+      // Subestructura - Estribos
+      tipoEstribos: new FormControl('', Validators.required),
+      materialEstribos: new FormControl('', Validators.required),
+      tipoCimentacion: new FormControl('', Validators.required),
+      substructureAbutmentsImageUrl: new FormControl(''),
+
+      // Subestructura - Detalles
+      tipoBaranda: new FormControl('', Validators.required),
+      superficieRodadura: new FormControl('', Validators.required),
+      juntaExpansion: new FormControl('', Validators.required),
+      substructureDetailsImageUrl: new FormControl(''),
+
+      // Subestructura - Pilas
+      tipoPilas: new FormControl('', Validators.required),
+      materialPilas: new FormControl('', Validators.required),
+      tipoCimentacionPilas: new FormControl('', Validators.required),
+      substructurePilesImageUrl: new FormControl(''),
+
+      // Subestructura - Señales
+      cargaMaxima: new FormControl('', Validators.required),
+      velocidadMaxima: new FormControl('', Validators.required),
+      otraInfo: new FormControl('', Validators.required),
+      substructureSignalsImageUrl: new FormControl(''),
+
+      //apoyos
+      fijoSobreEstribo: new FormControl('', Validators.required),
+      movilSobreEstribo: new FormControl('', Validators.required),
+      fijoEnPila: new FormControl('', Validators.required),
+      movilEnPila: new FormControl('', Validators.required),
+      fijoEnViga: new FormControl('', Validators.required),
+      movilEnViga: new FormControl('', Validators.required),
+      vehiculoDiseno: new FormControl('', Validators.required),
+      claseDistribucionCarga: new FormControl('', Validators.required),
+      supportsImageUrl: new FormControl(''),
+
+      //miembros interesados
+      propietario: new FormControl('', Validators.required),
+      departamento: new FormControl('', Validators.required),
+      administradorVial: new FormControl('', Validators.required),
+      proyectista: new FormControl('', Validators.required),
+      municipio: new FormControl('', Validators.required),
+
+      // Posición Geográfica
+      latitud: new FormControl(null, Validators.required),
+      longitud: new FormControl(null, Validators.required),
+      altitud: new FormControl(null, Validators.required),
+      coeficienteAceleracionSismica: new FormControl('', Validators.required),
+      pasoCauce: new FormControl('', Validators.required),
+      existeVariante: new FormControl('', Validators.required),
+      longitudVariante: new FormControl(null),
+      estado: new FormControl('', Validators.required),
+
+      // Carga - Tránsito legal y transportes
+      longitudLuzCritica: new FormControl('', Validators.required),
+      factorClasificacion: new FormControl('', Validators.required),
+      fuerzaCortante: new FormControl('', Validators.required),
+      momento: new FormControl('', Validators.required),
+      lineaCargaPorRueda: new FormControl('', Validators.required),
+
+      observationsImageUrl: new FormControl('')
+    });
 
     if (this.isViewMode) {
       this.form.disable();
     }
-
-    console.log('Form initialized:', this.form);
   }
 
-  async loadInventoryData(bridgeIdentification: string) {
-    const inventoryResult = await this.inventoryService.getInventoryByBridgeIdentification(bridgeIdentification);
-    if (inventoryResult) {
-      const { id, data: inventory } = inventoryResult;
-      this.documentId = id;
+  async loadInventoryData(id: number) {
+    try {
+      const result = await firstValueFrom(this.inventoryService.getInventories());
+      const inventory = result.find(inv => inv.id === id);
+
+      if (!inventory) return;
+
       this.form.patchValue({
-        nombre: inventory.generalInformation.name,
-        identificacionRegional: inventory.generalInformation.regionalIdentification,
-        identificacionCarretera: inventory.generalInformation.roadIdentification,
-        identificacionPuente: inventory.generalInformation.bridgeIdentification,
-        carretera: inventory.generalInformation.road,
-        pr: inventory.generalInformation.pr,
-        regional: inventory.generalInformation.regional,
-
-        tipoDePasoUno: inventory.steps.stepTypeOne,
-        primeroUno: inventory.steps.firstOne,
-        supInfUno: inventory.steps.supInfOne,
-        galiboIUno: inventory.steps.clearanceIOne,
-        galiboIMUno: inventory.steps.clearanceIMOne,
-        galiboDMUno: inventory.steps.clearanceDMOne,
-        galiboDUno: inventory.steps.clearanceDOne,
-
-        tipoDePasoDos: inventory.steps.stepTypeTwo,
-        primeroDos: inventory.steps.firstTwo,
-        supInfDos: inventory.steps.supInfTwo,
-        galiboIDos: inventory.steps.clearanceITwo,
-        galiboIMDos: inventory.steps.clearanceIMTwo,
-        galiboDMDos: inventory.steps.clearanceDMTwo,
-        galiboDDos: inventory.steps.clearanceDTwo,
-
-        anioConstruccion: inventory.administrativeData.constructionYear,
-        anioReconstruccion: inventory.administrativeData.reconstructionYear,
-        direccionAbs: inventory.administrativeData.absDirection,
-        requisitosInspeccion: inventory.administrativeData.inspectionRequirements,
-        numeroSeccionesInspeccion: inventory.administrativeData.inspectionSectionsNumber,
-        estacionConteo: inventory.administrativeData.countingStation,
-        fechaRecoleccionDatos: inventory.administrativeData.dataCollectionDate ? new Date(inventory.administrativeData.dataCollectionDate).toISOString().substring(0, 10) : '',
-        inicialesInspector: inventory.administrativeData.inspectorInitials,
-
-        numeroLuces: inventory.technicalData.lightsNumber,
-        longitudLuzMenor: inventory.technicalData.minorSpanLength,
-        longitudLuzMayor: inventory.technicalData.majorSpanLength,
-        longitudTotal: inventory.technicalData.totalLength,
-        anchoTablero: inventory.technicalData.boardWidth,
-        anchoSeparador: inventory.technicalData.separatorWidth,
-        anchoAndenIzquierdo: inventory.technicalData.leftSidewalkWidth,
-        anchoAndenDerecho: inventory.technicalData.rightSidewalkWidth,
-        anchoCalzada: inventory.technicalData.roadwayWidth,
-        anchoEntreBordillos: inventory.technicalData.curbWidth,
-        anchoAcceso: inventory.technicalData.accessWidth,
-        alturaPilas: inventory.technicalData.pileHeight,
-        alturaEstribos: inventory.technicalData.abutmentHeight,
-        longitudApoyoPilas: inventory.technicalData.supportLengthOnPiles,
-        longitudApoyoEstribos: inventory.technicalData.supportLengthOnAbutments,
-        puenteTerra: inventory.technicalData.embankmentBridge,
-        puenteCurva: inventory.technicalData.curveBridge,
-        esviaje: inventory.technicalData.skewAngle,
-
-        disenoTipo: inventory.superstructurePrimary.designType,
-        tipoEstructuracionTransversal: inventory.superstructurePrimary.transversalStructuringType,
-        tipoEstructuracionLongitudinal: inventory.superstructurePrimary.longitudinalStructuringType,
-        material: inventory.superstructurePrimary.material,
-
-        disenoTipoSec: inventory.superstructureSecondary.designType,
-        tipoEstructuracionTransversalSec: inventory.superstructureSecondary.transversalStructuringType,
-        tipoEstructuracionLongitudinalSec: inventory.superstructureSecondary.longitudinalStructuringType,
-        materialSec: inventory.superstructureSecondary.material,
-
-        tipoEstribos: inventory.substructureAbutments.type,
-        materialEstribos: inventory.substructureAbutments.material,
-        tipoCimentacion: inventory.substructureAbutments.foundationType,
-
-        tipoBaranda: inventory.substructureDetails.railingType,
-        superficieRodadura: inventory.substructureDetails.roadwaySurface,
-        juntaExpansion: inventory.substructureDetails.expansionJoint,
-
-        tipoPilas: inventory.substructurePiles.type,
-        materialPilas: inventory.substructurePiles.material,
-        tipoCimentacionPilas: inventory.substructurePiles.foundationType,
-
-        cargaMaxima: inventory.substructureSignals.maxLoad,
-        velocidadMaxima: inventory.substructureSignals.maxSpeed,
-        otraInfo: inventory.substructureSignals.otherInfo,
-
-        apoyosFijosEstribos: inventory.supports.fixedSupportsOnAbutments,
-        apoyosMovilesEstribos: inventory.supports.movableSupportsOnAbutments,
-        apoyosFijosPilas: inventory.supports.fixedSupportsOnPiles,
-        apoyosMovilesPilas: inventory.supports.movableSupportsOnPiles,
-        apoyosFijosVigas: inventory.supports.fixedSupportsOnBeams,
-        apoyosMovilesVigas: inventory.supports.movableSupportsOnBeams,
-        vehiculoDiseno: inventory.supports.designVehicle,
-        claseCarga: inventory.supports.loadDistributionClass,
-
-        propietario: inventory.stakeholders.owner,
-        departamento: inventory.stakeholders.department,
-        administradorVial: inventory.stakeholders.roadManager,
-        proyectista: inventory.stakeholders.designer,
-        municipio: inventory.stakeholders.municipality,
-
-        latitudGrado: inventory.geographicPosition.latitudeDegree,
-        latitudMinuto: inventory.geographicPosition.latitudeMinute,
-        latitudSegundo: inventory.geographicPosition.latitudeSecond,
-        longitudGrado: inventory.geographicPosition.longitudeDegree,
-        longitudMinuto: inventory.geographicPosition.longitudeMinute,
-        longitudSegundo: inventory.geographicPosition.longitudeSecond,
-        altitude: inventory.geographicPosition.altitude,
-        coefAceleracionSismica: inventory.geographicPosition.seismicAccelerationCoefficient,
-        pasoCausa: inventory.geographicPosition.causewayPassage,
-        existeVariante: inventory.geographicPosition.variantExists,
-        longitudVariante: inventory.geographicPosition.variantLength,
-        estado: inventory.geographicPosition.condition,
-
-        longitudLuzCritica: inventory.legalTrafficLoadCapacity.criticalSpanLength,
-        factorClasificacion: inventory.legalTrafficLoadCapacity.classificationFactor,
-        fuerzaCortante: inventory.transportLoadCapacity.shearForce,
-        momento: inventory.transportLoadCapacity.moment,
-        lineaCargaRueda: inventory.transportLoadCapacity.wheelLoadLine,
-
-        observaciones: inventory.observations.notes,
-
-        generalImageUrl: inventory.generalInformation.image,
-        technicalImageUrl: inventory.technicalData.geoImage,
-        superstructureImageUrl: inventory.superstructurePrimary.image,
-        superstructureSecondaryImageUrl: inventory.superstructureSecondary.image,
-        substructureAbutmentsImageUrl: inventory.substructureAbutments.image,
-        substructureDetailsImageUrl: inventory.substructureDetails.image,
-        substructurePilesImageUrl: inventory.substructurePiles.image,
-        substructureSignalsImageUrl: inventory.substructureSignals.image,
-        supportsImageUrl: inventory.supports.image,
-        observationsImageUrl: inventory.observations.image,
-
+        observaciones: inventory.observaciones,
+        puenteId: inventory.puenteId,
+        usuarioId: inventory.usuarioId,
       });
+    } catch (error) {
+      console.error('Error cargando datos del inventario:', error);
     }
   }
 
-  get f() {
-    return this.form.controls;
+  async onSubmit() {
+    this.formSubmitted = true;
+    if (!this.form) return;
+    if (this.form.invalid) return;
+
+    const inventory: Inventory = {
+      observaciones: this.form.value.observaciones,
+      puenteId: +this.form.value.puenteId,
+      usuarioId: +this.form.value.usuarioId,
+      fecha: new Date()
+    };
+
+    try {
+      if (this.isEditMode && this.editingInventoryId) {
+        await this.inventoryService.updateInventory(this.editingInventoryId.toString(), inventory);
+      } else {
+        await this.inventoryService.createInventory(inventory);
+      }
+      this.router.navigate(['/home/bridge-management/inventories']);
+    } catch (error) {
+      console.error('Error submitting form', error);
+    }
   }
 
   campoInvalido(campo: string) {
@@ -403,209 +483,16 @@ export class InventoryFormComponent implements OnInit {
     return control && control.touched && control.invalid;
   }
 
+  get f() {
+    return this.form.controls;
+  }
+
   onFileChange(event: any, controlName: string) {
     const file = event.target.files[0];
     if (file) {
-      this.imageFiles[controlName] = file;
       this.form.get(controlName)?.setValue(file);
       this.form.get(`${controlName}Url`)?.setValue(file.name);
     }
   }
-
-  hasImageField(obj: any): obj is { image?: string } {
-    return obj && typeof obj === 'object' && 'image' in obj;
-  }
-
-  async onSubmit() {
-    this.formSubmitted = true;
-    console.log('Form submitted:', this.form.value);
-    
-    if (this.form.valid) {
-      if (!this.form.get('identificacionPuente')?.value) {
-        const generatedId = await this.generateBridgeIdentification();
-        this.form.get('identificacionPuente')?.setValue(generatedId);
-      }
-      const inventory: Inventory = {
-        inventoryDate: new Date(),
-        generalInformation: {
-          name: this.form.value.nombre,
-          image: "",
-          regionalIdentification: this.form.value.identificacionRegional,
-          roadIdentification: this.form.value.identificacionCarretera,
-          bridgeIdentification: this.form.get('identificacionPuente')?.value,
-          road: this.form.value.carretera,
-          pr: this.form.value.pr,
-          regional: this.form.value.regional,
-        },
-        steps: {
-          stepTypeOne: this.form.value.tipoDePasoUno,
-          firstOne: this.form.value.primeroUno,
-          supInfOne: this.form.value.supInfUno,
-          clearanceIOne: this.form.value.galiboIUno,
-          clearanceIMOne: this.form.value.galiboIMUno,
-          clearanceDMOne: this.form.value.galiboDMUno,
-          clearanceDOne: this.form.value.galiboDUno,
-          stepTypeTwo: this.form.value.tipoDePasoDos,
-          firstTwo: this.form.value.primeroDos,
-          supInfTwo: this.form.value.supInfDos,
-          clearanceITwo: this.form.value.galiboIDos,
-          clearanceIMTwo: this.form.value.galiboIMDos,
-          clearanceDMTwo: this.form.value.galiboDMDos,
-          clearanceDTwo: this.form.value.galiboDDos,
-        },
-        administrativeData: {
-          constructionYear: this.form.value.anioConstruccion,
-          reconstructionYear: this.form.value.anioReconstruccion,
-          absDirection: this.form.value.direccionAbs,
-          inspectionRequirements: this.form.value.requisitosInspeccion,
-          inspectionSectionsNumber: this.form.value.numeroSeccionesInspeccion,
-          countingStation: this.form.value.estacionConteo,
-          dataCollectionDate: this.form.value.fechaRecoleccionDatos,
-          inspectorInitials: this.form.value.inicialesInspector,
-        },
-        technicalData: {
-          lightsNumber: this.form.value.numeroLuces,
-          minorSpanLength: this.form.value.longitudLuzMenor,
-          majorSpanLength: this.form.value.longitudLuzMayor,
-          totalLength: this.form.value.longitudTotal,
-          boardWidth: this.form.value.anchoTablero,
-          separatorWidth: this.form.value.anchoSeparador,
-          leftSidewalkWidth: this.form.value.anchoAndenIzquierdo,
-          rightSidewalkWidth: this.form.value.anchoAndenDerecho,
-          roadwayWidth: this.form.value.anchoCalzada,
-          curbWidth: this.form.value.anchoEntreBordillos,
-          accessWidth: this.form.value.anchoAcceso,
-          pileHeight: this.form.value.alturaPilas,
-          abutmentHeight: this.form.value.alturaEstribos,
-          supportLengthOnPiles: this.form.value.longitudApoyoPilas,
-          supportLengthOnAbutments: this.form.value.longitudApoyoEstribos,
-          embankmentBridge: this.form.value.puenteTerra,
-          curveBridge: this.form.value.puenteCurva,
-          skewAngle: this.form.value.esviaje,
-          geoImage: "",
-        },
-        superstructurePrimary: {
-          designType: this.form.value.disenoTipo,
-          transversalStructuringType: this.form.value.tipoEstructuracionTransversal,
-          longitudinalStructuringType: this.form.value.tipoEstructuracionLongitudinal,
-          material: this.form.value.material,
-          image: "",
-        },
-        superstructureSecondary: {
-          designType: this.form.value.disenoTipoSec,
-          transversalStructuringType: this.form.value.tipoEstructuracionTransversalSec,
-          longitudinalStructuringType: this.form.value.tipoEstructuracionLongitudinalSec,
-          material: this.form.value.materialSec,
-          image: "",
-        },
-        substructureAbutments: {
-          type: this.form.value.tipoEstribos,
-          material: this.form.value.materialEstribos,
-          foundationType: this.form.value.tipoCimentacion,
-          image: "",
-        },
-        substructureDetails: {
-          railingType: this.form.value.tipoBaranda,
-          roadwaySurface: this.form.value.superficieRodadura,
-          expansionJoint: this.form.value.juntaExpansion,
-          image: "",
-        },
-        substructurePiles: {
-          type: this.form.value.tipoPilas,
-          material: this.form.value.materialPilas,
-          foundationType: this.form.value.tipoCimentacionPilas,
-          image: "",
-        },
-        substructureSignals: {
-          maxLoad: this.form.value.cargaMaxima,
-          maxSpeed: this.form.value.velocidadMaxima,
-          otherInfo: this.form.value.otraInfo,
-          image: "",
-        },
-        supports: {
-          fixedSupportsOnAbutments: this.form.value.apoyosFijosEstribos,
-          movableSupportsOnAbutments: this.form.value.apoyosMovilesEstribos,
-          fixedSupportsOnPiles: this.form.value.apoyosFijosPilas,
-          movableSupportsOnPiles: this.form.value.apoyosMovilesPilas,
-          fixedSupportsOnBeams: this.form.value.apoyosFijosVigas,
-          movableSupportsOnBeams: this.form.value.apoyosMovilesVigas,
-          designVehicle: this.form.value.vehiculoDiseno,
-          loadDistributionClass: this.form.value.claseCarga,
-          image: "",
-        },
-        stakeholders: {
-          owner: this.form.value.propietario,
-          department: this.form.value.departamento,
-          roadManager: this.form.value.administradorVial,
-          designer: this.form.value.proyectista,
-          municipality: this.form.value.municipio,
-        },
-        geographicPosition: {
-          latitudeDegree: this.form.value.latitudGrado,
-          latitudeMinute: this.form.value.latitudMinuto,
-          latitudeSecond: this.form.value.latitudSegundo,
-          longitudeDegree: this.form.value.longitudGrado,
-          longitudeMinute: this.form.value.longitudMinuto,
-          longitudeSecond: this.form.value.longitudSegundo,
-          altitude: this.form.value.altitude,
-          seismicAccelerationCoefficient: this.form.value.coefAceleracionSismica,
-          causewayPassage: this.form.value.pasoCausa,
-          variantExists: this.form.value.existeVariante,
-          variantLength: this.form.value.longitudVariante,
-          condition: this.form.value.estado,
-        },
-        legalTrafficLoadCapacity: {
-          criticalSpanLength: this.form.value.longitudLuzCritica,
-          classificationFactor: this.form.value.factorClasificacion,
-        },
-        transportLoadCapacity: {
-          shearForce: this.form.value.fuerzaCortante,
-          moment: this.form.value.momento,
-          wheelLoadLine: this.form.value.lineaCargaRueda,
-        },
-        observations: {
-          notes: this.form.value.observaciones,
-          image: "",
-        }
-      };
-
-      const imageUrls: { [key: string]: string } = {};
-
-      for (const key in imageFields) {
-        if (this.imageFiles[key]) {
-          const filePath = `images/${inventory.generalInformation.bridgeIdentification}/${key}_${new Date().getTime()}`;
-          imageUrls[key] = await this.inventoryService.uploadImage(this.imageFiles[key], filePath);
-        }
-      }
-
-      for (const key in imageUrls) {
-        setImageUrl(inventory, key, imageUrls[key]);
-      }
-
-      if (this.isEditMode && this.documentId) {
-        await this.inventoryService.updateInventory(this.documentId, inventory);
-      } else {
-        await this.inventoryService.createInventory(inventory);
-      }
-
-      this.router.navigate(['/home/bridge-management/inventories']);
-    }
-  }
   
-  async generateBridgeIdentification(): Promise<string> {
-    let id = 0;
-    let isUnique = false;
-  
-    while (!isUnique) {
-      const idString = id.toString();
-  
-      const exists = await this.inventoryService.checkBridgeIdentificationExists(idString);
-      if (!exists) {
-        isUnique = true;
-        return idString;
-      }
-      id++;
-    }
-    return '';
-  }
 }

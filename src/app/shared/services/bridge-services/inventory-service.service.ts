@@ -52,6 +52,23 @@ export class InventoryServiceService {
     return collectionData(queryRef, { idField: 'id' }) as Observable<Inventory[]>;
   }
 
+  async getInventoryById(id: string): Promise<Inventory | undefined> {
+    try {
+      const docRef = doc(this.firestore, `inventories/${id}`);
+      const docSnap = await getDoc(docRef);
+      if (docSnap.exists()) {
+        return docSnap.data() as Inventory;
+      } else {
+        console.warn(`No se encontró inventario con ID: ${id}`);
+        return undefined;
+      }
+    } catch (error) {
+      console.error('Error al obtener inventario por ID:', error);
+      return undefined;
+    }
+  }
+  
+
   async getBridgeName(bridgeIdentification: string): Promise<string | undefined> {
     try {
       const q = query(this.collection, where('generalInformation.bridgeIdentification', '==', bridgeIdentification));

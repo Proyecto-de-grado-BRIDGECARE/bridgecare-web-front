@@ -1,42 +1,37 @@
 import { Component, OnInit } from '@angular/core';
-import { Router } from "@angular/router";
-import { Inventory } from "../../../../models/bridge/inventory";
-import { InventoryServiceService } from "../../../services/bridge-services/inventory-service.service";
-import { NgForOf, DatePipe, CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
+import { Inventory } from '../../../../models/bridge/inventory';
+import { InventoryServiceService } from '../../../services/bridge-services/inventory-service.service';
+import { NgForOf, CommonModule } from '@angular/common';
 import { AuthService } from '../../../services/auth/auth.service';
 
 @Component({
-    selector: 'app-table-inventories',
-    imports: [
-        DatePipe,
-        NgForOf,
-        CommonModule
-    ],
-    templateUrl: './table-inventories.component.html',
-    styleUrl: './table-inventories.component.css'
+  selector: 'app-table-inventories',
+  imports: [
+    NgForOf,
+    CommonModule
+  ],
+  templateUrl: './table-inventories.component.html',
+  styleUrl: './table-inventories.component.css'
 })
 export class TableInventoriesComponent implements OnInit {
   inventories: Inventory[] = [];
   isPrivilegedUser$ = this.authService.isPrivilegedUser$;
 
-  constructor(private inventoryService: InventoryServiceService, private router: Router, private authService: AuthService) {}
+  constructor(
+    private inventoryService: InventoryServiceService,
+    private router: Router,
+    private authService: AuthService
+  ) {}
 
   ngOnInit() {
-    this.authService.userMunicipality$.subscribe(municipality => {
-      if (municipality) {
-        this.inventoryService.getInventoriesByMunicipality(municipality).subscribe((data: Inventory[]) => {
-          this.inventories = data.map(inventory => ({
-            ...inventory,
-            inventoryDate: (inventory.inventoryDate as any).toDate()
-          }));
-        });
-      } else {
-        this.inventoryService.getInventories().subscribe((data: Inventory[]) => {
-          this.inventories = data.map(inventory => ({
-            ...inventory,
-            inventoryDate: (inventory.inventoryDate as any).toDate()
-          }));
-        });
+    // En esta versión solo se obtienen todos los inventarios, sin filtro por municipio
+    this.inventoryService.getInventories().subscribe({
+      next: (data: Inventory[]) => {
+        this.inventories = data;
+      },
+      error: (err) => {
+        console.error('Error al obtener inventarios:', err);
       }
     });
   }
@@ -45,25 +40,25 @@ export class TableInventoriesComponent implements OnInit {
     this.router.navigate(['home/bridge-management/inventories/inventory-bridge']);
   }
 
-  navigateToInspections(bridgeId: string) {
-    this.router.navigate([`home/bridge-management/inventories/${bridgeId}/inspections`]);
+  navigateToInspections(puenteId: string) {
+    this.router.navigate([`home/bridge-management/inventories/${puenteId}/inspections`]);
   }
 
-  navigateToEditInventory(bridgeId: string, event: MouseEvent) {
-    event.stopPropagation(); // Detiene la propagación del evento de clic
-    this.router.navigate([`home/bridge-management/inventories/${bridgeId}/inventory-bridge`]);
+  navigateToEditInventory(puenteId: string, event: MouseEvent) {
+    event.stopPropagation();
+    this.router.navigate([`home/bridge-management/inventories/${puenteId}/inventory-bridge`]);
   }
 
-  navigateToViewInventory(bridgeId: string, event: MouseEvent) {
-    event.stopPropagation(); // Detiene la propagación del evento de clic
-    this.router.navigate([`home/bridge-management/inventories/${bridgeId}/view-inventory-bridge`]);
+  navigateToViewInventory(puenteId: string, event: MouseEvent) {
+    event.stopPropagation();
+    this.router.navigate([`home/bridge-management/inventories/${puenteId}/view-inventory-bridge`]);
   }
 
-  deleteInventory(bridgeIdentification: string, event: MouseEvent) {
-    event.stopPropagation(); // Detiene la propagación del evento de clic
+  deleteInventory(puenteId: string, event: MouseEvent) {
+    event.stopPropagation();
     if (confirm('¿Estás seguro de que deseas eliminar este inventario?')) {
-      this.inventoryService.deleteInventory(bridgeIdentification).then(() => {
-        this.inventories = this.inventories.filter(inventory => inventory.generalInformation.bridgeIdentification !== bridgeIdentification);
+      this.inventoryService.deleteInventory(puenteId).then(() => {
+        this.inventories = this.inventories.filter(inventory => inventory.puenteId.toString() !== puenteId);
       }).catch(error => {
         console.error('Error al eliminar el inventario:', error);
       });

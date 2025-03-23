@@ -81,7 +81,7 @@ export class TableUsersComponent {
   async changeQuery(query: string) {
     try {
       const users = await this._usersService.searchUserByQuery(query);
-      this.users$ = of(users);
+      this.users$ = users;
     } catch (error) {}
   }
 
@@ -151,7 +151,7 @@ export class TableUsersComponent {
     await this.updateCurrentUser();
     if (this.currentUser) {
       try {
-        await this._usersService.updateUser(this.currentUser.id, this.currentUser);
+        await this._usersService.updateUser(+this.currentUser.id, this.currentUser);
         swal('Éxito', 'Usuario actualizado correctamente', 'success').then(() => {
           const editModalElement = document.getElementById('editModal');
           const editModal = bootstrap.Modal.getInstance(editModalElement);
@@ -166,7 +166,7 @@ export class TableUsersComponent {
   async onSubmitDelete() {
     try {
       if (this.currentUser) {
-        await this._usersService.deleteUser(this.currentUser.id);
+        await this._usersService.deleteUser(+this.currentUser.id);
         swal('Éxito', 'Usuario eliminado correctamente', 'success');
       }
     } catch (error) {

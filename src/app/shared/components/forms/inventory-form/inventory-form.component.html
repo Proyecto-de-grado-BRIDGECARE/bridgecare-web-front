@@ -4,156 +4,170 @@
   <form [formGroup]="form">
     <div class="card my-3">
       <div class="card-header">
-        INFORMACION GENERAL
+        INFORMACIÓN GENERAL DEL PUENTE
       </div>
       <div class="card-body">
-        <!-- Primera parte -->
         <div class="row g-3">
+          <!-- Nombre -->
           <div class="col-md-4">
             <label>Nombre</label>
-            <input type="text" [readonly]="isViewMode"  class="form-control" placeholder="Nombre" formControlName="nombre"
-                   [class.is-invalid]="campoInvalido('nombre')">
+            <input type="text" class="form-control" formControlName="nombre" placeholder="Nombre"
+                   [readonly]="isViewMode" [class.is-invalid]="campoInvalido('nombre')">
             <div *ngIf="campoInvalido('nombre')" class="text-danger">
-              Por favor completa este campo con el nombre.
+              Por favor completa el nombre.
             </div>
           </div>
-          <div class="col-md-8">
-            <label>Imagen</label>
-            <input *ngIf="!isViewMode" type="file" class="form-control" (change)="onFileChange($event, 'generalImage')" #generalImageInput>
-            <input type="hidden" formControlName="generalImageUrl">
-            <div *ngIf="form.get('generalImageUrl')?.value">
-              <a href="{{ form.get('generalImageUrl')?.value }}" target="_blank"> Imagen Subida </a>
+    
+          <!-- Identificador -->
+          <div class="col-md-4">
+            <label>Identificador</label>
+            <input type="text" class="form-control" formControlName="identificador" placeholder="Identificador"
+                   [readonly]="isViewMode" [class.is-invalid]="campoInvalido('identificador')">
+            <div *ngIf="campoInvalido('identificador')" class="text-danger">
+              Por favor completa el identificador.
             </div>
           </div>
-        </div>
-
-        <!-- Segunda parte -->
-        <div class="row g-3 mt-2">
-          <div class="col-md-4">
-            <label>Identificacion Regional</label>
-            <input type="text" [readonly]="isViewMode" class="form-control" placeholder="Regional" formControlName="identificacionRegional">
-          </div>
-          <div class="col-md-4">
-            <label>Identificacion Carretera</label>
-            <input type="text" [readonly]="isViewMode" class="form-control" placeholder="Carretera" formControlName="identificacionCarretera">
-          </div>
-          <div class="col-md-4">
-            <label>Identificacion Puente</label>
-            <input type="text" [readonly]="isViewMode" class="form-control" placeholder="Identificación" formControlName="identificacionPuente">
-          </div>
-        </div>
-
-        <!-- Tercera parte -->
-        <div class="row mt-3">
+    
+          <!-- Carretera -->
           <div class="col-md-4">
             <label>Carretera</label>
-            <input type="text" [readonly]="isViewMode" class="form-control" placeholder="Carretera" formControlName="carretera">
+            <input type="text" class="form-control" formControlName="carretera" placeholder="Carretera"
+                   maxlength="10" [readonly]="isViewMode">
           </div>
+        </div>
+    
+        <div class="row g-3 mt-2">
+          <!-- PR -->
           <div class="col-md-4">
             <label>PR</label>
-            <input type="text" [readonly]="isViewMode" class="form-control" placeholder="PR" formControlName="pr">
+            <input type="text" class="form-control" formControlName="pr" placeholder="PR"
+                   [readonly]="isViewMode">
           </div>
+    
+          <!-- Regional -->
           <div class="col-md-4">
             <label>Regional</label>
-            <input type="text" [readonly]="isViewMode" class="form-control" placeholder="Regional" formControlName="regional">
+            <select class="form-control" formControlName="regional" [disabled]="isViewMode">
+              <option value="">Selecciona una opción</option>
+              <option *ngFor="let option of regionalOptions" [value]="option">{{ option }}</option>
+            </select>
           </div>
         </div>
       </div>
     </div>
+    
     <!-- Sección de Datos Pasos -->
     <div class="card my-3">
-      <div class="card-header">
-        PASOS
-      </div>
+      <div class="card-header">PASOS</div>
       <div class="card-body">
+        <!-- Paso 1 -->
         <div class="row g-3">
           <div class="col-md-1">
-            <label> No. Paso</label>
-            <input type="text" readonly class="form-control-plaintext" value="1">
+            <label>No. Paso</label>
+            <input type="text" class="form-control-plaintext" value="1" readonly>
           </div>
+    
           <div class="col">
             <label>Tipo de Paso</label>
-            <select class="form-control" [disabled]="isViewMode" formControlName="tipoDePasoUno">
-              <option value="">Selecciona una opción</option>
-              <option *ngFor="let option of typeStepOptions" [value]="option.value">{{ option.label }}</option>
+            <select class="form-control" formControlName="tipoPaso1" [disabled]="isViewMode">
+              <option value="">Seleccione</option>
+              <option value="S">S</option>
+              <option value="I">I</option>
             </select>
           </div>
+    
           <div class="col-md-1">
             <label>Primero</label>
-            <select class="form-control" [disabled]="isViewMode" formControlName="primeroUno">
-              <option value="">Selecciona una opción</option>
-              <option *ngFor="let option of snOptions" [value]="option.value">{{ option.label }}</option>
+            <select class="form-control" formControlName="primero1" [disabled]="isViewMode">
+              <option [value]="true">Sí</option>
+              <option [value]="false">No</option>
             </select>
           </div>
+    
           <div class="col-md-1">
             <label>Sup/Inf</label>
-            <select class="form-control"[disabled]="isViewMode"  formControlName="supInfUno">
-              <option value="">Selecciona una opción</option>
-              <option *ngFor="let option of siOptions" [value]="option.value">{{ option.label }}</option>
+            <select class="form-control" formControlName="supInf1" [disabled]="isViewMode">
+              <option value="S">S</option>
+              <option value="I">I</option>
             </select>
           </div>
+    
           <div class="col">
-            <label>Galibo (I)</label>
-            <input type="text" [readonly]="isViewMode" class="form-control" placeholder="I" formControlName="galiboIUno">
+            <label>Galibo I (m)</label>
+            <input type="number" class="form-control" formControlName="galiboI1" [readonly]="isViewMode">
           </div>
+    
           <div class="col">
-            <label>Galibo (IM)</label>
-            <input type="text" [readonly]="isViewMode" class="form-control" [disabled]="isViewMode"placeholder="IM" formControlName="galiboIMUno">
+            <label>Galibo IM (m)</label>
+            <input type="number" class="form-control" formControlName="galiboIm1" [readonly]="isViewMode">
           </div>
+    
           <div class="col">
-            <label> Galibo (DM)</label>
-            <input type="text" [readonly]="isViewMode" class="form-control" placeholder="DM" formControlName="galiboDMUno">
+            <label>Galibo DM (m)</label>
+            <input type="number" class="form-control" formControlName="galiboDm1" [readonly]="isViewMode">
           </div>
+    
           <div class="col">
-            <label> Galibo (D)</label>
-            <input type="text" [readonly]="isViewMode" class="form-control" placeholder="D" formControlName="galiboDUno">
+            <label>Galibo D (m)</label>
+            <input type="number" class="form-control" formControlName="galiboD1" [readonly]="isViewMode">
           </div>
         </div>
-        <div class="row g-3">
+    
+        <!-- Paso 2 -->
+        <div class="row g-3 mt-3">
           <div class="col-md-1">
-            <label> No. Paso</label>
-            <input type="text" readonly class="form-control-plaintext" value="2">
+            <label>No. Paso</label>
+            <input type="text" class="form-control-plaintext" value="2" readonly>
           </div>
+    
           <div class="col">
             <label>Tipo de Paso</label>
-            <select class="form-control" formControlName="tipoDePasoDos">
-              <option value="">Selecciona una opción</option>
-              <option *ngFor="let option of typeStepOptions" [value]="option.value">{{ option.label }}</option>
+            <select class="form-control" formControlName="tipoPaso2" [disabled]="isViewMode">
+              <option value="">Seleccione</option>
+              <option value="S">S</option>
+              <option value="I">I</option>
             </select>
           </div>
+    
           <div class="col-md-1">
             <label>Primero</label>
-            <select class="form-control" formControlName="primeroDos">
-              <option value="">Selecciona una opción</option>
-              <option *ngFor="let option of snOptions" [value]="option.value">{{ option.label }}</option>
+            <select class="form-control" formControlName="primero2" [disabled]="isViewMode">
+              <option [value]="true">Sí</option>
+              <option [value]="false">No</option>
             </select>
           </div>
+    
           <div class="col-md-1">
             <label>Sup/Inf</label>
-            <select class="form-control" formControlName="supInfDos">
-              <option value="">Selecciona una opción</option>
-              <option *ngFor="let option of siOptions" [value]="option.value">{{ option.label }}</option>
+            <select class="form-control" formControlName="supInf2" [disabled]="isViewMode">
+              <option value="S">S</option>
+              <option value="I">I</option>
             </select>
           </div>
+    
           <div class="col">
-            <label>Galibo (I)</label>
-            <input type="text"  [readonly]="isViewMode" class="form-control" placeholder="I" formControlName="galiboIDos">
+            <label>Galibo I (m)</label>
+            <input type="number" class="form-control" formControlName="galiboI2" [readonly]="isViewMode">
           </div>
+    
           <div class="col">
-            <label>Galibo (IM)</label>
-            <input type="text" [readonly]="isViewMode" class="form-control" placeholder="IM" formControlName="galiboIMDos">
+            <label>Galibo IM (m)</label>
+            <input type="number" class="form-control" formControlName="galiboIm2" [readonly]="isViewMode">
           </div>
+    
           <div class="col">
-            <label> Galibo (DM)</label>
-            <input type="text" [readonly]="isViewMode" class="form-control" placeholder="DM" formControlName="galiboDMDos">
+            <label>Galibo DM (m)</label>
+            <input type="number" class="form-control" formControlName="galiboDm2" [readonly]="isViewMode">
           </div>
+    
           <div class="col">
-            <label> Galibo (D)</label>
-            <input type="text" [readonly]="isViewMode" class="form-control" placeholder="D" formControlName="galiboDDos">
+            <label>Galibo D (m)</label>
+            <input type="number" class="form-control" formControlName="galiboD2" [readonly]="isViewMode">
           </div>
         </div>
       </div>
     </div>
+    
 
     <!-- Sección de Datos Administrativos -->
     <div class="card my-3">
@@ -161,66 +175,68 @@
         DATOS ADMINISTRATIVOS
       </div>
       <div class="card-body">
-        <div class="row">
-          <div class="col-md-4 mb-3">
-            <label for="ano-construccion" class="form-label">Año de Construcción</label>
-            <select id="ano-construccion" class="form-control" formControlName="anioConstruccion">
-              <option value="">Selecciona una opción</option>
-              <option *ngFor="let option of yearOptions" [value]="option.value">{{ option.label }}</option>
-            </select>
+        <div class="row g-3">
+          <!-- Año de Construcción -->
+          <div class="col-md-4">
+            <label>Año de Construcción</label>
+            <input type="number" class="form-control" formControlName="anioConstruccion" placeholder="Ej. 1998"
+                   [readonly]="isViewMode" [class.is-invalid]="campoInvalido('anioConstruccion')">
+            <div *ngIf="campoInvalido('anioConstruccion')" class="text-danger">
+              Este campo es obligatorio.
+            </div>
           </div>
-          <div class="col-md-4 mb-3">
-            <label for="ano-reconstruccion" class="form-label">Año de Reconstrucción</label>
-            <select id="ano-reconstruccion" class="form-control" formControlName="anioReconstruccion">
-              <option value="">Selecciona una opción</option>
-              <option *ngFor="let option of yearOptions" [value]="option.value">{{ option.label }}</option>
-            </select>
+    
+          <!-- Año de Reconstrucción -->
+          <div class="col-md-4">
+            <label>Año de Reconstrucción</label>
+            <input type="number" class="form-control" formControlName="anioReconstruccion" placeholder="Ej. 2015"
+                   [readonly]="isViewMode">
           </div>
-          <div class="col-md-4 mb-3">
-            <label for="direccion-abs" class="form-label">Dirección de absc. de la carret. (N/S/E/O)</label>
-            <select id="direccion-abs" class="form-control" formControlName="direccionAbs">
+    
+          <!-- Dirección Abscisa Carretera -->
+          <div class="col-md-4">
+            <label>Dirección Abscisa Carretera</label>
+            <select class="form-control" formControlName="direccionAbscCarretera" [disabled]="isViewMode">
               <option value="">Selecciona una opción</option>
-              <option *ngFor="let option of abscDirection" [value]="option.value">{{ option.label }}</option>
+              <option *ngFor="let option of direccionOptions" [value]="option">{{ option }}</option>
             </select>
           </div>
         </div>
-        <div class="row">
-          <div class="col-md-4 mb-3">
-            <label for="requisitos-inspeccion" class="form-label">Requisitos de inspección</label>
-            <select id="requisitos-inspeccion" class="form-control" formControlName="requisitosInspeccion">
-              <option value="">Selecciona una opción</option>
-              <option *ngFor="let option of inspectionRequirementOptions" [value]="option.value">{{ option.label }}
-              </option>
-            </select>
+    
+        <div class="row g-3 mt-2">
+          <!-- Requisitos de Inspección -->
+          <div class="col-md-6">
+            <label>Requisitos de Inspección</label>
+            <input type="text" class="form-control" formControlName="requisitosInspeccion" placeholder="Requisitos"
+                   [readonly]="isViewMode">
           </div>
-          <div class="col-md-4 mb-3">
-            <label for="numero-secciones-inspeccion" class="form-label">Número de secciones de inspección</label>
-            <select id="numero-secciones-inspeccion" class="form-control" formControlName="numeroSeccionesInspeccion">
-              <option value="">Selecciona una opción</option>
-              <option *ngFor="let option of sectionOptions" [value]="option.value">{{ option.label }}</option>
-            </select>
-          </div>
-          <div class="col-md-4 mb-3">
-            <label for="estacion-conteo" class="form-label">Estación de conteo</label>
-            <input type="text" [readonly]="isViewMode" id="estacion-conteo" class="form-control" placeholder="Estación de conteo"
-                   formControlName="estacionConteo">
+    
+          <!-- Número de Secciones Inspección -->
+          <div class="col-md-6">
+            <label>Número de Secciones Inspección</label>
+            <input type="text" class="form-control" formControlName="numeroSeccionesInspeccion" placeholder="Ej. 2"
+                   [readonly]="isViewMode">
           </div>
         </div>
-        <div class="row">
-          <div class="col-md-4 mb-3">
-            <label for="fecha-recoleccion-datos" class="form-label">Fecha de recolección de datos</label>
-            <input type="date" [readonly]="isViewMode" id="fecha-recoleccion-datos" class="form-control"
-                   placeholder="Fecha de recolección de datos" formControlName="fechaRecoleccionDatos">
+    
+        <div class="row g-3 mt-2">
+          <!-- Estación de Conteo -->
+          <div class="col-md-6">
+            <label>Estación de Conteo</label>
+            <input type="text" class="form-control" formControlName="estacionConteo" placeholder="Código estación"
+                   [readonly]="isViewMode">
           </div>
-          <div class="col-md-4 mb-3">
-            <label for="iniciales-inspector" class="form-label">Iniciales de inspector</label>
-            <input type="text" [readonly]="isViewMode" id="iniciales-inspector" class="form-control" placeholder="Iniciales de inspector"
-                   formControlName="inicialesInspector">
+    
+          <!-- Fecha de Recolección de Datos -->
+          <div class="col-md-6">
+            <label>Fecha de Recolección de Datos</label>
+            <input type="date" class="form-control" formControlName="fechaRecoleccionDatos"
+                   [readonly]="isViewMode">
           </div>
-          <div class="col-md-4"></div>
         </div>
       </div>
     </div>
+    
 
     <!-- Sección de Datos Técnicos, Geometría -->
     <div class="card my-3">
@@ -231,153 +247,98 @@
         <div class="row">
           <div class="col-md-4 mb-3">
             <label class="form-label">Número de luces</label>
-            <select class="form-control" formControlName="numeroLuces">
-              <option value="">Selecciona una opción</option>
-              <option *ngFor="let option of lightOptions" [value]="option.value">{{ option.label }}</option>
-            </select>
+            <input type="number" class="form-control" formControlName="numeroLuces" [readonly]="isViewMode">
           </div>
           <div class="col-md-4 mb-3">
             <label class="form-label">Longitud Luz menor (m)</label>
-            <select class="form-control" formControlName="longitudLuzMenor">
-              <option value="">Selecciona una opción</option>
-              <option *ngFor="let option of longitudinalOptions" [value]="option.value">{{ option.label }}</option>
-            </select>
+            <input type="number" class="form-control" formControlName="longitudLuzMenor" [readonly]="isViewMode">
           </div>
           <div class="col-md-4 mb-3">
             <label class="form-label">Longitud Luz mayor (m)</label>
-            <select class="form-control" formControlName="longitudLuzMayor">
-              <option value="">Selecciona una opción</option>
-              <option *ngFor="let option of longitudinalOptions" [value]="option.value">{{ option.label }}</option>
-            </select>
+            <input type="number" class="form-control" formControlName="longitudLuzMayor" [readonly]="isViewMode">
           </div>
         </div>
         <div class="row">
           <div class="col-md-4 mb-3">
             <label class="form-label">Longitud total (m)</label>
-            <select class="form-control" formControlName="longitudTotal">
-              <option value="">Selecciona una opción</option>
-              <option *ngFor="let option of longitudinalOptions" [value]="option.value">{{ option.label }}</option>
-            </select>
+            <input type="number" class="form-control" formControlName="longitudTotal" [readonly]="isViewMode">
           </div>
           <div class="col-md-4 mb-3">
             <label class="form-label">Ancho del tablero (m)</label>
-            <select class="form-control" formControlName="anchoTablero">
-              <option value="">Selecciona una opción</option>
-              <option *ngFor="let option of boardWidthOptions" [value]="option.value">{{ option.label }}</option>
-            </select>
+            <input type="number" class="form-control" formControlName="anchoTablero" [readonly]="isViewMode">
           </div>
           <div class="col-md-4 mb-3">
             <label class="form-label">Ancho del separador (m)</label>
-            <select class="form-control" formControlName="anchoSeparador">
-              <option value="">Selecciona una opción</option>
-              <option *ngFor="let option of separatorWidthOptions" [value]="option.value">{{ option.label }}</option>
-            </select>
+            <input type="number" class="form-control" formControlName="anchoSeparador" [readonly]="isViewMode">
           </div>
         </div>
         <div class="row">
           <div class="col-md-4 mb-3">
             <label class="form-label">Ancho del andén izquierdo (m)</label>
-            <select class="form-control" formControlName="anchoAndenIzquierdo">
-              <option value="">Selecciona una opción</option>
-              <option *ngFor="let option of sidewalkWidthOptions" [value]="option.value">{{ option.label }}</option>
-            </select>
+            <input type="number" class="form-control" formControlName="anchoAndenIzq" [readonly]="isViewMode">
           </div>
           <div class="col-md-4 mb-3">
             <label class="form-label">Ancho del andén derecho (m)</label>
-            <select class="form-control" formControlName="anchoAndenDerecho">
-              <option value="">Selecciona una opción</option>
-              <option *ngFor="let option of sidewalkWidthOptions" [value]="option.value">{{ option.label }}</option>
-            </select>
+            <input type="number" class="form-control" formControlName="anchoAndenDer" [readonly]="isViewMode">
           </div>
           <div class="col-md-4 mb-3">
             <label class="form-label">Ancho de calzada (m)</label>
-            <select class="form-control" formControlName="anchoCalzada">
-              <option value="">Selecciona una opción</option>
-              <option *ngFor="let option of roadwayWidthOptions" [value]="option.value">{{ option.label }}</option>
-            </select>
+            <input type="number" class="form-control" formControlName="anchoCalzada" [readonly]="isViewMode">
           </div>
         </div>
         <div class="row">
           <div class="col-md-4 mb-3">
             <label class="form-label">Ancho entre bordillos (m)</label>
-            <select class="form-control" formControlName="anchoEntreBordillos">
-              <option value="">Selecciona una opción</option>
-              <option *ngFor="let option of boardWidthOptions" [value]="option.value">{{ option.label }}</option>
-            </select>
+            <input type="number" class="form-control" formControlName="anchoEntreBordillos" [readonly]="isViewMode">
           </div>
           <div class="col-md-4 mb-3">
             <label class="form-label">Ancho del acceso (m)</label>
-            <select class="form-control" formControlName="anchoAcceso">
-              <option value="">Selecciona una opción</option>
-              <option *ngFor="let option of boardWidthOptions" [value]="option.value">{{ option.label }}</option>
-            </select>
+            <input type="number" class="form-control" formControlName="anchoAcceso" [readonly]="isViewMode">
           </div>
           <div class="col-md-4 mb-3">
             <label class="form-label">Altura de pilas (m)</label>
-            <select class="form-control" formControlName="alturaPilas">
-              <option value="">Selecciona una opción</option>
-              <option *ngFor="let option of pileHeightOptions" [value]="option.value">{{ option.label }}</option>
-            </select>
+            <input type="number" class="form-control" formControlName="alturaPilas" [readonly]="isViewMode">
           </div>
         </div>
         <div class="row">
           <div class="col-md-4 mb-3">
             <label class="form-label">Altura de estribos (m)</label>
-            <select class="form-control" formControlName="alturaEstribos">
-              <option value="">Selecciona una opción</option>
-              <option *ngFor="let option of abutmentHeightOptions" [value]="option.value">{{ option.label }}</option>
-            </select>
+            <input type="number" class="form-control" formControlName="alturaEstribos" [readonly]="isViewMode">
           </div>
           <div class="col-md-4 mb-3">
             <label class="form-label">Longitud de apoyo en pilas (m)</label>
-            <select class="form-control" formControlName="longitudApoyoPilas">
-              <option value="">Selecciona una opción</option>
-              <option *ngFor="let option of supportLengthOptions" [value]="option.value">{{ option.label }}</option>
-            </select>
+            <input type="number" class="form-control" formControlName="longitudApoyoPilas" [readonly]="isViewMode">
           </div>
           <div class="col-md-4 mb-3">
             <label class="form-label">Longitud de apoyo en estribos (m)</label>
-            <select class="form-control" formControlName="longitudApoyoEstribos">
-              <option value="">Selecciona una opción</option>
-              <option *ngFor="let option of supportLengthOptions" [value]="option.value">{{ option.label }}</option>
-            </select>
+            <input type="number" class="form-control" formControlName="longitudApoyoEstribos" [readonly]="isViewMode">
           </div>
         </div>
         <div class="row">
           <div class="col-md-4 mb-3">
-            <label class="form-label">Puente en terraplén (S/N)</label>
-            <select class="form-control" formControlName="puenteTerra">
+            <label class="form-label">Puente en terraplén</label>
+            <select class="form-control" formControlName="puenteTerraplen" [disabled]="isViewMode">
               <option value="">Selecciona una opción</option>
-              <option *ngFor="let option of snOptions" [value]="option.value">{{ option.label }}</option>
+              <option value="true">Sí</option>
+              <option value="false">No</option>
             </select>
           </div>
           <div class="col-md-4 mb-3">
             <label class="form-label">Puente en curva / Tangente (C/T)</label>
-            <select class="form-control" formControlName="puenteCurva">
+            <select class="form-control" formControlName="puenteCurvaTangente" [disabled]="isViewMode">
               <option value="">Selecciona una opción</option>
-              <option *ngFor="let option of ctOptions" [value]="option.value">{{ option.label }}</option>
+              <option value="C">Curva</option>
+              <option value="T">Tangente</option>
             </select>
           </div>
           <div class="col-md-4 mb-3">
-            <label class="form-label">Esviajamiento (gra)</label>
-            <select class="form-control" formControlName="esviaje">
-              <option value="">Selecciona una opción</option>
-              <option *ngFor="let option of skewAngleOptions" [value]="option.value">{{ option.label }}</option>
-            </select>
-          </div>
-        </div>
-        <div class="row">
-          <div class="col-12 mb-3">
-            <label for="imagen-geo" class="form-label">Imagen</label>
-            <input *ngIf="!isViewMode" type="file" id="imagen-geo" class="form-control" (change)="onFileChange($event, 'technicalImage')" #technicalImageInput>
-            <input type="hidden" formControlName="technicalImageUrl">
-            <div *ngIf="form.get('technicalImageUrl')?.value">
-              <a href="{{ form.get('technicalImageUrl')?.value }}" target="_blank">Imagen Subida</a>
-            </div>
+            <label class="form-label">Esviajamiento (°)</label>
+            <input type="number" class="form-control" formControlName="esviajamiento" [readonly]="isViewMode">
           </div>
         </div>
       </div>
     </div>
+    
 
     <!-- Sección de Superestructura, Tipo Principal -->
     <div class="card my-3">
@@ -386,42 +347,55 @@
       </div>
       <div class="card-body">
         <div class="row">
+          <!-- Diseño Tipo -->
           <div class="col-md-4 mb-3">
-            <label>Diseño tipo (S/N)</label>
-            <select class="form-control" formControlName="disenoTipo">
+            <label>Diseño tipo (Sí/No)</label>
+            <select class="form-control" formControlName="disenioTipo">
               <option value="">Selecciona una opción</option>
-              <option *ngFor="let option of snOptions" [value]="option.value">{{ option.label }}</option>
+              <option [value]="true">Sí</option>
+              <option [value]="false">No</option>
             </select>
           </div>
+    
+          <!-- Tipo Estructuración Transversal -->
           <div class="col-md-4 mb-3">
             <label>Tipo de estructuración transversal</label>
             <select class="form-control" formControlName="tipoEstructuracionTransversal">
               <option value="">Selecciona una opción</option>
-              <option *ngFor="let option of transversalStructuringOptions" [value]="option.value">{{ option.label }}
+              <option *ngFor="let option of transversalStructuringOptions" [value]="option.value">
+                {{ option.label }}
               </option>
             </select>
           </div>
+    
+          <!-- Tipo Estructuración Longitudinal -->
           <div class="col-md-4 mb-3">
             <label>Tipo de estructuración longitudinal</label>
             <select class="form-control" formControlName="tipoEstructuracionLongitudinal">
               <option value="">Selecciona una opción</option>
-              <option *ngFor="let option of longitudinalStructuringOptions" [value]="option.value">{{ option.label }}
+              <option *ngFor="let option of longitudinalStructuringOptions" [value]="option.value">
+                {{ option.label }}
               </option>
             </select>
           </div>
         </div>
+    
+        <!-- Material + Imagen -->
         <div class="row">
           <div class="col-md-4 mb-3">
-            <label class="form-label">Material</label>
+            <label>Material</label>
             <select class="form-control" formControlName="material">
               <option value="">Selecciona una opción</option>
-              <option *ngFor="let option of materialConstructionOptions" [value]="option.value">{{ option.label }}
+              <option *ngFor="let option of materialConstructionOptions" [value]="option.value">
+                {{ option.label }}
               </option>
             </select>
           </div>
+    
           <div class="col-md-8 mb-3">
             <label for="imagen-superestructura" class="form-label">Imagen</label>
-            <input *ngIf="!isViewMode" type="file" id="imagen-superestructura" class="form-control" (change)="onFileChange($event, 'superstructureImage')" #superstructureImageInput>
+            <input *ngIf="!isViewMode" type="file" id="imagen-superestructura" class="form-control"
+                   (change)="onFileChange($event, 'superstructureImage')" #superstructureImageInput>
             <input type="hidden" formControlName="superstructureImageUrl">
             <div *ngIf="form.get('superstructureImageUrl')?.value">
               <a href="{{ form.get('superstructureImageUrl')?.value }}" target="_blank">Imagen Subida</a>
@@ -430,6 +404,7 @@
         </div>
       </div>
     </div>
+    
 
     <!-- Sección de Superestructura, Tipo Secundario -->
     <div class="card my-3">
@@ -440,116 +415,109 @@
         <div class="row">
           <div class="col-md-4 mb-3">
             <label class="form-label">Diseño tipo (S/N)</label>
-            <select class="form-control" formControlName="disenoTipoSec">
+            <select class="form-control" formControlName="disenoTipoSec" [disabled]="isViewMode">
               <option value="">Selecciona una opción</option>
               <option *ngFor="let option of snOptions" [value]="option.value">{{ option.label }}</option>
             </select>
           </div>
           <div class="col-md-4 mb-3">
             <label class="form-label">Tipo de estructuración transversal</label>
-            <select class="form-control" formControlName="tipoEstructuracionTransversalSec">
+            <select class="form-control" formControlName="tipoEstructuracionTransversalSec" [disabled]="isViewMode">
               <option value="">Selecciona una opción</option>
-              <option *ngFor="let option of transversalStructuringOptions" [value]="option.value">{{ option.label }}
-              </option>
+              <option *ngFor="let option of transversalStructuringOptions" [value]="option.value">{{ option.label }}</option>
             </select>
           </div>
           <div class="col-md-4 mb-3">
             <label class="form-label">Tipo de estructuración longitudinal</label>
-            <select class="form-control" formControlName="tipoEstructuracionLongitudinalSec">
+            <select class="form-control" formControlName="tipoEstructuracionLongitudinalSec" [disabled]="isViewMode">
               <option value="">Selecciona una opción</option>
-              <option *ngFor="let option of longitudinalStructuringOptions" [value]="option.value">{{ option.label }}
-              </option>
+              <option *ngFor="let option of longitudinalStructuringOptions" [value]="option.value">{{ option.label }}</option>
             </select>
           </div>
         </div>
+
         <div class="row">
           <div class="col-md-4 mb-3">
             <label class="form-label">Material</label>
-            <select class="form-control" formControlName="materialSec">
+            <select class="form-control" formControlName="materialSec" [disabled]="isViewMode">
               <option value="">Selecciona una opción</option>
-              <option *ngFor="let option of materialConstructionOptions" [value]="option.value">{{ option.label }}
-              </option>
+              <option *ngFor="let option of materialConstructionOptions" [value]="option.value">{{ option.label }}</option>
             </select>
           </div>
           <div class="col-md-8 mb-3">
             <label for="imagen-sec" class="form-label">Imagen</label>
-            <input *ngIf="!isViewMode" type="file" id="imagen-sec" class="form-control" (change)="onFileChange($event, 'superstructureSecondaryImage')" #superstructureSecondaryImageInput>
+            <input *ngIf="!isViewMode" type="file" id="imagen-sec" class="form-control"
+                  (change)="onFileChange($event, 'superstructureSecondaryImage')" #superstructureSecondaryImageInput>
             <input type="hidden" formControlName="superstructureSecondaryImageUrl">
             <div *ngIf="form.get('superstructureSecondaryImageUrl')?.value">
-              <a href="{{ form.get('superstructureSecondaryImageUrl')?.value }}" target="_blank">Imagen Subida</a>
+              <a [href]="form.get('superstructureSecondaryImageUrl')?.value" target="_blank">Imagen Subida</a>
             </div>
           </div>
         </div>
       </div>
     </div>
 
+
     <!-- Sección de Subestructura, Estribos -->
+    <!-- SUBESTRUCTURA - ESTRIBOS -->
     <div class="card my-3">
-      <div class="card-header">
-        SUBESTRUCTURA, ESTRIBOS
-      </div>
+      <div class="card-header">SUBESTRUCTURA, ESTRIBOS</div>
       <div class="card-body">
         <div class="row">
           <div class="col-md-4 mb-3">
-            <label class="form-label">Tipo</label>
-            <select class="form-control" formControlName="tipoEstribos">
-              <option value="">Selecciona una opción</option>
-              <option *ngFor="let option of stirrupstypeOptions" [value]="option.value">{{ option.label }}</option>
-            </select>
+            <label>Tipo</label>
+            <input type="number" class="form-control" formControlName="tipoEstribos">
           </div>
           <div class="col-md-4 mb-3">
-            <label class="form-label">Material</label>
+            <label>Material</label>
             <select class="form-control" formControlName="materialEstribos">
               <option value="">Selecciona una opción</option>
               <option *ngFor="let option of stirrupsMaterialOptions" [value]="option.value">{{ option.label }}</option>
             </select>
           </div>
           <div class="col-md-4 mb-3">
-            <label class="form-label">Tipo de Cimentación</label>
+            <label>Tipo de Cimentación</label>
             <select class="form-control" formControlName="tipoCimentacion">
               <option value="">Selecciona una opción</option>
-              <option *ngFor="let option of stirrupsFoundationTypeOptions" [value]="option.value">{{ option.label }}
-              </option>
+              <option *ngFor="let option of stirrupsFoundationTypeOptions" [value]="option.value">{{ option.label }}</option>
             </select>
           </div>
         </div>
         <div class="row">
           <div class="col-12 mb-3">
-            <label for="imagen-estribos" class="form-label">Imagen</label>
-            <input *ngIf="!isViewMode" type="file" id="imagen-estribos" class="form-control" (change)="onFileChange($event, 'substructureAbutmentsImage')" #substructureAbutmentsImageInput>
+            <label>Imagen</label>
+            <input *ngIf="!isViewMode" type="file" class="form-control" (change)="onFileChange($event, 'substructureAbutmentsImage')">
             <input type="hidden" formControlName="substructureAbutmentsImageUrl">
             <div *ngIf="form.get('substructureAbutmentsImageUrl')?.value">
-              <a href="{{ form.get('substructureAbutmentsImageUrl')?.value }}" target="_blank">Imagen Subida</a>
+              <a [href]="form.get('substructureAbutmentsImageUrl')?.value" target="_blank">Imagen Subida</a>
             </div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Sección de Subestructura, Detalles -->
+    <!-- SUBESTRUCTURA - DETALLES -->
     <div class="card my-3">
-      <div class="card-header">
-        SUBESTRUCTURA, DETALLES
-      </div>
+      <div class="card-header">SUBESTRUCTURA, DETALLES</div>
       <div class="card-body">
         <div class="row">
           <div class="col-md-4 mb-3">
-            <label class="form-label">Tipo de baranda</label>
+            <label>Tipo de baranda</label>
             <select class="form-control" formControlName="tipoBaranda">
               <option value="">Selecciona una opción</option>
               <option *ngFor="let option of railingTypeOptions" [value]="option.value">{{ option.label }}</option>
             </select>
           </div>
           <div class="col-md-4 mb-3">
-            <label for="superficie-rodadura" class="form-label">Superficie de rodadura</label>
-            <select id="superficie-rodadura" class="form-control" formControlName="superficieRodadura">
+            <label>Superficie de rodadura</label>
+            <select class="form-control" formControlName="superficieRodadura">
               <option value="">Selecciona una opción</option>
               <option *ngFor="let option of roadwaySurfaceOptions" [value]="option.value">{{ option.label }}</option>
             </select>
           </div>
           <div class="col-md-4 mb-3">
-            <label for="junta-expansion" class="form-label">Junta de expansión</label>
-            <select id="junta-expansion" class="form-control" formControlName="juntaExpansion">
+            <label>Junta de expansión</label>
+            <select class="form-control" formControlName="juntaExpansion">
               <option value="">Selecciona una opción</option>
               <option *ngFor="let option of expansionJointOptions" [value]="option.value">{{ option.label }}</option>
             </select>
@@ -557,40 +525,38 @@
         </div>
         <div class="row">
           <div class="col-12 mb-3">
-            <label for="imagen-detalle" class="form-label">Imagen</label>
-            <input *ngIf="!isViewMode" type="file" id="imagen-detalle" class="form-control" (change)="onFileChange($event, 'substructureDetailsImage')" #substructureDetailsImageInput>
+            <label>Imagen</label>
+            <input *ngIf="!isViewMode" type="file" class="form-control" (change)="onFileChange($event, 'substructureDetailsImage')">
             <input type="hidden" formControlName="substructureDetailsImageUrl">
             <div *ngIf="form.get('substructureDetailsImageUrl')?.value">
-              <a href="{{ form.get('substructureDetailsImageUrl')?.value }}" target="_blank">Imagen Subida</a>
+              <a [href]="form.get('substructureDetailsImageUrl')?.value" target="_blank">Imagen Subida</a>
             </div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Sección de Subestructura, Pilas -->
+    <!-- SUBESTRUCTURA - PILAS -->
     <div class="card my-3">
-      <div class="card-header">
-        SUBESTRUCTURA, PILAS
-      </div>
+      <div class="card-header">SUBESTRUCTURA, PILAS</div>
       <div class="card-body">
         <div class="row">
           <div class="col-md-4 mb-3">
-            <label class="form-label">Tipo</label>
+            <label>Tipo</label>
             <select class="form-control" formControlName="tipoPilas">
               <option value="">Selecciona una opción</option>
               <option *ngFor="let option of pileTypeOptions" [value]="option.value">{{ option.label }}</option>
             </select>
           </div>
           <div class="col-md-4 mb-3">
-            <label class="form-label">Material</label>
+            <label>Material</label>
             <select class="form-control" formControlName="materialPilas">
               <option value="">Selecciona una opción</option>
               <option *ngFor="let option of pileMaterialOptions" [value]="option.value">{{ option.label }}</option>
             </select>
           </div>
           <div class="col-md-4 mb-3">
-            <label class="form-label">Tipo de cimentación</label>
+            <label>Tipo de cimentación</label>
             <select class="form-control" formControlName="tipoCimentacionPilas">
               <option value="">Selecciona una opción</option>
               <option *ngFor="let option of foundationTypeOptions" [value]="option.value">{{ option.label }}</option>
@@ -599,51 +565,49 @@
         </div>
         <div class="row">
           <div class="col-12 mb-3">
-            <label for="imagen-pilas" class="form-label">Imagen</label>
-            <input *ngIf="!isViewMode" type="file" id="imagen-pilas" class="form-control" (change)="onFileChange($event, 'substructurePilesImage')" #substructurePilesImageInput>
+            <label>Imagen</label>
+            <input *ngIf="!isViewMode" type="file" class="form-control" (change)="onFileChange($event, 'substructurePilesImage')">
             <input type="hidden" formControlName="substructurePilesImageUrl">
             <div *ngIf="form.get('substructurePilesImageUrl')?.value">
-              <a href="{{ form.get('substructurePilesImageUrl')?.value }}" target="_blank">Imagen Subida</a>
+              <a [href]="form.get('substructurePilesImageUrl')?.value" target="_blank">Imagen Subida</a>
             </div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Sección de Subestructura, Señales -->
+    <!-- SUBESTRUCTURA - SEÑALES -->
     <div class="card my-3">
-      <div class="card-header">
-        SUBESTRUCTURA, SEÑALES
-      </div>
+      <div class="card-header">SUBESTRUCTURA, SEÑALES</div>
       <div class="card-body">
         <div class="row">
           <div class="col-md-4 mb-3">
-            <label for="carga-maxima" class="form-label">Carga máxima</label>
-            <input type="number" id="carga-maxima" class="form-control" placeholder="Carga máxima"
-                   formControlName="cargaMaxima">
+            <label>Carga máxima</label>
+            <input type="text" class="form-control" formControlName="cargaMaxima">
           </div>
           <div class="col-md-4 mb-3">
-            <label for="velocidad-maxima" class="form-label">Velocidad Máxima</label>
-            <input type="number" id="velocidad-maxima" class="form-control" placeholder="Velocidad Máxima"
-                   formControlName="velocidadMaxima">
+            <label>Velocidad máxima</label>
+            <input type="text" class="form-control" formControlName="velocidadMaxima">
           </div>
           <div class="col-md-4 mb-3">
-            <label for="otra-info" class="form-label">Otra</label>
-            <input type="text" id="otra-info" class="form-control" placeholder="Otra" formControlName="otraInfo">
+            <label>Otra</label>
+            <input type="text" class="form-control" formControlName="otraInfo">
           </div>
         </div>
         <div class="row">
           <div class="col-12 mb-3">
-            <label for="imagen-senales" class="form-label">Imagen</label>
-            <input *ngIf="!isViewMode" type="file" id="imagen-senales" class="form-control" (change)="onFileChange($event, 'substructureSignalsImage')" #substructureSignalsImageInput>
+            <label>Imagen</label>
+            <input *ngIf="!isViewMode" type="file" class="form-control" (change)="onFileChange($event, 'substructureSignalsImage')">
             <input type="hidden" formControlName="substructureSignalsImageUrl">
             <div *ngIf="form.get('substructureSignalsImageUrl')?.value">
-              <a href="{{ form.get('substructureSignalsImageUrl')?.value }}" target="_blank">Imagen Subida</a>
+              <a [href]="form.get('substructureSignalsImageUrl')?.value" target="_blank">Imagen Subida</a>
             </div>
           </div>
         </div>
       </div>
     </div>
+
+
     <!-- Sección de Apoyos -->
     <div class="card my-3">
       <div class="card-header">
@@ -652,76 +616,79 @@
       <div class="card-body">
         <div class="row">
           <div class="col-md-4 mb-3">
-            <label for="apoyos-fijos-estribos" class="form-label">Tipo de apoyos fijos sobre estribos</label>
-            <select id="apoyos-fijos-estribos" class="form-control" formControlName="apoyosFijosEstribos">
+            <label class="form-label">Tipo de apoyos fijos sobre estribos</label>
+            <select class="form-control" formControlName="fijoSobreEstribo">
               <option value="">Selecciona una opción</option>
               <option *ngFor="let option of fixedSupportTypes" [value]="option.value">{{ option.label }}</option>
             </select>
           </div>
           <div class="col-md-4 mb-3">
-            <label for="apoyos-moviles-estribos" class="form-label">Tipo de apoyos móviles sobre estribos</label>
-            <select id="apoyos-moviles-estribos" class="form-control" formControlName="apoyosMovilesEstribos">
+            <label class="form-label">Tipo de apoyos móviles sobre estribos</label>
+            <select class="form-control" formControlName="movilSobreEstribo">
               <option value="">Selecciona una opción</option>
               <option *ngFor="let option of fixedSupportTypes" [value]="option.value">{{ option.label }}</option>
             </select>
           </div>
           <div class="col-md-4 mb-3">
-            <label for="apoyos-fijos-pilas" class="form-label">Tipo de apoyos fijos en pilas</label>
-            <select id="apoyos-fijos-pilas" class="form-control" formControlName="apoyosFijosPilas">
-              <option value="">Selecciona una opción</option>
-              <option *ngFor="let option of fixedSupportTypes" [value]="option.value">{{ option.label }}</option>
-            </select>
-          </div>
-        </div>
-        <div class="row">
-          <div class="col-md-4 mb-3">
-            <label for="apoyos-moviles-pilas" class="form-label">Tipo de apoyos móviles en pilas</label>
-            <select id="apoyos-moviles-pilas" class="form-control" formControlName="apoyosMovilesPilas">
-              <option value="">Selecciona una opción</option>
-              <option *ngFor="let option of fixedSupportTypes" [value]="option.value">{{ option.label }}</option>
-            </select>
-          </div>
-          <div class="col-md-4 mb-3">
-            <label for="apoyos-fijos-vigas" class="form-label">Tipo de apoyos fijos en vigas</label>
-            <select id="apoyos-fijos-vigas" class="form-control" formControlName="apoyosFijosVigas">
-              <option value="">Selecciona una opción</option>
-              <option *ngFor="let option of fixedSupportTypes" [value]="option.value">{{ option.label }}</option>
-            </select>
-          </div>
-          <div class="col-md-4 mb-3">
-            <label for="apoyos-moviles-vigas" class="form-label">Tipo de apoyos móviles en vigas</label>
-            <select id="apoyos-moviles-vigas" class="form-control" formControlName="apoyosMovilesVigas">
+            <label class="form-label">Tipo de apoyos fijos en pilas</label>
+            <select class="form-control" formControlName="fijoEnPila">
               <option value="">Selecciona una opción</option>
               <option *ngFor="let option of fixedSupportTypes" [value]="option.value">{{ option.label }}</option>
             </select>
           </div>
         </div>
+    
         <div class="row">
           <div class="col-md-4 mb-3">
-            <label for="vehiculo-diseno" class="form-label">Vehículo de diseño</label>
-            <input type="text" id="vehiculo-diseno" [readonly]="isViewMode" class="form-control" placeholder="Vehículo de diseño" formControlName="vehiculoDiseno">
+            <label class="form-label">Tipo de apoyos móviles en pilas</label>
+            <select class="form-control" formControlName="movilEnPila">
+              <option value="">Selecciona una opción</option>
+              <option *ngFor="let option of fixedSupportTypes" [value]="option.value">{{ option.label }}</option>
+            </select>
           </div>
           <div class="col-md-4 mb-3">
-            <label for="clase-carga" class="form-label">Clase de distribución de carga</label>
-            <select id="clase-carga" class="form-control" formControlName="claseCarga">
+            <label class="form-label">Tipo de apoyos fijos en vigas</label>
+            <select class="form-control" formControlName="fijoEnViga">
+              <option value="">Selecciona una opción</option>
+              <option *ngFor="let option of fixedSupportTypes" [value]="option.value">{{ option.label }}</option>
+            </select>
+          </div>
+          <div class="col-md-4 mb-3">
+            <label class="form-label">Tipo de apoyos móviles en vigas</label>
+            <select class="form-control" formControlName="movilEnViga">
+              <option value="">Selecciona una opción</option>
+              <option *ngFor="let option of fixedSupportTypes" [value]="option.value">{{ option.label }}</option>
+            </select>
+          </div>
+        </div>
+    
+        <div class="row">
+          <div class="col-md-4 mb-3">
+            <label class="form-label">Vehículo de diseño</label>
+            <input type="number" class="form-control" placeholder="Vehículo de diseño" formControlName="vehiculoDiseno" [readonly]="isViewMode">
+          </div>
+          <div class="col-md-4 mb-3">
+            <label class="form-label">Clase de distribución de carga</label>
+            <select class="form-control" formControlName="claseDistribucionCarga">
               <option value="">Selecciona una opción</option>
               <option *ngFor="let option of loadDistributionClasses" [value]="option.value">{{ option.label }}</option>
             </select>
           </div>
-          <div class="col-md-4"></div>
         </div>
+    
         <div class="row">
           <div class="col-12 mb-3">
-            <label for="imagen-apoyos" class="form-label">Imagen</label>
-            <input *ngIf="!isViewMode" type="file" id="imagen-apoyos" class="form-control" (change)="onFileChange($event, 'supportsImage')" #supportsImageInput>
+            <label class="form-label">Imagen</label>
+            <input *ngIf="!isViewMode" type="file" class="form-control" (change)="onFileChange($event, 'supportsImage')" #supportsImageInput>
             <input type="hidden" formControlName="supportsImageUrl">
             <div *ngIf="form.get('supportsImageUrl')?.value">
-              <a href="{{ form.get('supportsImageUrl')?.value }}" target="_blank">Imagen Subida</a>
+              <a [href]="form.get('supportsImageUrl')?.value" target="_blank">Imagen Subida</a>
             </div>
           </div>
         </div>
       </div>
     </div>
+    
 
     <!-- Sección de Miembros Interesados -->
     <div class="card my-3">
@@ -733,33 +700,35 @@
           <div class="col-md-4 mb-3">
             <label for="propietario" class="form-label">Propietario</label>
             <input type="text" [readonly]="isViewMode" id="propietario" class="form-control" placeholder="Propietario"
-                   formControlName="propietario">
+                  formControlName="propietario">
           </div>
           <div class="col-md-4 mb-3">
             <label for="departamento" class="form-label">Departamento</label>
             <input type="text" [readonly]="isViewMode" id="departamento" class="form-control" placeholder="Departamento"
-                   formControlName="departamento">
+                  formControlName="departamento">
           </div>
           <div class="col-md-4 mb-3">
             <label for="administrador-vial" class="form-label">Administrador Vial</label>
             <input type="text" [readonly]="isViewMode" id="administrador-vial" class="form-control" placeholder="Administrador Vial"
-                   formControlName="administradorVial">
+                  formControlName="administradorVial">
           </div>
         </div>
         <div class="row">
           <div class="col-md-4 mb-3">
             <label for="proyectista" class="form-label">Proyectista</label>
             <input type="text" [readonly]="isViewMode" id="proyectista" class="form-control" placeholder="Proyectista"
-                   formControlName="proyectista">
+                  formControlName="proyectista">
           </div>
           <div class="col-md-4 mb-3">
             <label for="municipio" class="form-label">Municipio</label>
-            <input type="text" [readonly]="isViewMode" id="municipio" class="form-control" placeholder="Municipio" formControlName="municipio">
+            <input type="text" [readonly]="isViewMode" id="municipio" class="form-control" placeholder="Municipio"
+                  formControlName="municipio">
           </div>
           <div class="col-md-4"></div>
         </div>
       </div>
     </div>
+
 
     <!-- Sección de Posición Geográfica -->
     <div class="card my-3">
@@ -768,182 +737,171 @@
       </div>
       <div class="card-body">
         <div class="row">
-          <div class="col-md-2 mb-3">
-            <label class="form-label">Latitud (G)</label>
-            <select class="form-control" formControlName="latitudGrado">
+          <div class="col-md-4 mb-3">
+            <label class="form-label">Latitud (N)</label>
+            <input type="number" class="form-control" formControlName="latitud" [readonly]="isViewMode">
+          </div>
+          <div class="col-md-4 mb-3">
+            <label class="form-label">Longitud (O)</label>
+            <input type="number" class="form-control" formControlName="longitud" [readonly]="isViewMode">
+          </div>
+          <div class="col-md-4 mb-3">
+            <label class="form-label">Altitud (m)</label>
+            <input type="number" class="form-control" formControlName="altitud" [readonly]="isViewMode">
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-4 mb-3">
+            <label class="form-label">Coeficiente Aceleración Sísmica (Aa)</label>
+            <input type="text" class="form-control" formControlName="coeficienteAceleracionSismica" [readonly]="isViewMode">
+          </div>
+          <div class="col-md-4 mb-3">
+            <label class="form-label">Paso por Cauce</label>
+            <select class="form-control" formControlName="pasoCauce" [disabled]="isViewMode">
               <option value="">Selecciona una opción</option>
-              <option *ngFor="let option of latitudeDegreesOptions" [value]="option.value">{{ option.label }}</option>
+              <option [value]="true">Sí</option>
+              <option [value]="false">No</option>
             </select>
           </div>
-          <div class="col-md-2 mb-3">
-            <label class="form-label">Latitud (M)</label>
-            <select class="form-control" formControlName="latitudMinuto">
+          <div class="col-md-4 mb-3">
+            <label class="form-label">Existe Variante</label>
+            <select class="form-control" formControlName="existeVariante" [disabled]="isViewMode">
               <option value="">Selecciona una opción</option>
-              <option *ngFor="let option of minutesOptions" [value]="option.value">{{ option.label }}</option>
-            </select>
-          </div>
-          <div class="col-md-2 mb-3">
-            <label class="form-label">Latitud (S)</label>
-            <select class="form-control" formControlName="latitudSegundo">
-              <option value="">Selecciona una opción</option>
-              <option *ngFor="let option of secondsOptions" [value]="option.value">{{ option.label }}</option>
-            </select>
-          </div>
-          <div class="col-md-2 mb-3">
-            <label class="form-label">Longitud (G)</label>
-            <select class="form-control" formControlName="longitudGrado">
-              <option value="">Selecciona una opción</option>
-              <option *ngFor="let option of longitudeDegreesOptions" [value]="option.value">{{ option.label }}</option>
-            </select>
-          </div>
-          <div class="col-md-2 mb-3">
-            <label class="form-label">Longitud (M)</label>
-            <select class="form-control" formControlName="longitudMinuto">
-              <option value="">Selecciona una opción</option>
-              <option *ngFor="let option of longitudeDegreesOptions" [value]="option.value">{{ option.label }}</option>
-            </select>
-          </div>
-          <div class="col-md-2 mb-3">
-            <label class="form-label">Longitud (S)</label>
-            <select class="form-control" formControlName="longitudSegundo">
-              <option value="">Selecciona una opción</option>
-              <option *ngFor="let option of longitudeDegreesOptions" [value]="option.value">{{ option.label }}</option>
+              <option [value]="true">Sí</option>
+              <option [value]="false">No</option>
             </select>
           </div>
         </div>
         <div class="row">
           <div class="col-md-4 mb-3">
-            <label class="form-label">Coeficiente de aceleración sísmica (Aa)</label>
-            <select class="form-control" formControlName="coefAceleracionSismica">
-              <option value="">Selecciona una opción</option>
-              <option *ngFor="let option of seismicAccelerationCoefficientOptions"
-                      [value]="option.value">{{ option.label }}
-              </option>
-            </select>
+            <label class="form-label">Longitud Variante</label>
+            <input type="number" class="form-control" formControlName="longitudVariante" [readonly]="isViewMode">
           </div>
           <div class="col-md-4 mb-3">
-            <label class="form-label">Paso por el cause (S/N)</label>
-            <select class="form-control" formControlName="pasoCausa">
+            <label class="form-label">Estado</label>
+            <select class="form-control" formControlName="estado" [disabled]="isViewMode">
               <option value="">Selecciona una opción</option>
-              <option *ngFor="let option of snOptions" [value]="option.value">{{ option.label }}</option>
-            </select>
-          </div>
-          <div class="col-md-4 mb-3">
-            <label class="form-label">Existe variante (S/N)</label>
-            <select class="form-control" formControlName="existeVariante">
-              <option value="">Selecciona una opción</option>
-              <option *ngFor="let option of snOptions" [value]="option.value">{{ option.label }}</option>
-            </select>
-          </div>
-        </div>
-        <div class="row">
-          <div class="col-md-4 mb-3">
-            <label class="form-label">Longitud variante</label>
-            <select class="form-control" formControlName="longitudVariante">
-              <option value="">Selecciona una opción</option>
-              <option *ngFor="let option of variableLengthOptions" [value]="option.value">{{ option.label }}</option>
-            </select>
-          </div>
-          <div class="col-md-4 mb-3">
-            <label class="form-label">Estado (B/R/M)</label>
-            <select class="form-control" formControlName="estado">
-              <option value="">Selecciona una opción</option>
-              <option *ngFor="let option of brmOptions" [value]="option.value">{{ option.label }}</option>
-            </select>
-          </div>
-          <div class="col-md-2 mb-3">
-            <label class="form-label">Altitud</label>
-            <select class="form-control" formControlName="altitude">
-              <option value="">Selecciona una opción</option>
-              <option *ngFor="let option of altitudeOptions" [value]="option.value">{{ option.label }}</option>
+              <option value="B">Bueno</option>
+              <option value="R">Regular</option>
+              <option value="M">Malo</option>
             </select>
           </div>
         </div>
       </div>
     </div>
+    
 
-    <!-- Sección de Carga para tránsito legal-->
+    <!-- Sección de Carga -->
     <div class="card my-3">
       <div class="card-header">
-        CARGA: Capacidad de carga para tránsito legal
+        CARGA
       </div>
       <div class="card-body">
         <div class="row">
-          <div class="col-md-6 mb-3">
+          <!-- Longitud Luz Crítica -->
+          <div class="col-md-4 mb-3">
             <label class="form-label">Long. Luz crítica (m)</label>
             <select class="form-control" formControlName="longitudLuzCritica">
               <option value="">Selecciona una opción</option>
-              <option *ngFor="let option of criticalSpanLengthOptions" [value]="option.value">{{ option.label }}
+              <option *ngFor="let option of criticalSpanLengthOptions" [value]="option.value">
+                {{ option.label }}
               </option>
             </select>
           </div>
-          <div class="col-md-6 mb-3">
+    
+          <!-- Factor Clasificación -->
+          <div class="col-md-4 mb-3">
             <label class="form-label">Factor de clasificación</label>
             <select class="form-control" formControlName="factorClasificacion">
               <option value="">Selecciona una opción</option>
-              <option *ngFor="let option of classificationFactorOptions" [value]="option.value">{{ option.label }}
+              <option *ngFor="let option of classificationFactorOptions" [value]="option.value">
+                {{ option.label }}
               </option>
             </select>
+          </div>
+    
+          <!-- Línea de carga por rueda -->
+          <div class="col-md-4 mb-3">
+            <label class="form-label">Línea de carga por rueda (t)</label>
+            <select class="form-control" formControlName="lineaCargaPorRueda">
+              <option value="">Selecciona una opción</option>
+              <option *ngFor="let option of linealOptions" [value]="option.value">
+                {{ option.label }}
+              </option>
+            </select>
+          </div>
+        </div>
+    
+        <div class="row">
+          <!-- Fuerza cortante -->
+          <div class="col-md-6 mb-3">
+            <label for="fuerza-cortante" class="form-label">Fuerza cortante (t)</label>
+            <input type="text" [readonly]="isViewMode" id="fuerza-cortante"
+                   class="form-control" formControlName="fuerzaCortante" placeholder="Fuerza cortante">
+          </div>
+    
+          <!-- Momento -->
+          <div class="col-md-6 mb-3">
+            <label for="momento" class="form-label">Momento (t·m)</label>
+            <input type="text" [readonly]="isViewMode" id="momento"
+                   class="form-control" formControlName="momento" placeholder="Momento">
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Sección de Carga para tránsito legal-->
-    <div class="card my-3">
-      <div class="card-header">
-        CARGA: Capacidad de carga para transportes
-      </div>
-      <div class="card-body">
-        <div class="row">
-          <div class="col-md-4 mb-3">
-            <label for="fuerza-cortante" class="form-label">Fuerza cortante (N)</label>
-            <input type="text" [readonly]="isViewMode" id="fuerza-cortante" class="form-control" placeholder="Fuerza cortante"
-                   formControlName="fuerzaCortante">
-          </div>
-          <div class="col-md-4 mb-3">
-            <label for="momento" class="form-label">Momento (N)</label>
-            <input type="text" [readonly]="isViewMode" id="momento" class="form-control" placeholder="Momento" formControlName="momento">
-          </div>
-          <div class="col-md-4 mb-3">
-            <label class="form-label">Línea de carga por rueda (t)</label>
-            <select class="form-control" formControlName="lineaCargaRueda">
-              <option value="">Selecciona una opción</option>
-              <option *ngFor="let option of linealOptions" [value]="option.value">{{ option.label }}</option>
-            </select>
-          </div>
-        </div>
-      </div>
-    </div>
+    <!-- Sección de Observaciones -->
     <div class="card my-3">
       <div class="card-header">
         OBSERVACIONES
       </div>
       <div class="card-body">
         <div class="row">
+          <!-- Campo de texto para observaciones -->
           <div class="col-md-12">
             <label for="observaciones" class="form-label">Observaciones</label>
-            <textarea id="observaciones" [readonly]="isViewMode" class="form-control" placeholder="Observaciones" rows="4" formControlName="observaciones"></textarea>
+            <textarea id="observaciones"
+                      [readonly]="isViewMode"
+                      class="form-control"
+                      placeholder="Observaciones"
+                      rows="4"
+                      formControlName="observaciones"></textarea>
           </div>
+
+          <!-- Imagen asociada a observaciones -->
           <div class="col-md-12 mb-3">
             <label for="imagen-carga" class="form-label">Imagen</label>
-            <input  *ngIf="!isViewMode" type="file" id="imagen-carga" class="form-control" (change)="onFileChange($event, 'observationsImage')" #observationsImageInput>
+            <input *ngIf="!isViewMode"
+                  type="file"
+                  id="imagen-carga"
+                  class="form-control"
+                  (change)="onFileChange($event, 'observationsImage')"
+                  #observationsImageInput>
             <input type="hidden" formControlName="observationsImageUrl">
+
             <div *ngIf="form.get('observationsImageUrl')?.value">
-              <a href="{{ form.get('observationsImageUrl')?.value }}" target="_blank">Imagen Subida</a>
+              <a [href]="form.get('observationsImageUrl')?.value" target="_blank">Imagen Subida</a>
             </div>
           </div>
         </div>
       </div>
     </div>
+
+    <!-- Botón Subir -->
     <div class="row">
       <div class="col-12">
-        <button type="submit" class="btn btn-primary" (click)="onSubmit()" [disabled]="form.invalid"> {{ isEditMode ? 'Modificar Fomulario' : 'Crear Formulario' }}
+        <button type="submit"
+                class="btn btn-primary"
+                (click)="onSubmit()"
+                [disabled]="form.invalid">
+          {{ isEditMode ? 'Modificar Formulario' : 'Crear Formulario' }}
         </button>
+
         <div *ngIf="form.invalid && formSubmitted" class="alert alert-danger mt-2">
           Por favor llene todos los campos requeridos antes de guardar.
         </div>
       </div>
     </div>
+
   </form>
 </div>
