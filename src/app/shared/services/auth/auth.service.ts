@@ -10,7 +10,7 @@ import { HttpClient } from '@angular/common/http';
 export class AuthService {
   private currentUserRoleSubject = new BehaviorSubject<string | null>(null);
   private currentUserMunicipalitySubject = new BehaviorSubject<string | null>(null);
-  private readonly apiUrl = 'http://auth-service:8080/api/users';
+  private readonly apiUrl = 'http://localhost:8080/api/auth';
 
   constructor(private http: HttpClient) {
     this.loadUserRole();
@@ -34,12 +34,45 @@ export class AuthService {
     return this.http.post(`${this.apiUrl}/login`, { email, password })
       .toPromise()
       .then((userData: any) => {
-        if (userData) {
+        if (userData && userData.token) {
+          localStorage.setItem('userToken', userData.token);
           this.login(userData);
+        }else if (!userData || !userData.token) {
+          throw new Error('Token no proporcionado');
         }
+        
         return userData;
       });
   }
+
+  getUserFromToken(token: string): Promise<any> {
+    if (!token) {
+      return Promise.reject('Token no encontrado');
+    }
+  
+    const headers = {
+      Authorization: `Bearer ${token}`
+    };
+  
+    return this.http.get(`${this.apiUrl}/me`, { headers })
+      .toPromise()
+      .then((userData: any) => {
+        if (userData) {
+          localStorage.setItem('userToken', token); // Guardar el token original
+          sessionStorage.setItem('user', JSON.stringify(userData));
+  
+          this.currentUserRoleSubject.next(userData.type);
+          this.currentUserMunicipalitySubject.next(userData.municipality || null);
+        }
+        return userData;
+      })
+      .catch(error => {
+        console.error('Error al obtener usuario desde token:', error);
+        throw error;
+      });
+  }
+  
+  
 
   logout(): void {
     localStorage.removeItem('userToken');

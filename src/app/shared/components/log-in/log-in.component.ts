@@ -16,7 +16,6 @@ import { AuthService } from '../../services/auth/auth.service';
     styleUrl: './log-in.component.css'
 })
 export class LogInComponent {
-  private _usersService = inject(UsersService);
   private _router = inject(Router);
 
   loginForm: FormGroup;
@@ -41,10 +40,10 @@ export class LogInComponent {
     const { email, password } = this.loginForm.value;
 
     try {
-      const user = await this._usersService.searchUserByEmailAndPassword(email, password);
-      if (user) {
-        sessionStorage.setItem('user', JSON.stringify(user));
-        this.authService.login(user)
+      const userData = await this.authService.loginWithEmailAndPassword(email, password);
+      if (userData && userData.token) {
+        localStorage.setItem('userToken', userData.token);
+        await this.authService.getUserFromToken(userData.token);
         this._router.navigate(['/home']);
       } else {
         swal(
@@ -55,6 +54,11 @@ export class LogInComponent {
       }
     } catch (error) {
       console.error('Login error:', error);
+      swal(
+        'Error',
+        'Ocurrió un error al iniciar sesión. Intenta nuevamente.',
+        'error'
+      )
     }
   }
 }
