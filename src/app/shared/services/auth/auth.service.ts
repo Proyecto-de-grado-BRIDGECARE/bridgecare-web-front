@@ -30,20 +30,29 @@ export class AuthService {
     this.loadUserRole();
   }
 
-  loginWithEmailAndPassword(email: string, password: string): Promise<any> {
-    return this.http.post(`${this.apiUrl}/login`, { email, password })
+  loginWithEmailAndPassword(correo: string, contrasenia: string): Promise<any> {
+    const payload = { correo, contrasenia };
+    console.log('Enviando payload:', payload); //Log para verificar
+  
+    return this.http.post(`${this.apiUrl}/login`, payload)
       .toPromise()
       .then((userData: any) => {
+        console.log('Respuesta recibida:', userData); // <Verifica si llega algo
+  
         if (userData && userData.token) {
           localStorage.setItem('userToken', userData.token);
           this.login(userData);
-        }else if (!userData || !userData.token) {
+          return userData;
+        } else {
           throw new Error('Token no proporcionado');
         }
-        
-        return userData;
+      })
+      .catch(error => {
+        console.error('Error en loginWithEmailAndPassword:', error);
+        throw error;
       });
   }
+  
 
   getUserFromToken(token: string): Promise<any> {
     if (!token) {

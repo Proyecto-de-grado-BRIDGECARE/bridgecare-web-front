@@ -37,10 +37,10 @@ export class LogInComponent {
       return;
     }
 
-    const { email, password } = this.loginForm.value;
+    const { correo, contrasenia } = this.loginForm.value;
 
     try {
-      const userData = await this.authService.loginWithEmailAndPassword(email, password);
+      const userData = await this.authService.loginWithEmailAndPassword(correo, contrasenia);
       if (userData && userData.token) {
         localStorage.setItem('userToken', userData.token);
         await this.authService.getUserFromToken(userData.token);
