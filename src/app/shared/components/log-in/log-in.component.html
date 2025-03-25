@@ -10,13 +10,13 @@
           <input
             type="email"
             class="form-control"
-            id="email"
-            formControlName="email"
+            id="correo"
+            formControlName="correo"
             placeholder="Correo Electrónico"
           />
-          <div *ngIf="loginForm.get('email')?.invalid && loginForm.get('email')?.touched" class="text-danger">
-            <small *ngIf="loginForm.get('email')?.errors?.['required']">Correo electrónico es requerido.</small>
-            <small *ngIf="loginForm.get('email')?.errors?.['email']">Correo electrónico no es válido.</small>
+          <div *ngIf="loginForm.get('correo')?.invalid && loginForm.get('correo')?.touched" class="text-danger">
+            <small *ngIf="loginForm.get('correo')?.errors?.['required']">Correo electrónico es requerido.</small>
+            <small *ngIf="loginForm.get('correo')?.errors?.['correo']">Correo electrónico no es válido.</small>
           </div>
         </div>
         <div class="mb-3">
@@ -24,13 +24,13 @@
           <input
             type="password"
             class="form-control"
-            id="password"
-            formControlName="password"
-            placeholder="Contraseña"
+            id="contrasenia"
+            formControlName="contrasenia"
+            placeholder="contrasenia"
           />
-          <div *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched" class="text-danger">
-            <small *ngIf="loginForm.get('password')?.errors?.['required']">Contraseña es requerida.</small>
-            <small *ngIf="loginForm.get('password')?.errors?.['minlength']">La contraseña debe tener al menos 6 caracteres.</small>
+          <div *ngIf="loginForm.get('contrasenia')?.invalid && loginForm.get('contrasenia')?.touched" class="text-danger">
+            <small *ngIf="loginForm.get('contrasenia')?.errors?.['required']">Contraseña es requerida.</small>
+            <small *ngIf="loginForm.get('contrasenia')?.errors?.['minlength']">La contraseña debe tener al menos 6 caracteres.</small>
           </div>
         </div>
         <div class="text-center mt-5 mb-5">
