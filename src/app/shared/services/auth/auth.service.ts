@@ -1,8 +1,14 @@
 import { Injectable } from '@angular/core';
 import * as bcrypt from 'bcryptjs';
-import { BehaviorSubject, combineLatest } from 'rxjs';
+import { BehaviorSubject, combineLatest, firstValueFrom } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+
+interface LoginResponse {
+  token: string;
+  [key: string]: any; // Allows additional fields if needed
+}
+
 
 @Injectable({
   providedIn: 'root'
@@ -25,55 +31,64 @@ export class AuthService {
     }
   }
 
-  login(userData: any): void {
+  private login(userData: LoginResponse) {
+    console.log('👤 Login realizado con:', userData);
     sessionStorage.setItem('user', JSON.stringify(userData));
     this.loadUserRole();
   }
 
-  loginWithEmailAndPassword(correo: string, contrasenia: string): Promise<any> {
-    const basicAuthHeader = btoa(`${correo}:${contrasenia}`); // Codifica en base64
-    const headers = {
-      Authorization: `Basic ${basicAuthHeader}`
+  async loginWithEmailAndPassword(correo: string, contrasenia: string): Promise<LoginResponse> {
+    const payload = {
+      correo: correo,
+      contrasenia: contrasenia
     };
-  
-    console.log('🧾 Headers enviados:', headers); 
-  
-    return this.http.post(`${this.apiUrl}/login`, { headers })
-      .toPromise()
-      .then((userData: any) => {
-        console.log('📦 Respuesta del login:', userData);
-  
-        if (userData?.token) {
-          localStorage.setItem('userToken', userData.token);
-          console.log('🔐 Token guardado:', userData.token); // ✅ Imprime el token
-          this.login(userData);
-        }
-        return userData;
-      })
-      .catch(error => {
-        console.error('❌ Error en loginWithEmailAndPassword:', error);
-        throw error;
-      });
+
+    // Encode credentials for Basic Auth
+    const basicAuth = btoa(`${correo}:${contrasenia}`);
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json',
+      'Authorization': `Basic ${basicAuth}`
+    });
+
+    console.log('📤 Payload enviado:', JSON.stringify(payload, null, 2));
+    console.log('📤 Headers enviados:', headers);
+
+    try {
+      const userData = await firstValueFrom(
+        this.http.post<LoginResponse>(`${this.apiUrl}/login`, payload, { headers })
+      );
+
+      console.log('📦 Respuesta del login:', userData);
+
+      if (userData?.token) {
+        localStorage.setItem('userToken', userData.token);
+        console.log('🔐 Token guardado:', userData.token);
+        this.login(userData);
+      }
+
+      return userData;
+    } catch (error) {
+      console.error('❌ Error en loginWithEmailAndPassword:', error);
+      throw error;
+    }
   }
-  
-  
 
   getUserFromToken(token: string): Promise<any> {
     if (!token) {
       return Promise.reject('Token no encontrado');
     }
-  
+
     const headers = {
       Authorization: `Bearer ${token}`
     };
-  
+
     return this.http.get(`${this.apiUrl}/me`, { headers })
       .toPromise()
       .then((userData: any) => {
         if (userData) {
           localStorage.setItem('userToken', token); // Guardar el token original
           sessionStorage.setItem('user', JSON.stringify(userData));
-  
+
           this.currentUserRoleSubject.next(userData.type);
           this.currentUserMunicipalitySubject.next(userData.municipality || null);
         }
@@ -84,15 +99,15 @@ export class AuthService {
         throw error;
       });
   }
-  
-  
+
+
 
   logout(): void {
     localStorage.removeItem('userToken');
     sessionStorage.clear();
     this.currentUserRoleSubject.next(null);
   }
-  
+
   hashPassword(password: string): Promise<string> {
     const saltRounds = 10;
     const hashed = bcrypt.hash(password, saltRounds);
