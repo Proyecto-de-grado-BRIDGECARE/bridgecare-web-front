@@ -31,27 +31,31 @@ export class AuthService {
   }
 
   loginWithEmailAndPassword(correo: string, contrasenia: string): Promise<any> {
-    const payload = { correo, contrasenia };
-    console.log('Enviando payload:', payload); //Log para verificar
+    const basicAuthHeader = btoa(`${correo}:${contrasenia}`); // Codifica en base64
+    const headers = {
+      Authorization: `Basic ${basicAuthHeader}`
+    };
   
-    return this.http.post(`${this.apiUrl}/login`, payload)
+    console.log('🧾 Headers enviados:', headers); 
+  
+    return this.http.post(`${this.apiUrl}/login`, { headers })
       .toPromise()
       .then((userData: any) => {
-        console.log('Respuesta recibida:', userData); // <Verifica si llega algo
+        console.log('📦 Respuesta del login:', userData);
   
-        if (userData && userData.token) {
+        if (userData?.token) {
           localStorage.setItem('userToken', userData.token);
+          console.log('🔐 Token guardado:', userData.token); // ✅ Imprime el token
           this.login(userData);
-          return userData;
-        } else {
-          throw new Error('Token no proporcionado');
         }
+        return userData;
       })
       .catch(error => {
-        console.error('Error en loginWithEmailAndPassword:', error);
+        console.error('❌ Error en loginWithEmailAndPassword:', error);
         throw error;
       });
   }
+  
   
 
   getUserFromToken(token: string): Promise<any> {

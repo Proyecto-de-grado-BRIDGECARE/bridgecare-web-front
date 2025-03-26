@@ -26,7 +26,7 @@
             class="form-control"
             id="contrasenia"
             formControlName="contrasenia"
-            placeholder="contrasenia"
+            placeholder="contraseña"
           />
           <div *ngIf="loginForm.get('contrasenia')?.invalid && loginForm.get('contrasenia')?.touched" class="text-danger">
             <small *ngIf="loginForm.get('contrasenia')?.errors?.['required']">Contraseña es requerida.</small>
