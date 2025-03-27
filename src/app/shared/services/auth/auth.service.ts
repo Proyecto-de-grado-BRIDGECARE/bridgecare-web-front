@@ -32,7 +32,7 @@ export class AuthService {
   }
 
   private login(userData: LoginResponse) {
-    console.log('👤 Login realizado con:', userData);
+    // console.log('👤 Login realizado con:', userData);
     sessionStorage.setItem('user', JSON.stringify(userData));
     this.loadUserRole();
   }
@@ -50,15 +50,15 @@ export class AuthService {
       'Authorization': `Basic ${basicAuth}`
     });
 
-    console.log('📤 Payload enviado:', JSON.stringify(payload, null, 2));
-    console.log('📤 Headers enviados:', headers);
+    // console.log('📤 Payload enviado:', JSON.stringify(payload, null, 2));
+    // console.log('📤 Headers enviados:', headers);
 
     try {
       const userData = await firstValueFrom(
         this.http.post<LoginResponse>(`${this.apiUrl}/login`, payload, { headers })
       );
 
-      console.log('📦 Respuesta del login:', userData);
+      // console.log('📦 Respuesta del login:', userData);
 
       if (userData?.token) {
         localStorage.setItem('userToken', userData.token);
@@ -77,30 +77,36 @@ export class AuthService {
     if (!token) {
       return Promise.reject('Token no encontrado');
     }
-
+  
     const headers = {
       Authorization: `Bearer ${token}`
     };
-
+  
     return this.http.get(`${this.apiUrl}/me`, { headers })
       .toPromise()
       .then((userData: any) => {
-        if (userData) {
-          localStorage.setItem('userToken', token); // Guardar el token original
-          sessionStorage.setItem('user', JSON.stringify(userData));
-
-          this.currentUserRoleSubject.next(userData.type);
-          this.currentUserMunicipalitySubject.next(userData.municipality || null);
-        }
-        return userData;
+        console.log('✅ Datos originales desde /me:', userData);
+  
+        // Transformamos los campos para que coincidan con la interfaz del frontend
+        const transformedUser = {
+          ...userData,
+          type: userData.tipoUsuario,
+          municipality: userData.municipio
+        };
+  
+        // Guardamos y actualizamos los subjects
+        sessionStorage.setItem('user', JSON.stringify(transformedUser));
+        this.currentUserRoleSubject.next(transformedUser.type ?? null);
+        this.currentUserMunicipalitySubject.next(transformedUser.municipality ?? null);
+  
+        return transformedUser;
       })
       .catch(error => {
-        console.error('Error al obtener usuario desde token:', error);
+        console.error('❌ Error al obtener usuario desde token:', error);
         throw error;
       });
   }
-
-
+  
 
   logout(): void {
     localStorage.removeItem('userToken');
