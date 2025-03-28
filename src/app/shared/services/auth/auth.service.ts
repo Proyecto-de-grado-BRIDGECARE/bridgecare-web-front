@@ -78,26 +78,24 @@ export class AuthService {
       return Promise.reject('Token no encontrado');
     }
   
-    const headers = {
+    const headers = new HttpHeaders({
       Authorization: `Bearer ${token}`
-    };
+    });
   
     return this.http.get(`${this.apiUrl}/me`, { headers })
       .toPromise()
       .then((userData: any) => {
         console.log('✅ Datos originales desde /me:', userData);
   
-        // Transformamos campos para que coincidan con el frontend
         const transformedUser = {
           ...userData,
           type: userData.tipoUsuario,
           municipality: userData.municipio
         };
   
-        // Guardamos subjects
         sessionStorage.setItem('user', JSON.stringify(transformedUser));
-        this.currentUserRoleSubject.next(transformedUser.type ?? null);
-        this.currentUserMunicipalitySubject.next(transformedUser.municipality ?? null);
+  
+        this.loadUserRole();
   
         return transformedUser;
       })
@@ -106,6 +104,7 @@ export class AuthService {
         throw error;
       });
   }
+  
   
 
   logout(): void {
