@@ -87,14 +87,14 @@ export class AuthService {
       .then((userData: any) => {
         console.log('✅ Datos originales desde /me:', userData);
   
-        // Transformamos los campos para que coincidan con la interfaz del frontend
+        // Transformamos campos para que coincidan con el frontend
         const transformedUser = {
           ...userData,
           type: userData.tipoUsuario,
           municipality: userData.municipio
         };
   
-        // Guardamos y actualizamos los subjects
+        // Guardamos subjects
         sessionStorage.setItem('user', JSON.stringify(transformedUser));
         this.currentUserRoleSubject.next(transformedUser.type ?? null);
         this.currentUserMunicipalitySubject.next(transformedUser.municipality ?? null);
