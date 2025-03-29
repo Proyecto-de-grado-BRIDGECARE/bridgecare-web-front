@@ -25,59 +25,58 @@ export const routes: Routes = [
     component: HomeComponent,
     canActivate: [roleGuard],
     data: {
-      requiredRole: ['0', '1', '2'] // 0 = admin, 1 = student, 2 = municipal
+      requiredRole: [0, 1, 2] // 0 = municipal, 1 = student, 2 = admin
     }
   },
-
   {
     path: 'home/bridge-management',
     children: [
       {
-        path: 'inventories', // aparecen todos los inventarios
+        path: 'inventories',
         component: InventoriesComponent,
         canActivate: [roleGuard],
         data: {
-          requiredRole: ['0', '1', '2']
+          requiredRole: [0, 1, 2]
         }
       },
       {
-        path: 'inventories/inventory-bridge', // se crea un nuevo inventario
+        path: 'inventories/inventory-bridge',
         component: InventoryBridgeComponent,
         canActivate: [roleGuard],
         data: {
-          requiredRole: ['0', '1']
+          requiredRole: [1, 2]
         }
       },
       {
-        path: 'inventories/:bridgeIdentification/inspections', // se ven las inspecciones de un inventario
+        path: 'inventories/:bridgeIdentification/inspections',
         component: InspectionsComponent,
         canActivate: [roleGuard],
         data: {
-          requiredRole: ['0', '1', '2']
+          requiredRole: [0, 1, 2]
         }
       },
       {
-        path: 'inventories/:bridgeIdentification/inventory-bridge', // se modifica el inventario seleccionado
+        path: 'inventories/:bridgeIdentification/inventory-bridge',
         component: InventoryBridgeComponent,
         canActivate: [roleGuard],
         data: {
-          requiredRole: ['0', '1']
+          requiredRole: [1, 2]
         }
       },
       {
-        path: 'inventories/:bridgeIdentification/inspections/inventory-bridge', // se ve el inventario
+        path: 'inventories/:bridgeIdentification/inspections/inventory-bridge',
         component: InventoryBridgeComponent,
         canActivate: [roleGuard],
         data: {
-          requiredRole: ['0', '1', '2']
+          requiredRole: [0, 1, 2]
         }
       },
       {
-        path: 'inventories/:bridgeIdentification/inspections/inspection-bridge', // se ve la inspección detallada
+        path: 'inventories/:bridgeIdentification/inspections/inspection-bridge',
         component: InspectionBridgeComponent,
         canActivate: [roleGuard],
         data: {
-          requiredRole: ['0', '1', '2']
+          requiredRole: [0, 1, 2]
         }
       },
       {
@@ -85,16 +84,18 @@ export const routes: Routes = [
         component: InventoryBridgeComponent,
         canActivate: [roleGuard],
         data: {
-          requiredRole: ['0', '1', '2']
+          requiredRole: [0, 1, 2]
         }
       },
       {
-        path: '', redirectTo: 'inventories', pathMatch: 'full'
+        path: '',
+        redirectTo: 'inventories',
+        pathMatch: 'full'
       }
     ],
     canActivate: [roleGuard],
     data: {
-      requiredRole: ['0', '1', '2']
+      requiredRole: [0, 1, 2]
     }
   },
   {
@@ -102,7 +103,7 @@ export const routes: Routes = [
     component: ManageUsersComponent,
     canActivate: [roleGuard],
     data: {
-      requiredRole: '0'
+      requiredRole: [2]
     }
   },
   {
@@ -110,3 +111,4 @@ export const routes: Routes = [
     component: NotFoundComponent
   }
 ];
+

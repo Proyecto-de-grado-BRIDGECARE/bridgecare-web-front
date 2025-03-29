@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import * as bcrypt from 'bcryptjs';
-import { BehaviorSubject, combineLatest, firstValueFrom } from 'rxjs';
+import { BehaviorSubject, combineLatest, firstValueFrom, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 
@@ -14,9 +14,11 @@ interface LoginResponse {
   providedIn: 'root'
 })
 export class AuthService {
+  private readonly apiUrl = 'http://localhost:8080/api/auth';
+  
   private currentUserRoleSubject = new BehaviorSubject<string | null>(null);
   private currentUserMunicipalitySubject = new BehaviorSubject<string | null>(null);
-  private readonly apiUrl = 'http://localhost:8080/api/auth';
+  public currentUserRole$ = this.currentUserRoleSubject.asObservable();
 
   constructor(private http: HttpClient) {
     this.loadUserRole();
@@ -127,16 +129,16 @@ export class AuthService {
     return this.currentUserMunicipalitySubject.asObservable();
   }
 
-  isAdmin$ = this.currentUserRoleSubject.asObservable().pipe(
-    map(role => role === '0')
+  public isAdmin$: Observable<boolean> = this.currentUserRole$.pipe(
+    map(role => Number(role) === 2)
   );
 
-  isStudent$ = this.currentUserRoleSubject.asObservable().pipe(
-    map(role => role === '1')
+  public isStudent$: Observable<boolean> = this.currentUserRole$.pipe(
+    map(role => Number(role) === 1)
   );
 
-  isMunicipal$ = this.currentUserRoleSubject.asObservable().pipe(
-    map(role => role === '2')
+  public  isMunicipal$: Observable<boolean> = this.currentUserRole$.pipe(
+    map(role => Number(role) === 0)
   );
 
   isPrivilegedUser$ = combineLatest([this.isAdmin$, this.isStudent$]).pipe(
