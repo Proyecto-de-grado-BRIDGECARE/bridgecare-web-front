@@ -39,20 +39,26 @@ export const routes: Routes = [
           requiredRole: [0, 1, 2]
         }
       },
+      // Crear inventario
       {
         path: 'inventories/inventory-bridge',
         component: InventoryBridgeComponent,
         canActivate: [roleGuard],
-        data: {
-          requiredRole: [1, 2]
-        }
+        data: { requiredRole: [1, 2] }
+      },
+      // Editar inventario
+      {
+        path: 'inventories/:bridgeIdentification/inventory-bridge',
+        component: InventoryBridgeComponent,
+        canActivate: [roleGuard],
+        data: { requiredRole: [ 1, 2] }
       },
       {
         path: 'inventories/:bridgeIdentification/inspections',
         component: InspectionsComponent,
         canActivate: [roleGuard],
         data: {
-          requiredRole: [0, 1, 2]
+          requiredRole: [1, 2]
         }
       },
       {

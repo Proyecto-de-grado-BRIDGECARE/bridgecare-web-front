@@ -1,6 +1,12 @@
 <div class="container mt-5">
   <h1>Formato de inventario de Puentes</h1>
 
+  <div class="alert alert-info text-center mb-4">
+    <ng-container *ngIf="isViewMode">Estás viendo el inventario (modo solo lectura).</ng-container>
+    <ng-container *ngIf="isEditMode">Estás editando un inventario existente.</ng-container>
+    <ng-container *ngIf="!isEditMode && !isViewMode">Estás creando un nuevo inventario.</ng-container>
+  </div>
+
   <form [formGroup]="form">
     <div class="card my-3">
       <div class="card-header">

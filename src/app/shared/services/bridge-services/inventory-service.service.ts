@@ -1,152 +1,73 @@
-import { Injectable, inject } from '@angular/core';
-import {
-  addDoc,
-  collection,
-  collectionData,
-  deleteDoc,
-  doc,
-  Firestore,
-  getDoc,
-  updateDoc,
-  DocumentReference,
-  DocumentData, where, getDocs, query
-} from '@angular/fire/firestore';
 import { Inventory } from '../../../models/bridge/inventory';
 import { Observable } from 'rxjs';
 import { getDownloadURL, ref, uploadBytes, Storage, FirebaseStorage } from "@angular/fire/storage";
 import { AbstractControl, AsyncValidatorFn, FormControl, ValidationErrors } from "@angular/forms";
+import { Injectable } from '@angular/core';
+import { HttpClient, HttpParams } from '@angular/common/http';
 
 @Injectable({
   providedIn: 'root'
 })
 export class InventoryServiceService {
-  private collection = collection(this.firestore, 'inventories');
 
-  constructor(private firestore: Firestore, private storage: Storage) {
+  private readonly apiUrl = 'http://localhost:8082/api/inventario';
+
+  constructor(private http: HttpClient) {
   }
 
   getInventories(): Observable<Inventory[]> {
-    return collectionData(this.collection, {idField: 'id'}) as Observable<Inventory[]>;
+    return this.http.get<Inventory[]>(`${this.apiUrl}`);
   }
 
-  async getInventoryByBridgeIdentification(bridgeIdentification: string): Promise<{
-    id: string,
-    data: Inventory
-  } | undefined> {
-    console.log(`Fetching inventory with bridgeIdentification: ${bridgeIdentification}`);
-    const q = query(this.collection, where('generalInformation.bridgeIdentification', '==', bridgeIdentification));
-    const querySnapshot = await getDocs(q);
-    if (!querySnapshot.empty) {
-      const docSnapshot = querySnapshot.docs[0];
-      const data = docSnapshot.data() as Inventory;
-      console.log(`Inventory data for bridgeIdentification ${bridgeIdentification}:`, data);
-      return {id: docSnapshot.id, data: data};
-    } else {
-      console.log(`No inventory found with bridgeIdentification: ${bridgeIdentification}`);
-      return undefined;
-    }
+  getInventoryByBridgeIdentification(bridgeIdentification: string): Observable<Inventory>{
+    return this.http.get<Inventory>(`${this.apiUrl}/bridge-identification/${bridgeIdentification}`);
   }
 
   getInventoriesByMunicipality(municipality: string): Observable<Inventory[]> {
-    const queryRef = query(this.collection, where('stakeholders.municipality', '==', municipality));
-    return collectionData(queryRef, { idField: 'id' }) as Observable<Inventory[]>;
+    const params = new HttpParams().set('municipality', municipality);
+    return this.http.get<Inventory[]>(`${this.apiUrl}/by-municipality`, { params });
   }
 
-  async getInventoryById(id: string): Promise<Inventory | undefined> {
-    try {
-      const docRef = doc(this.firestore, `inventories/${id}`);
-      const docSnap = await getDoc(docRef);
-      if (docSnap.exists()) {
-        return docSnap.data() as Inventory;
-      } else {
-        console.warn(`No se encontró inventario con ID: ${id}`);
-        return undefined;
-      }
-    } catch (error) {
-      console.error('Error al obtener inventario por ID:', error);
-      return undefined;
-    }
+  getInventoryById(id: string): Observable<Inventory> {
+    return this.http.get<Inventory>(`${this.apiUrl}/${id}`);
   }
   
 
-  async getBridgeName(bridgeIdentification: string): Promise<string | undefined> {
-    try {
-      const q = query(this.collection, where('generalInformation.bridgeIdentification', '==', bridgeIdentification));
-      const inventoriesSnapshot = await getDocs(q);
-      if (inventoriesSnapshot.empty) {
-        return undefined;
-      } else {
-        const inventoryData = inventoriesSnapshot.docs[0].data();
-        return inventoryData['generalInformation'].name;
-      }
-    } catch (error) {
-      console.error('Error fetching bridge name:', error);
-      return undefined;
-    }
+  getBridgeName(bridgeIdentification: string): Observable<string> {
+    return this.http.get(`${this.apiUrl}/bridge-name/${bridgeIdentification}`, { responseType: 'text' });
   }
 
-
-  async createInventory(inventory: Inventory): Promise<void> {
-    await addDoc(this.collection, inventory);
+  createInventory(inventory: Inventory): Observable<any> {
+    return this.http.post(`${this.apiUrl}`, inventory);
   }
 
-  async updateInventory(id: string, inventory: Inventory): Promise<void> {
-    await updateDoc(doc(this.firestore, `inventories/${id}`), {...inventory});
+  updateInventory(id: string, inventory: Inventory): Observable<any> {
+    return this.http.put(`${this.apiUrl}/${id}`, inventory);
   }
 
-  async deleteInventory(id: string): Promise<void> {
-    await deleteDoc(doc(this.firestore, `inventories/${id}`));
+  deleteInventory(id: string): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/${id}`);
   }
+
+  checkBridgeIdentificationExists(bridgeIdentification: string): Observable<boolean> {
+    return this.http.get<boolean>(`${this.apiUrl}/exists/${bridgeIdentification}`);
+  }
+
+  getBridgeBasicInfo(bridgeId: string): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/basic-info/${bridgeId}`);
+  }
+
 
   async uploadImage(file: File, path: string): Promise<string> {
-    const storageRef = ref(this.storage, path);
-    const snapshot = await uploadBytes(storageRef, file);
-    return getDownloadURL(snapshot.ref);
-  }
-
-  checkBridgeIdentificationUnique(): AsyncValidatorFn {
-    return async (control: AbstractControl): Promise<ValidationErrors | null> => {
-      const value = control.value;
-      
-      if (!value) {
-        return null;
-      }
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('path', path); // opcional, depende de cómo organices archivos en backend
   
-      const q = query(this.collection, where('generalInformation.bridgeIdentification', '==', value));
-      const querySnapshot = await getDocs(q);
+    const response = await this.http.post<{ url: string }>(
+      'http://localhost:8080/api/files/upload',
+      formData
+    ).toPromise();
   
-      return querySnapshot.empty ? null : { bridgeIdentificationNotUnique: true };
-    };
-  }
-
-  async checkBridgeIdentificationExists(id: string): Promise<boolean> {
-    const q = query(this.collection, where('generalInformation.bridgeIdentification', '==', id));
-    return getDocs(q).then(querySnapshot => {
-      return !querySnapshot.empty;
-    });
-  }  
-
-  async getBridgeBasicInfo(bridgeId: any) {
-    try {
-      const q = query(this.collection, where('generalInformation.bridgeIdentification', '==', bridgeId));
-      const inventoriesSnapshot = await getDocs(q);
-      if (inventoriesSnapshot.empty) {
-        return undefined;
-      } else {
-        const inventoryData = inventoriesSnapshot.docs[0].data();
-        return {
-          bridgeIdentification: inventoryData['generalInformation'].bridgeIdentification,
-          name: inventoryData['generalInformation'].name,
-          pr: inventoryData['generalInformation'].pr,
-          regional: inventoryData['generalInformation'].regional,
-          regionalIdentification: inventoryData['generalInformation'].regionalIdentification,
-          road: inventoryData['generalInformation'].road,
-          roadIdentification: inventoryData['generalInformation'].roadIdentification,
-        };
-      }
-    } catch (error) {
-      console.error('Error fetching bridge name:', error);
-      return undefined;
-    }
+    return response?.url ?? '';
   }
 }

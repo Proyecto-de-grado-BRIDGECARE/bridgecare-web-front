@@ -1,9 +1,21 @@
+// models/bridge/inventory.ts
+
 export interface Inventory {
-  id?: number;
   observaciones: string;
-  puenteId: number;
-  usuarioId: number;
   fecha: Date;
+  puente: {
+    id: number;
+    nombre: string;
+    identif: string;
+    carretera: string;
+    pr: string;
+    regional: string;
+  };
+  usuario: {
+    id: number;
+    nombres: string;
+    apellidos: string;
+  };
 }
 
 export interface Puente {

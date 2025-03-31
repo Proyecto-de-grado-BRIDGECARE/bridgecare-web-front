@@ -95,7 +95,7 @@ export class InspectionFormComponent implements OnInit {
       });
     }
     //Get the bridge basic info with the bridgeId
-    this.inventoryService.getBridgeBasicInfo(this.bridgeId).then((bridgeName) => {
+    this.inventoryService.getBridgeBasicInfo(this.bridgeId).subscribe((bridgeName) => {
       if (bridgeName != null) {
         this.bridgeBasicInfo.bridgeId = bridgeName.bridgeIdentification;
         this.bridgeBasicInfo.name = bridgeName.name;

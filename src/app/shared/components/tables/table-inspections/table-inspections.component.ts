@@ -55,7 +55,7 @@ export class TableInspectionsComponent implements OnInit {
     this.route.params.subscribe(params => {
       this.bridgeId = (params['bridgeIdentification']);
     });
-    this.inventoryService.getBridgeName(this.bridgeId).then((bridgeName) => {
+    this.inventoryService.getBridgeName(this.bridgeId).subscribe((bridgeName) => {
       if (bridgeName != null) {
         this.bridgeName = bridgeName;
       }

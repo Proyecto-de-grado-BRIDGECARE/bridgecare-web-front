@@ -25,7 +25,6 @@ export class TableInventoriesComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    // En esta versión solo se obtienen todos los inventarios, sin filtro por municipio
     this.inventoryService.getInventories().subscribe({
       next: (data: Inventory[]) => {
         this.inventories = data;
@@ -39,14 +38,14 @@ export class TableInventoriesComponent implements OnInit {
   navigateToCreateInventory() {
     this.router.navigate(['home/bridge-management/inventories/inventory-bridge']);
   }
-
-  navigateToInspections(puenteId: string) {
-    this.router.navigate([`home/bridge-management/inventories/${puenteId}/inspections`]);
-  }
-
+  
   navigateToEditInventory(puenteId: string, event: MouseEvent) {
     event.stopPropagation();
     this.router.navigate([`home/bridge-management/inventories/${puenteId}/inventory-bridge`]);
+  }
+  
+  navigateToInspections(puenteId: string) {
+    this.router.navigate([`home/bridge-management/inventories/${puenteId}/inspections`]);
   }
 
   navigateToViewInventory(puenteId: string, event: MouseEvent) {
@@ -54,14 +53,13 @@ export class TableInventoriesComponent implements OnInit {
     this.router.navigate([`home/bridge-management/inventories/${puenteId}/view-inventory-bridge`]);
   }
 
-  deleteInventory(puenteId: string, event: MouseEvent) {
-    event.stopPropagation();
-    if (confirm('¿Estás seguro de que deseas eliminar este inventario?')) {
-      this.inventoryService.deleteInventory(puenteId).then(() => {
-        this.inventories = this.inventories.filter(inventory => inventory.puenteId.toString() !== puenteId);
-      }).catch(error => {
-        console.error('Error al eliminar el inventario:', error);
-      });
-    }
-  }
+  // deleteInventory(puenteId: string, event: MouseEvent) {
+  //   event.stopPropagation();
+  //   if (confirm('¿Estás seguro de que deseas eliminar este inventario?')) {
+  //     this.inventoryService.deleteInventory(puenteId).subscribe(() => {
+  //       this.inventories = this.inventories.filter(inv => inv.id.toString() !== puenteId);
+  //     });
+  //   }
+  // }
+  
 }

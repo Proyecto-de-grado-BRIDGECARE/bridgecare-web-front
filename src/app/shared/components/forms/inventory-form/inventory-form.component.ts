@@ -6,6 +6,7 @@ import { Inventory } from "../../../../models/bridge/inventory";
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { ReactiveFormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
 
 
 
@@ -13,8 +14,10 @@ import { ReactiveFormsModule } from '@angular/forms';
   selector: 'app-inventory-form',
   templateUrl: './inventory-form.component.html',
   styleUrls: ['./inventory-form.component.css'],
+  standalone: true,
   imports:[
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    CommonModule
   ]
 })
 export class InventoryFormComponent implements OnInit {
@@ -25,7 +28,7 @@ export class InventoryFormComponent implements OnInit {
   isViewMode = false;
   editingInventoryId: number | null = null;
 
-  private apiUrl = 'https://tuservidor.com/api'; 
+  // private apiUrl = 'https://tuservidor.com/api'; 
 
   regionalOptions: string[] = [
     '1 - Antioquia', '2 - Atlántico', '3 - Bolívar', '4 - Boyacá', '5 - Caldas',
@@ -47,15 +50,20 @@ export class InventoryFormComponent implements OnInit {
 
   ngOnInit() {
     this.route.paramMap.subscribe(params => {
-      this.editingInventoryId = Number(params.get('id'));
+      const param = params.get('bridgeIdentification');
+      this.editingInventoryId = param ? Number(param) : null;
+  
       this.isViewMode = this.router.url.includes('/view');
-      this.isEditMode = !!this.editingInventoryId && !this.isViewMode;
+      this.isEditMode = this.editingInventoryId !== null && !this.isViewMode;
+  
       this.initForm();
-      if (this.editingInventoryId) {
+  
+      if (this.isEditMode && this.editingInventoryId) {
         this.loadInventoryData(this.editingInventoryId);
       }
     });
   }
+  
 
   datosTecnicosCampos = [
     { name: 'numeroLuces', label: 'Número de luces', type: 'number' },
@@ -440,14 +448,14 @@ export class InventoryFormComponent implements OnInit {
   async loadInventoryData(id: number) {
     try {
       const result = await firstValueFrom(this.inventoryService.getInventories());
-      const inventory = result.find(inv => inv.id === id);
+      const inventory = result.find(inv => inv.puente.id === id);
 
       if (!inventory) return;
 
       this.form.patchValue({
         observaciones: inventory.observaciones,
-        puenteId: inventory.puenteId,
-        usuarioId: inventory.usuarioId,
+        puenteId: inventory.puente,
+        usuarioId: inventory.usuario,
       });
     } catch (error) {
       console.error('Error cargando datos del inventario:', error);
@@ -459,13 +467,26 @@ export class InventoryFormComponent implements OnInit {
     if (!this.form) return;
     if (this.form.invalid) return;
 
+    console.log('🚀 Formulario enviado', this.form.value);
+
     const inventory: Inventory = {
       observaciones: this.form.value.observaciones,
-      puenteId: +this.form.value.puenteId,
-      usuarioId: +this.form.value.usuarioId,
+      puente: {
+        id: +this.form.value.puenteId,
+        nombre: this.form.value.nombre,
+        identif: this.form.value.identificador,
+        carretera: this.form.value.carretera,
+        pr: this.form.value.pr,
+        regional: this.form.value.regional
+      },
+      usuario: {
+        id: +this.form.value.usuarioId,
+        nombres: this.form.value.usuarioNombre,
+        apellidos: this.form.value.usuarioApellidos
+      },
       fecha: new Date()
     };
-
+    
     try {
       if (this.isEditMode && this.editingInventoryId) {
         await this.inventoryService.updateInventory(this.editingInventoryId.toString(), inventory);
