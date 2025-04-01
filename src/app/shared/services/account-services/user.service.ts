@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { User, UserForm } from '../../../models/account/user';
 import { AuthService } from '../auth/auth.service';
@@ -8,14 +8,20 @@ import { AuthService } from '../auth/auth.service';
   providedIn: 'root'
 })
 export class UsersService {
-  private readonly apiUrl = 'http://localhost:8080/api/users';
+  private readonly apiUrl = 'http://localhost:8080/api/auth';
 
   constructor(private http: HttpClient, private authService: AuthService) {}
 
   getUsers(): Observable<User[]> {
-    return this.http.get<User[]>(this.apiUrl);
+    const token = localStorage.getItem('userToken');
+    const headers = {
+      Authorization: `Bearer ${token}`
+    };
+  
+    return this.http.get<User[]>(`${this.apiUrl}/users`, { headers });
   }
-
+  
+  
   getUser(id: number): Observable<User> {
     return this.http.get<User>(`${this.apiUrl}/${id}`);
   }

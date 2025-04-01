@@ -17,6 +17,12 @@ import { RouterLink } from '@angular/router';
 export class SearchBarComponent {
   @Output() changeQuery = new EventEmitter<string>();
 
+  onInputChange(event: any) {
+    const value = event.target.value;
+    this.changeQuery.emit(value);
+  }
+
+
   control = new FormControl('');
 
   query = toSignal(
@@ -27,8 +33,12 @@ export class SearchBarComponent {
 
   constructor() {
     effect(() => {
-      this.changeQuery.emit(this.newQuery()!);
+      const query = this.newQuery();
+      if (query !== null && query !== undefined) {
+        this.changeQuery.emit(query);
+      }
     });
+    
   }
 }
 

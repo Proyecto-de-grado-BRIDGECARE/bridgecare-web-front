@@ -1,108 +1,129 @@
-import { Component, EventEmitter, Output, inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { trigger, state, style, transition, animate } from '@angular/animations';
-import { FormGroup, FormControl, FormBuilder, FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { AccountFormComponent } from '../../forms/account-form/account-form.component';
+import { FormBuilder, FormGroup } from '@angular/forms';
+import { AsyncPipe } from '@angular/common';
 import { UsersService } from '../../../services/account-services/user.service';
 import { Router } from '@angular/router';
-import { AsyncPipe, CommonModule } from '@angular/common';
-import { SearchBarComponent } from '../../forms/account-form/search-bar/search-bar/search-bar.component';
-import { of } from 'rxjs';
-import { IconEdit } from '../../../../../assets/icons/edit';
-import { IconDelete } from '../../../../../assets/icons/delete';
-import { IconSettings } from '../../../../../assets/icons/settings';
+import { BehaviorSubject } from 'rxjs';
 import { User } from '../../../../models/account/user';
 import { AuthService } from '../../../services/auth/auth.service';
+import { IconDelete } from '../../../../../assets/icons/delete';
+import { IconEdit } from '../../../../../assets/icons/edit';
+import { IconSettings } from '../../../../../assets/icons/settings';
+import { IconView } from '../../../../../assets/icons/view';
+import { AccountFormComponent } from '../../forms/account-form/account-form.component';
+import { SearchBarComponent  } from '../../forms/account-form/search-bar/search-bar/search-bar.component';
+import { ReactiveFormsModule } from '@angular/forms';
+import { NgForOf, CommonModule } from '@angular/common';
 import swal from "sweetalert";
 
 declare var bootstrap: any;
 
 @Component({
-    animations: [
-        trigger('openClose', [
-            state('open', style({
-                height: '*',
-                opacity: 1,
-            })),
-            state('closed', style({
-                height: '0px',
-                opacity: 0,
-            })),
-            transition('open <=> closed', [
-                animate('0.3s')
-            ]),
-        ]),
-    ],
-    selector: 'app-table-users',
-    imports: [
-        AccountFormComponent,
-        CommonModule,
-        SearchBarComponent,
-        AsyncPipe,
-        IconDelete,
-        IconEdit,
-        IconSettings,
-        FormsModule,
-        ReactiveFormsModule
-    ],
-    templateUrl: './table-users.component.html',
-    styleUrl: './table-users.component.css'
+  animations: [
+    trigger('openClose', [
+      state('open', style({ height: '*', opacity: 1 })),
+      state('closed', style({ height: '0px', opacity: 0 })),
+      transition('open <=> closed', [animate('0.3s')]),
+    ]),
+  ],
+  imports:[
+    IconDelete,
+    IconEdit, 
+    IconSettings, 
+    IconView, 
+    AsyncPipe,
+    AccountFormComponent,
+    SearchBarComponent,
+    ReactiveFormsModule,
+    NgForOf,
+    CommonModule
+  ],
+  selector: 'app-table-users',
+  templateUrl: './table-users.component.html',
+  styleUrl: './table-users.component.css',
 })
 export class TableUsersComponent {
   private toast: any;
   editUserForm: FormGroup;
+  isOpen = false;
+  isMenuOpen = false;
+  currentUser: User | null = null;
 
-  constructor(private fb: FormBuilder, private userService: UsersService, private authService: AuthService) {
+  private _usersService = inject(UsersService);
+  private _router = inject(Router);
+  private _authService = inject(AuthService);
+
+  users$ = new BehaviorSubject<User[]>([]);
+
+  constructor(private fb: FormBuilder) {
     this.editUserForm = this.fb.group({
       new_identification: [''],
       new_email: [''],
       new_name: [''],
       new_surname: [''],
       new_municipality: [''],
-      new_password: ['']
+      new_password: [''],
     });
+
+    this.fetchUsers();
   }
 
   ngAfterViewInit(): void {
     const toastElement = document.getElementById('liveToast');
-    this.toast = new bootstrap.Toast(toastElement);
+    if (toastElement) {
+      this.toast = new bootstrap.Toast(toastElement);
+    }
   }
 
   showToast(): void {
-    this.toast.show();
+    if (this.toast) this.toast.show();
   }
 
-  isOpen = false;
+  fetchUsers(): void {
+    this._usersService.getUsers().subscribe({
+      next: (usuarios: any[]) => {
+        console.log('🤖 usuarios obtenidos', usuarios);
+        const mapped: User[] = usuarios.map(u => ({
+          id: u.identificacion,
+          name: u.nombres,
+          surname: u.apellidos,
+          email: u.correo,
+          identification: u.identificacion,
+          municipality: u.municipio,
+          password: '', // No es necesario mostrarlo
+          type: u.tipoUsuario
+        }));
+        this.users$.next(mapped);
+      },
+      error: () => swal('Error', 'No se pudieron cargar los usuarios', 'error')
+    });
+  }
+  
+  
+  
 
-  private _usersService = inject(UsersService)
-  private _router = inject(Router)
-
-  users$ = this._usersService.getUsers();
-
+  trackById(index: number, user: User) {
+    return user.id;
+  }
+  
   async changeQuery(query: string) {
-    try {
-      const users = await this._usersService.searchUserByQuery(query);
-      this.users$ = users;
-    } catch (error) {}
+    if (!query) return this.fetchUsers();
+
+    this._usersService.searchUserByQuery(query).subscribe({
+      next: (users) => this.users$.next(users),
+      error: () => swal('Error', 'No se pudo realizar la búsqueda', 'error')
+    });
   }
 
   handleUserRegistered(): void {
     this.isOpen = false;
     this.showToast();
+    this.fetchUsers();
   }
-
-  onSubmit() {
-  }
-
-  isMenuOpen = false;
-
-  openMenu() {
-    this.isMenuOpen = !this.isMenuOpen;
-  }
-
-  currentUser: User | null = null;
 
   editModal(user: User): void {
-    this.currentUser = user;
+    this.currentUser = { ...user };
     this.editUserForm.reset();
     const myModal = new bootstrap.Modal(document.getElementById('editModal'));
     myModal.show();
@@ -110,13 +131,13 @@ export class TableUsersComponent {
 
   deleteModal(user: User): void {
     this.currentUser = user;
-    const myModal = new bootstrap.Modal(document.getElementById('deleteModal'), {
-      keyboard: false
-    });
+    const myModal = new bootstrap.Modal(document.getElementById('deleteModal'));
     myModal.show();
   }
 
   async updateCurrentUser() {
+    if (!this.currentUser) return;
+
     const ni = this.editUserForm.get('new_identification')?.value;
     const ne = this.editUserForm.get('new_email')?.value;
     const nn = this.editUserForm.get('new_name')?.value;
@@ -124,53 +145,42 @@ export class TableUsersComponent {
     const nm = this.editUserForm.get('new_municipality')?.value;
     const np = this.editUserForm.get('new_password')?.value;
 
-    if (this.currentUser) {
-      if (ni !== null) {
-        this.currentUser.identification = ni;
-      }
-      if (ne !== null) {
-        this.currentUser.email = ne;
-      }
-      if (nn !== null) {
-        this.currentUser.name = nn;
-      }
-      if (ns !== null) {
-        this.currentUser.surname = ns;
-      }
-      if (nm !== null) {
-        this.currentUser.municipality = nm;
-      }
-      if (np !== null && np !== '') {
-        const hashed = await this.authService.hashPassword(np);
-        this.currentUser.password = hashed;
-      }
+    if (ni) this.currentUser.identification = ni;
+    if (ne) this.currentUser.email = ne;
+    if (nn) this.currentUser.name = nn;
+    if (ns) this.currentUser.surname = ns;
+    if (nm) this.currentUser.municipality = nm;
+    if (np) {
+      const hashed = await this._authService.hashPassword(np);
+      this.currentUser.password = hashed;
     }
   }
 
   async onSubmitEdit() {
     await this.updateCurrentUser();
     if (this.currentUser) {
-      try {
-        await this._usersService.updateUser(+this.currentUser.id, this.currentUser);
-        swal('Éxito', 'Usuario actualizado correctamente', 'success').then(() => {
-          const editModalElement = document.getElementById('editModal');
-          const editModal = bootstrap.Modal.getInstance(editModalElement);
-          editModal.hide();
-        });
-      } catch (error) {
-        swal('Error', 'Error al actualizar el usuario', 'error');
-      }
+      this._usersService.updateUser(+this.currentUser.id, this.currentUser).subscribe({
+        next: () => {
+          swal('Éxito', 'Usuario actualizado correctamente', 'success').then(() => {
+            const modal = bootstrap.Modal.getInstance(document.getElementById('editModal'));
+            modal?.hide();
+            this.fetchUsers();
+          });
+        },
+        error: () => swal('Error', 'Error al actualizar el usuario', 'error')
+      });
     }
   }
 
   async onSubmitDelete() {
-    try {
-      if (this.currentUser) {
-        await this._usersService.deleteUser(+this.currentUser.id);
+    if (!this.currentUser) return;
+
+    this._usersService.deleteUser(+this.currentUser.id).subscribe({
+      next: () => {
         swal('Éxito', 'Usuario eliminado correctamente', 'success');
-      }
-    } catch (error) {
-      swal('Error', 'Error al eliminar el usuario', 'error');
-    }
+        this.fetchUsers();
+      },
+      error: () => swal('Error', 'Error al eliminar el usuario', 'error')
+    });
   }
 }
