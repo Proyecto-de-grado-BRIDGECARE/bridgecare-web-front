@@ -30,6 +30,7 @@ export class InventoryFormComponent implements OnInit {
 
   // private apiUrl = 'https://tuservidor.com/api'; 
 
+  //regional
   regionalOptions: string[] = [
     '1 - Antioquia', '2 - Atlántico', '3 - Bolívar', '4 - Boyacá', '5 - Caldas',
     '6 - Caquetá', '7 - Casanare', '8 - Cauca', '9 - Cesar', '10 - Chocó',
@@ -39,6 +40,7 @@ export class InventoryFormComponent implements OnInit {
     '24 - Tolima', '25 - Valle del Cauca', '26 - Ocaña'
   ];
 
+  //opciones de direccion
   direccionOptions: string[] = ['N', 'S', 'E', 'O'];
 
   constructor(

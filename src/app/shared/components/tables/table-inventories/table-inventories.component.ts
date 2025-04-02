@@ -39,6 +39,7 @@ export class TableInventoriesComponent implements OnInit {
     this.router.navigate(['home/bridge-management/inventories/inventory-bridge']);
   }
   
+  // no necesario
   navigateToEditInventory(puenteId: string, event: MouseEvent) {
     event.stopPropagation();
     this.router.navigate([`home/bridge-management/inventories/${puenteId}/inventory-bridge`]);
@@ -53,6 +54,7 @@ export class TableInventoriesComponent implements OnInit {
     this.router.navigate([`home/bridge-management/inventories/${puenteId}/view-inventory-bridge`]);
   }
 
+  // no necesario 
   // deleteInventory(puenteId: string, event: MouseEvent) {
   //   event.stopPropagation();
   //   if (confirm('¿Estás seguro de que deseas eliminar este inventario?')) {

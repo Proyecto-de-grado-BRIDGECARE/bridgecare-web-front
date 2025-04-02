@@ -85,13 +85,13 @@ export class TableUsersComponent {
       next: (usuarios: any[]) => {
         console.log('🤖 usuarios obtenidos', usuarios);
         const mapped: User[] = usuarios.map(u => ({
-          id: u.identificacion,
+          id: u.id,
           name: u.nombres,
           surname: u.apellidos,
           email: u.correo,
           identification: u.identificacion,
           municipality: u.municipio,
-          password: '', // No es necesario mostrarlo
+          password: '', 
           type: u.tipoUsuario
         }));
         this.users$.next(mapped);
@@ -124,7 +124,18 @@ export class TableUsersComponent {
 
   editModal(user: User): void {
     this.currentUser = { ...user };
-    this.editUserForm.reset();
+    // this.editUserForm.reset();
+    this.editUserForm.patchValue({
+      new_identification: user.identification,
+      new_email: user.email,
+      new_name: user.name,
+      new_surname: user.surname,
+      new_municipality: user.municipality,
+      new_password: user.password
+    });
+
+    console.log("🧾 Usuario a editar:", user);
+
     const myModal = new bootstrap.Modal(document.getElementById('editModal'));
     myModal.show();
   }
@@ -158,19 +169,31 @@ export class TableUsersComponent {
 
   async onSubmitEdit() {
     await this.updateCurrentUser();
-    if (this.currentUser) {
-      this._usersService.updateUser(+this.currentUser.id, this.currentUser).subscribe({
-        next: () => {
-          swal('Éxito', 'Usuario actualizado correctamente', 'success').then(() => {
-            const modal = bootstrap.Modal.getInstance(document.getElementById('editModal'));
-            modal?.hide();
-            this.fetchUsers();
-          });
-        },
-        error: () => swal('Error', 'Error al actualizar el usuario', 'error')
-      });
-    }
+  
+    if (!this.currentUser) return;
+  
+    const updatedUser = {
+      nombres: this.currentUser.name,
+      apellidos: this.currentUser.surname,
+      correo: this.currentUser.email,
+      municipio: this.currentUser.municipality,
+      identificacion: this.currentUser.identification,
+      tipoUsuario: this.currentUser.type,
+      contrasenia: this.currentUser.password || undefined
+    };
+  
+    this._usersService.updateUser(+this.currentUser.id, updatedUser).subscribe({
+      next: () => {
+        swal('Éxito', 'Usuario actualizado correctamente', 'success').then(() => {
+          const modal = bootstrap.Modal.getInstance(document.getElementById('editModal'));
+          modal?.hide();
+          this.fetchUsers();
+        });
+      },
+      error: () => swal('Error', 'Error al actualizar el usuario', 'error')
+    });
   }
+  
 
   async onSubmitDelete() {
     if (!this.currentUser) return;

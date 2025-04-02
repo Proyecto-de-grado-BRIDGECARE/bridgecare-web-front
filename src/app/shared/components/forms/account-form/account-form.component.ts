@@ -64,28 +64,62 @@ export class AccountFormComponent implements OnInit {
   }
 
   async createUser() {
-    if (this.accountForm.invalid || this.submitting) {
-      // console.log('Form is invalid or already submitting.');
-      return;
-    }
-
+    if (this.accountForm.invalid || this.submitting) return;
+  
     this.submitting = true;
-
+  
     try {
-      const user = this.accountForm.value as UserForm;
-      user.password = await this.authService.hashPassword(user.password)
-      
-      !this.userId
-        ? await this._usersService.createUser(user)
-        : await this._usersService.updateUser(+this.userId, user);
-      this.accountForm.reset();
-      this.userRegistered.emit();
+      const formValues = this.accountForm.value;
+  
+      // 🔁 Adaptar campos al formato que espera el backend
+      const userToSend = {
+        nombres: formValues.name,
+        apellidos: formValues.surname,
+        identificacion: formValues.identification,
+        correo: formValues.email,
+        tipoUsuario: formValues.type,
+        municipio: formValues.municipality,
+        contrasenia: await this.authService.hashPassword(formValues.password)
+      };
+  
+      console.log("📤 Enviando usuario:", userToSend);
+  
+      // Crear usuario
+      if (!this.userId) {
+        this._usersService.createUser(userToSend).subscribe({
+          next: res => {
+            console.log("✅ Usuario creado con éxito:", res);
+            swal("Usuario creado", "Se ha registrado correctamente", "success");
+            this.userRegistered.emit();
+            this.accountForm.reset();
+          },
+          error: err => {
+            console.error("❌ Error al registrar usuario:", err);
+            swal("Error", "No se pudo registrar el usuario", "error");
+          }
+        });
+      } else {
+        //editar
+        this._usersService.updateUser(+this.userId, userToSend).subscribe({
+          next: () => {
+            swal("Actualizado", "Usuario actualizado correctamente", "success");
+            this.userRegistered.emit();
+          },
+          error: () => {
+            swal("Error", "No se pudo actualizar el usuario", "error");
+          }
+        });
+      }
+  
     } catch (error) {
-      console.error('Error creating user:', error);
+      console.error('❌ Error creando usuario:', error);
+      swal("Error", "Hubo un problema inesperado", "error");
     } finally {
       this.submitting = false;
     }
   }
+  
+  
 
   async setFormValues(id: string) {
     try {

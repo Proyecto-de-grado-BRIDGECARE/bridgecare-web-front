@@ -34,15 +34,25 @@ export class UsersService {
     return this.http.post<User>(`${this.apiUrl}/login`, { email, password });
   }
 
-  createUser(user: UserForm): Observable<User> {
-    return this.http.post<User>(this.apiUrl, user);
+  createUser(user: any): Observable<User> {
+    return this.http.post<User>(`${this.apiUrl}/register`, user);
   }
 
-  updateUser(id: number, user: UserForm): Observable<User> {
-    return this.http.put<User>(`${this.apiUrl}/${id}`, user);
+  updateUser(id: number, user: any): Observable<User> {
+    const token = localStorage.getItem('userToken');
+    const headers = {
+      Authorization: `Bearer ${token}`
+    };
+
+    return this.http.put<User>(`${this.apiUrl}/users/${id}`, user, { headers });
   }
 
   deleteUser(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/${id}`);
+    const token = localStorage.getItem('userToken');
+    const headers = {
+      Authorization: `Bearer ${token}`
+    };
+
+    return this.http.delete<void>(`${this.apiUrl}/users/${id}`, { headers });
   }
 }
