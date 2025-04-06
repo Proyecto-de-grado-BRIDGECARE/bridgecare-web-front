@@ -39,7 +39,9 @@
           <td class="text-center">{{ inventory.puente.nombre }}</td>
           <td class="text-center">{{ inventory.usuario.id }}</td>
           <td class="text-center">{{ inventory.usuario.nombres }} {{ inventory.usuario.apellidos }}</td>
+
           <td class="text-center">{{ inventory.observaciones }}</td>
+
           <td class="text-center">
             <i class="fas fa-eye text-info me-2" (click)="navigateToViewInventory(inventory.puente.id.toString(), $event)"></i>
             <!-- <i class="fas fa-edit text-warning me-2" *ngIf="isPrivilegedUser$ | async" (click)="navigateToEditInventory(inventory.puente.id.toString(), $event)"></i> -->

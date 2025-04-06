@@ -3,6 +3,7 @@ import { ActivatedRoute, Router } from "@angular/router";
 import { FormControl, FormGroup, Validators } from "@angular/forms";
 import { InventoryServiceService } from "../../../services/bridge-services/inventory-service.service";
 import { Inventory } from "../../../../models/bridge/inventory";
+import { InventarioDTO } from "../../../../models/bridge/inventarioDTO";
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { ReactiveFormsModule } from '@angular/forms';
@@ -456,8 +457,8 @@ export class InventoryFormComponent implements OnInit {
 
       this.form.patchValue({
         observaciones: inventory.observaciones,
-        puenteId: inventory.puente,
-        usuarioId: inventory.usuario,
+        puenteId: inventory.puente.id,
+        usuarioId: inventory.usuario.id,
       });
     } catch (error) {
       console.error('Error cargando datos del inventario:', error);
@@ -473,20 +474,23 @@ export class InventoryFormComponent implements OnInit {
 
     const inventory: Inventory = {
       observaciones: this.form.value.observaciones,
-      puente: {
-        id: +this.form.value.puenteId,
-        nombre: this.form.value.nombre,
-        identif: this.form.value.identificador,
-        carretera: this.form.value.carretera,
-        pr: this.form.value.pr,
-        regional: this.form.value.regional
-      },
       usuario: {
-        id: +this.form.value.usuarioId,
-        nombres: this.form.value.usuarioNombre,
-        apellidos: this.form.value.usuarioApellidos
+        id: 0,
+        nombres: '',
+        apellidos: '',
+        correo: '',
+        identificacion: 0,
+        municipio: '',
+        tipoUsuario: 0
       },
-      fecha: new Date()
+      puente: {
+        id: 0,
+        nombre: '',
+        identif: '',
+        carretera: '',
+        pr: '',
+        regional: ''
+      }
     };
     
     try {

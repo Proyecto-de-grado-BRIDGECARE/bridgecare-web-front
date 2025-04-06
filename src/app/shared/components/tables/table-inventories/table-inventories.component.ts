@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { Inventory } from '../../../../models/bridge/inventory';
+import { InventarioDTO } from "../../../../models/bridge/inventarioDTO";
 import { InventoryServiceService } from '../../../services/bridge-services/inventory-service.service';
 import { NgForOf, CommonModule } from '@angular/common';
 import { AuthService } from '../../../services/auth/auth.service';
@@ -24,16 +25,37 @@ export class TableInventoriesComponent implements OnInit {
     private authService: AuthService
   ) {}
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.inventoryService.getInventories().subscribe({
-      next: (data: Inventory[]) => {
-        this.inventories = data;
+      next: (inventarios) => {
+        console.log('🧾 Inventarios obtenidos:', inventarios);
+        this.inventories = inventarios.map(u => ({
+          observaciones: u.observaciones,
+          usuario: {
+            id: u.usuario.id,
+            nombres: u.usuario.nombres,
+            apellidos: u.usuario.apellidos,
+            correo: u.usuario.correo,
+            identificacion: u.usuario.identificacion,
+            municipio: u.usuario.municipio,
+            tipoUsuario: u.usuario.tipoUsuario
+          },
+          puente: {
+            id: u.puente.id,
+            nombre: u.puente.nombre,
+            identif: u.puente.identif,
+            carretera: u.puente.carretera,
+            pr: u.puente.pr,
+            regional: u.puente.regional
+          }
+        }));
       },
       error: (err) => {
-        console.error('Error al obtener inventarios:', err);
+        console.error('❌ Error al obtener inventarios:', err);
       }
     });
   }
+  
 
   navigateToCreateInventory() {
     this.router.navigate(['home/bridge-management/inventories/inventory-bridge']);
