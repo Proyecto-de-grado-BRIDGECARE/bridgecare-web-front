@@ -4,12 +4,15 @@ import { Inventory } from '../../../../models/bridge/inventory';
 import { InventoryServiceService } from '../../../services/bridge-services/inventory-service.service';
 import { NgForOf, CommonModule } from '@angular/common';
 import { AuthService } from '../../../services/auth/auth.service';
+import { FormsModule } from '@angular/forms';
+
 
 @Component({
   selector: 'app-table-inventories',
   imports: [
     NgForOf,
-    CommonModule
+    CommonModule,
+    FormsModule
   ],
   templateUrl: './table-inventories.component.html',
   styleUrl: './table-inventories.component.css'
@@ -17,12 +20,14 @@ import { AuthService } from '../../../services/auth/auth.service';
 export class TableInventoriesComponent implements OnInit {
   inventories: Inventory[] = [];
   isPrivilegedUser$ = this.authService.isPrivilegedUser$;
+  searchTerm: string = '';
 
   constructor(
     private inventoryService: InventoryServiceService,
     private router: Router,
     private authService: AuthService
   ) {}
+  
 
   ngOnInit(): void {
     this.inventoryService.getInventories().subscribe({
@@ -55,6 +60,17 @@ export class TableInventoriesComponent implements OnInit {
       }
     });
   }
+
+  get filteredInventories() {
+    if (!this.searchTerm) return this.inventories;
+  
+    const term = this.searchTerm.toLowerCase();
+    return this.inventories.filter(inv =>
+      inv.puente.nombre.toLowerCase().includes(term) ||
+      inv.puente.regional?.toLowerCase().includes(term)
+    );
+  }
+  
   
 
   navigateToCreateInventory() {

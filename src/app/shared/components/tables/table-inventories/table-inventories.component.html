@@ -4,8 +4,8 @@
   <div class="row mb-3 justify-content-center">
     <div class="col-md-6 mb-3">
       <div class="input-group">
-        <input type="text" class="form-control" placeholder="Buscar por ID Puente"
-               aria-label="Buscar por ID Puente" aria-describedby="basic-addon2">
+        <input type="text" class="form-control" placeholder="Buscar por nombre o municipio" 
+          [(ngModel)]= "searchTerm" aria-label="Buscar por nombre o municipio" aria-describedby="basic-addon2">
         <span class="input-group-text">
           <i class="fas fa-search"></i>
         </span>
@@ -33,7 +33,7 @@
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let inventory of inventories; let i = index" style="cursor: pointer;" (click)="navigateToInspections((inventory.puente?.id ?? 0).toString())">
+        <tr *ngFor="let inventory of filteredInventories; let i = index" style="cursor: pointer;" (click)="navigateToInspections((inventory.puente?.id ?? 0).toString())">
           <th class="text-center" scope="row">{{ i + 1 }}</th>
           <td class="text-center">{{ inventory.puente.id }}</td>
           <td class="text-center">{{ inventory.puente.nombre }}</td>
