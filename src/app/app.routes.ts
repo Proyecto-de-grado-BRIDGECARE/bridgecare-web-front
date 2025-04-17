@@ -86,7 +86,7 @@ export const routes: Routes = [
         }
       },
       {
-        path: 'inventories/:bridgeIdentification/view-inventory-bridge',
+        path: 'inventories/:BridgeId/view-inventory-bridge',
         component: InventoryBridgeComponent,
         canActivate: [roleGuard],
         data: {

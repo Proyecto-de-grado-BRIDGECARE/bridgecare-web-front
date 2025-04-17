@@ -2,8 +2,22 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from "@angular/router";
 import { FormControl, FormGroup, Validators } from "@angular/forms";
 import { InventoryServiceService } from "../../../services/bridge-services/inventory-service.service";
-import { Inventory } from "../../../../models/bridge/inventory";
-import { InventarioDTO } from "../../../../models/bridge/inventarioDTO";
+import { Inventory } from '../../../../models/bridge/inventory';
+import { Puente } from '../../../../models/bridge/puente';
+import { Superestructura } from '../../../../models/bridge/superestructura';
+import { Subestructura } from '../../../../models/bridge/subestructura';
+import { Pila } from '../../../../models/bridge/pila';
+import { Estribo } from '../../../../models/bridge/estribo';
+import { Detalle } from '../../../../models/bridge/detalle';
+import { Senial } from '../../../../models/bridge/senial';
+import { Paso } from '../../../../models/bridge/paso';
+import { Galibo } from '../../../../models/bridge/galibo';
+import { PosicionGeografica } from '../../../../models/bridge/posicionGeografica';
+import { DatosTecnicos } from '../../../../models/bridge/datosTecnicos';
+import { DatosAdministrativos } from '../../../../models/bridge/datosAdministrativos';
+import { Carga } from '../../../../models/bridge/carga';
+import { Apoyo } from '../../../../models/bridge/apoyo';
+import { MiembrosInteresados } from '../../../../models/bridge/miembrosInteresados';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { ReactiveFormsModule } from '@angular/forms';
@@ -29,8 +43,6 @@ export class InventoryFormComponent implements OnInit {
   isViewMode = false;
   editingInventoryId: number | null = null;
 
-  // private apiUrl = 'https://tuservidor.com/api'; 
-
   //regional
   regionalOptions: string[] = [
     '1 - Antioquia', '2 - Atlántico', '3 - Bolívar', '4 - Boyacá', '5 - Caldas',
@@ -51,22 +63,22 @@ export class InventoryFormComponent implements OnInit {
     private http: HttpClient
   ) {}
 
-  ngOnInit() {
-    this.route.paramMap.subscribe(params => {
-      const param = params.get('bridgeIdentification');
-      this.editingInventoryId = param ? Number(param) : null;
-  
-      this.isViewMode = this.router.url.includes('/view');
-      this.isEditMode = this.editingInventoryId !== null && !this.isViewMode;
-  
-      this.initForm();
-  
-      if (this.isEditMode && this.editingInventoryId) {
-        this.loadInventoryData(this.editingInventoryId);
-      }
-    });
-  }
-  
+  ngOnInit(): void {
+  this.route.paramMap.subscribe(params => {
+    const bridgeIdParam = params.get('BridgeId');
+    const bridgeId = bridgeIdParam ? +bridgeIdParam : null;
+
+    this.isViewMode = true;
+    console.log("id del inventario: ", bridgeId);
+
+    if (bridgeId !== null) {
+      this.loadInventoryData(bridgeId);
+    }
+
+    this.initForm();
+  });
+}
+
 
   datosTecnicosCampos = [
     { name: 'numeroLuces', label: 'Número de luces', type: 'number' },
@@ -450,20 +462,161 @@ export class InventoryFormComponent implements OnInit {
 
   async loadInventoryData(id: number) {
     try {
-      const result = await firstValueFrom(this.inventoryService.getInventories());
-      const inventory = result.find(inv => inv.puente.id === id);
+      const rawInventory = await firstValueFrom(this.inventoryService.getInventoryByBridgeId(id));
+      const inventario =  this.adaptInventoryDTO(rawInventory);
+      if (!inventario) return;
 
-      if (!inventory) return;
+      console.log('📦 Inventario recibido:', inventario);
 
-      this.form.patchValue({
-        observaciones: inventory.observaciones,
-        puenteId: inventory.puente.id,
-        usuarioId: inventory.usuario.id,
-      });
+
+      
+  
+      this.patchInventoryForm(inventario); // 👈 delega el patch aquí
+  
     } catch (error) {
       console.error('Error cargando datos del inventario:', error);
     }
   }
+
+  patchInventoryForm(inventario: Inventory) {
+    console.log('✅ Inventario recibido:', inventario);
+    this.form.patchValue({
+      observaciones: inventario.observaciones,
+        puenteId: inventario.puente.id,
+        usuarioId: inventario.usuario.id,
+        nombre: inventario.puente.nombre,
+        identificador: inventario.puente.identif,
+        carretera: inventario.puente.carretera,
+        pr: inventario.puente.pr,
+        regional: inventario.puente.regional,
+        
+        // Paso 1
+        tipoPaso1: inventario.pasos?.[0].tipoPaso || '',
+        primero1: inventario.pasos?.[0]?.primero || false,
+        supInf1: inventario.pasos?.[0]?.supInf || '',
+        galiboI1: inventario.pasos?.[0]?.galiboI || null,
+        galiboIm1: inventario.pasos?.[0]?.galiboIm || null,
+        galiboDm1: inventario.pasos?.[0]?.galiboDm || null,
+        galiboD1: inventario.pasos?.[0]?.galiboD || null,
+
+        // Paso 2
+        tipoPaso2: inventario.pasos?.[1]?.tipoPaso || '',
+        primero2: inventario.pasos?.[1]?.primero || false,
+        supInf2: inventario.pasos?.[1]?.supInf || '',
+        galiboI2: inventario.pasos?.[1]?.galiboI || null,
+        galiboIm2: inventario.pasos?.[1]?.galiboIm || null,
+        galiboDm2: inventario.pasos?.[1]?.galiboDm || null,
+        galiboD2: inventario.pasos?.[1]?.galiboD || null,
+
+        // Datos Administrativos
+        anioConstruccion: inventario.datosAdministrativos?.anioConstruccion,
+        anioReconstruccion: inventario.datosAdministrativos?.anioReconstruccion,
+        direccionAbscCarretera: inventario.datosAdministrativos?.direccionAbscCarretera,
+        requisitosInspeccion: inventario.datosAdministrativos?.requisitosInspeccion,
+        numeroSeccionesInspeccion: inventario.datosAdministrativos?.numeroSeccionesInspeccion,
+        estacionConteo: inventario.datosAdministrativos?.estacionConteo,
+        fechaRecoleccionDatos: inventario.datosAdministrativos?.fechaRecoleccionDatos,
+
+        // Datos Técnicos
+        numeroLuces: inventario.datosTecnicos?.numeroLuces,
+        longitudLuzMenor: inventario.datosTecnicos?.longitudLuzMenor,
+        longitudLuzMayor: inventario.datosTecnicos?.longitudLuzMayor,
+        longitudTotal: inventario.datosTecnicos?.longitudTotal,
+        anchoTablero: inventario.datosTecnicos?.anchoTablero,
+        anchoSeparador: inventario.datosTecnicos?.anchoSeparador,
+        anchoAndenIzq: inventario.datosTecnicos?.anchoAndenIzq,
+        anchoAndenDer: inventario.datosTecnicos?.anchoAndenDer,
+        anchoCalzada: inventario.datosTecnicos?.anchoCalzada,
+        anchoEntreBordillos: inventario.datosTecnicos?.anchoEntreBordillos,
+        anchoAcceso: inventario.datosTecnicos?.anchoAcceso,
+        alturaPilas: inventario.datosTecnicos?.alturaPilas,
+        alturaEstribos: inventario.datosTecnicos?.alturaEstribos,
+        longitudApoyoPilas: inventario.datosTecnicos?.longitudApoyoPilas,
+        longitudApoyoEstribos: inventario.datosTecnicos?.longitudApoyoEstribos,
+        puenteTerraplen: inventario.datosTecnicos?.puenteTerraplen,
+        puenteCurvaTangente: inventario.datosTecnicos?.puenteCurvaTangente,
+        esviajamiento: inventario.datosTecnicos?.esviajamiento,
+
+        // Superestructura Principal
+        disenioTipo: inventario.superestructuras?.[0]?.disenioTipo,
+        tipoEstructuracionTransversal: inventario.superestructuras?.[0]?.tipoEstructuracionTransversal,
+        tipoEstructuracionLongitudinal: inventario.superestructuras?.[0]?.tipoEstructuracionLongitudinal,
+        material: inventario.superestructuras?.[0]?.material,
+
+        // Superestructura Secundaria
+        disenoTipoSec: inventario.superestructuras?.[1]?.disenioTipo,
+        tipoEstructuracionTransversalSec: inventario.superestructuras?.[1]?.tipoEstructuracionTransversal,
+        tipoEstructuracionLongitudinalSec: inventario.superestructuras?.[1]?.tipoEstructuracionLongitudinal,
+        materialSec: inventario.superestructuras?.[1]?.material,
+
+        // Subestructura - Estribos
+        tipoEstribos: inventario.subestructura?.estribo?.tipo,
+        materialEstribos: inventario.subestructura?.estribo?.material,
+        tipoCimentacion: inventario.subestructura?.estribo?.tipoCimentacion,
+
+        // Subestructura - Detalles
+        tipoBaranda: inventario.subestructura?.detalle?.tipoBaranda,
+        superficieRodadura: inventario.subestructura?.detalle?.superficieRodadura,
+        juntaExpansion: inventario.subestructura?.detalle?.juntaExpansion,
+
+        // Subestructura - Pilas
+        tipoPilas: inventario.subestructura?.pila?.tipo,
+        materialPilas: inventario.subestructura?.pila?.material,
+        tipoCimentacionPilas: inventario.subestructura?.pila?.tipoCimentacion,
+
+        // Subestructura - Señales
+        cargaMaxima: inventario.subestructura?.senial?.cargaMaxima,
+        velocidadMaxima: inventario.subestructura?.senial?.velocidadMaxima,
+        otraInfo: inventario.subestructura?.senial?.otra,
+
+        // Apoyos
+        fijoSobreEstribo: inventario.apoyo?.fijoSobreEstribo,
+        movilSobreEstribo: inventario.apoyo?.movilSobreEstribo,
+        fijoEnPila: inventario.apoyo?.fijoEnPila,
+        movilEnPila: inventario.apoyo?.movilEnPila,
+        fijoEnViga: inventario.apoyo?.fijoEnViga,
+        movilEnViga: inventario.apoyo?.movilEnViga,
+        vehiculoDiseno: inventario.apoyo?.vehiculoDiseno,
+        claseDistribucionCarga: inventario.apoyo?.claseDistribucionCarga,
+
+        // Miembros Interesados
+        propietario: inventario.miembrosInteresados?.propietario,
+        departamento: inventario.miembrosInteresados?.departamento,
+        administradorVial: inventario.miembrosInteresados?.administradorVial,
+        proyectista: inventario.miembrosInteresados?.proyectista,
+        municipio: inventario.miembrosInteresados?.municipio,
+
+        // Posición Geográfica
+        latitud: inventario.posicionGeografica?.latitud,
+        longitud: inventario.posicionGeografica?.longitud,
+        altitud: inventario.posicionGeografica?.altitud,
+        coeficienteAceleracionSismica: inventario.posicionGeografica?.coeficienteAceleracionSismica,
+        pasoCauce: inventario.posicionGeografica?.pasoCauce,
+        existeVariante: inventario.posicionGeografica?.existeVariante,
+        longitudVariante: inventario.posicionGeografica?.longitudVariante,
+        estado: inventario.posicionGeografica?.estado,
+
+        // Carga
+        longitudLuzCritica: inventario.carga?.longitudLuzCritica,
+        factorClasificacion: inventario.carga?.factorClasificacion,
+        fuerzaCortante: inventario.carga?.fuerzaCortante,
+        momento: inventario.carga?.momento,
+        lineaCargaPorRueda: inventario.carga?.lineaCargaPorRueda,
+    });
+
+    console.log("datos: ", this.form.value);
+  }
+
+  adaptInventoryDTO(inventario: any): any {
+    return {
+      ...inventario,
+      datosAdministrativos: inventario['datos_administrativos'],
+      datosTecnicos: inventario['datos_tecnicos'],
+      miembrosInteresados: inventario['miembros_interesados'],
+      posicionGeografica: inventario['posicion_geografica']
+    };
+  }
+  
 
   async onSubmit() {
     this.formSubmitted = true;
@@ -473,6 +626,7 @@ export class InventoryFormComponent implements OnInit {
     console.log('🚀 Formulario enviado', this.form.value);
 
     const inventory: Inventory = {
+      id: this.form.value.id,
       observaciones: this.form.value.observaciones,
       usuario: {
         id: 0,

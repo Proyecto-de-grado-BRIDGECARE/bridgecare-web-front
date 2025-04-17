@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { Inventory } from '../../../../models/bridge/inventory';
-import { InventarioDTO } from "../../../../models/bridge/inventarioDTO";
 import { InventoryServiceService } from '../../../services/bridge-services/inventory-service.service';
 import { NgForOf, CommonModule } from '@angular/common';
 import { AuthService } from '../../../services/auth/auth.service';
@@ -30,6 +29,7 @@ export class TableInventoriesComponent implements OnInit {
       next: (inventarios) => {
         console.log('🧾 Inventarios obtenidos:', inventarios);
         this.inventories = inventarios.map(u => ({
+          id: u.id,
           observaciones: u.observaciones,
           usuario: {
             id: u.usuario.id,
@@ -71,10 +71,11 @@ export class TableInventoriesComponent implements OnInit {
     this.router.navigate([`home/bridge-management/inventories/${puenteId}/inspections`]);
   }
 
-  navigateToViewInventory(puenteId: string, event: MouseEvent) {
+  navigateToViewInventory(bridgeId: number, event: MouseEvent) {
     event.stopPropagation();
-    this.router.navigate([`home/bridge-management/inventories/${puenteId}/view-inventory-bridge`]);
+    this.router.navigate([`/home/bridge-management/inventories/${bridgeId}/view-inventory-bridge`]);
   }
+  
 
   // no necesario 
   // deleteInventory(puenteId: string, event: MouseEvent) {

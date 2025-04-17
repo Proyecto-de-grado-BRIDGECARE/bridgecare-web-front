@@ -4,7 +4,6 @@ import { getDownloadURL, ref, uploadBytes, Storage, FirebaseStorage } from "@ang
 import { AbstractControl, AsyncValidatorFn, FormControl, ValidationErrors } from "@angular/forms";
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { InventarioDTO } from '../../../models/bridge/inventarioDTO';
 
 @Injectable({
   providedIn: 'root'
@@ -23,16 +22,21 @@ export class InventoryServiceService {
   }
   
 
-  getInventoryByBridgeIdentification(bridgeIdentification: string): Observable<Inventory>{
-    return this.http.get<Inventory>(`${this.apiUrl}/bridge-identification/${bridgeIdentification}`);
+  getInventoryByBridgeId(puenteId: number): Observable<Inventory> {
+    const token = localStorage.getItem('userToken');
+    const headers = {
+      Authorization: `Bearer ${token}`
+    };
+    return this.http.get<Inventory>(`${this.apiUrl}/puente/${puenteId}`, { headers });
   }
+  
 
   getInventoriesByMunicipality(municipality: string): Observable<Inventory[]> {
     const params = new HttpParams().set('municipality', municipality);
     return this.http.get<Inventory[]>(`${this.apiUrl}/by-municipality`, { params });
   }
 
-  getInventoryById(id: string): Observable<Inventory> {
+  getInventoryById(id: number): Observable<Inventory> {
     return this.http.get<Inventory>(`${this.apiUrl}/${id}`);
   }
   
