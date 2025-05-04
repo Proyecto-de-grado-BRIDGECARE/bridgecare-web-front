@@ -63,6 +63,7 @@ export class TableUsersComponent {
       new_name: [''],
       new_surname: [''],
       new_municipality: [''],
+      new_type: [''],
       new_password: [''],
     });
 
@@ -131,7 +132,8 @@ export class TableUsersComponent {
       new_name: user.name,
       new_surname: user.surname,
       new_municipality: user.municipality,
-      new_password: user.password
+      new_password: user.password,
+      new_type: user.type
     });
 
     console.log("🧾 Usuario a editar:", user);
@@ -154,6 +156,7 @@ export class TableUsersComponent {
     const nn = this.editUserForm.get('new_name')?.value;
     const ns = this.editUserForm.get('new_surname')?.value;
     const nm = this.editUserForm.get('new_municipality')?.value;
+    const nt = this.editUserForm.get('new_type')?.value;
     const np = this.editUserForm.get('new_password')?.value;
 
     if (ni) this.currentUser.identification = ni;
@@ -161,6 +164,7 @@ export class TableUsersComponent {
     if (nn) this.currentUser.name = nn;
     if (ns) this.currentUser.surname = ns;
     if (nm) this.currentUser.municipality = nm;
+    if (nt) this.currentUser.type = nt;
     if (np) {
       const hashed = await this._authService.hashPassword(np);
       this.currentUser.password = hashed;

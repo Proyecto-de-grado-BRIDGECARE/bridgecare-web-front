@@ -3,26 +3,14 @@ import { ActivatedRoute, Router } from "@angular/router";
 import { FormControl, FormGroup, Validators } from "@angular/forms";
 import { InventoryServiceService } from "../../../services/bridge-services/inventory-service.service";
 import { Inventory } from '../../../../models/bridge/inventory';
-import { Puente } from '../../../../models/bridge/puente';
-import { Superestructura } from '../../../../models/bridge/superestructura';
-import { Subestructura } from '../../../../models/bridge/subestructura';
-import { Pila } from '../../../../models/bridge/pila';
-import { Estribo } from '../../../../models/bridge/estribo';
-import { Detalle } from '../../../../models/bridge/detalle';
-import { Senial } from '../../../../models/bridge/senial';
-import { Paso } from '../../../../models/bridge/paso';
-import { Galibo } from '../../../../models/bridge/galibo';
-import { PosicionGeografica } from '../../../../models/bridge/posicionGeografica';
-import { DatosTecnicos } from '../../../../models/bridge/datosTecnicos';
-import { DatosAdministrativos } from '../../../../models/bridge/datosAdministrativos';
-import { Carga } from '../../../../models/bridge/carga';
-import { Apoyo } from '../../../../models/bridge/apoyo';
-import { MiembrosInteresados } from '../../../../models/bridge/miembrosInteresados';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
+import pdfMake from 'pdfmake/build/pdfmake';
+import pdfFonts from 'pdfmake/build/vfs_fonts';
 
 
 @Component({
@@ -36,12 +24,14 @@ import { CommonModule } from '@angular/common';
   ]
 })
 export class InventoryFormComponent implements OnInit {
+  
 
   form: FormGroup = new FormGroup({});
   formSubmitted = false;
   isEditMode = false;
   isViewMode = false;
-  editingInventoryId: number | null = null;
+  editingInventoryId: number | undefined;
+  currentStep: number = 1;
 
   //regional
   regionalOptions: string[] = [
@@ -64,20 +54,33 @@ export class InventoryFormComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-  this.route.paramMap.subscribe(params => {
-    const bridgeIdParam = params.get('BridgeId');
-    const bridgeId = bridgeIdParam ? +bridgeIdParam : null;
+    this.route.paramMap.subscribe(params => {
+      const bridgeIdParam = params.get('BridgeId');
+      const bridgeId = bridgeIdParam ? +bridgeIdParam : null;
 
-    this.isViewMode = true;
-    console.log("id del inventario: ", bridgeId);
+      const currentUrl = this.router.url;
 
-    if (bridgeId !== null) {
-      this.loadInventoryData(bridgeId);
-    }
+      this.isEditMode = currentUrl.includes('inventory-bridge') && !currentUrl.includes('view');
 
-    this.initForm();
-  });
-}
+      this.isViewMode = currentUrl.includes('view-inventory-bridge');
+
+      if (this.isViewMode) {
+        this.form.disable();
+      } else {
+        this.form.enable();
+      }
+          
+      console.log("id del inventario: ", bridgeId);
+
+      if (bridgeId !== null) {
+        this.loadInventoryData(bridgeId);
+      }
+
+      this.initForm();
+    });
+
+    pdfMake.vfs = pdfFonts.vfs;
+  }
 
 
   datosTecnicosCampos = [
@@ -467,9 +470,6 @@ export class InventoryFormComponent implements OnInit {
       if (!inventario) return;
 
       console.log('📦 Inventario recibido:', inventario);
-
-
-      
   
       this.patchInventoryForm(inventario); // 👈 delega el patch aquí
   
@@ -626,10 +626,10 @@ export class InventoryFormComponent implements OnInit {
     console.log('🚀 Formulario enviado', this.form.value);
 
     const inventory: Inventory = {
-      id: this.form.value.id,
+      id: this.editingInventoryId || 0,
       observaciones: this.form.value.observaciones,
       usuario: {
-        id: 0,
+        id: this.form.value.usuarioId,
         nombres: '',
         apellidos: '',
         correo: '',
@@ -638,7 +638,7 @@ export class InventoryFormComponent implements OnInit {
         tipoUsuario: 0
       },
       puente: {
-        id: 0,
+        id: this.form.value.puenteId,
         nombre: '',
         identif: '',
         carretera: '',
@@ -675,5 +675,151 @@ export class InventoryFormComponent implements OnInit {
       this.form.get(`${controlName}Url`)?.setValue(file.name);
     }
   }
+
+  generatePDF() {
+    const data = this.form.value; // datos ya cargados en el formulario
+  
+    const documentDefinition = {
+      content: [
+        {
+          text: `INVENTARIO DE ${data.nombre}`,
+          style: 'header',
+          alignment: 'center',
+          margin: [0, 0, 0, 20],
+        },
+  
+        { text: 'Información General', style: 'sectionHeader' },
+        { text: `Nombre del puente: ${data.nombre ?? 'No disponible'}` },
+        { text: `Identificador: ${data.identificador ?? 'No disponible'}` },
+        { text: `Carretera: ${data.carretera ?? 'No disponible'}` },
+        { text: `PR: ${data.pr ?? 'No disponible'}` },
+        { text: `Regional: ${data.regional ?? 'No disponible'}` },
+        { text: `Observaciones: ${data.observaciones ?? 'No disponible'}` },
+  
+        { text: 'Pasos', style: 'sectionHeader', margin: [0, 10, 0, 0] },
+        { text: 'Paso 1:' },
+        { text: `  Tipo de paso: ${data.tipoPaso1 ?? 'No disponible'}` },
+        { text: `  Primero: ${data.primero1 ? 'Sí' : 'No'}` },
+        { text: `  Superior/Inferior: ${data.supInf1 ?? 'No disponible'}` },
+        { text: `  Gálibo Izq: ${data.galiboI1 ?? 'No disponible'}` },
+        { text: `  Gálibo Izq Medio: ${data.galiboIm1 ?? 'No disponible'}` },
+        { text: `  Gálibo Der Medio: ${data.galiboDm1 ?? 'No disponible'}` },
+        { text: `  Gálibo Der: ${data.galiboD1 ?? 'No disponible'}` },
+        { text: 'Paso 2:' },
+        { text: `  Tipo de paso: ${data.tipoPaso2 ?? 'No disponible'}` },
+        { text: `  Primero: ${data.primero2 ? 'Sí' : 'No'}` },
+        { text: `  Superior/Inferior: ${data.supInf2 ?? 'No disponible'}` },
+        { text: `  Gálibo Izq: ${data.galiboI2 ?? 'No disponible'}` },
+        { text: `  Gálibo Izq Medio: ${data.galiboIm2 ?? 'No disponible'}` },
+        { text: `  Gálibo Der Medio: ${data.galiboDm2 ?? 'No disponible'}` },
+        { text: `  Gálibo Der: ${data.galiboD2 ?? 'No disponible'}` },
+  
+        { text: 'Datos Administrativos', style: 'sectionHeader', margin: [0, 10, 0, 0] },
+        { text: `Año de construcción: ${data.anioConstruccion ?? 'No disponible'}` },
+        { text: `Año de reconstrucción: ${data.anioReconstruccion ?? 'No disponible'}` },
+        { text: `Dirección abscisa carretera: ${data.direccionAbscCarretera ?? 'No disponible'}` },
+        { text: `Requisitos inspección: ${data.requisitosInspeccion ?? 'No disponible'}` },
+        { text: `Número secciones inspección: ${data.numeroSeccionesInspeccion ?? 'No disponible'}` },
+        { text: `Estación conteo: ${data.estacionConteo ?? 'No disponible'}` },
+        { text: `Fecha recolección de datos: ${data.fechaRecoleccionDatos ?? 'No disponible'}` },
+  
+        { text: 'Datos Técnicos', style: 'sectionHeader', margin: [0, 10, 0, 0] },
+        { text: `Número de luces: ${data.numeroLuces ?? 'No disponible'}` },
+        { text: `Longitud luz menor: ${data.longitudLuzMenor ?? 'No disponible'} m` },
+        { text: `Longitud luz mayor: ${data.longitudLuzMayor ?? 'No disponible'} m` },
+        { text: `Longitud total: ${data.longitudTotal ?? 'No disponible'} m` },
+        { text: `Ancho tablero: ${data.anchoTablero ?? 'No disponible'} m` },
+        { text: `Ancho separador: ${data.anchoSeparador ?? 'No disponible'} m` },
+        { text: `Ancho andén izquierdo: ${data.anchoAndenIzq ?? 'No disponible'} m` },
+        { text: `Ancho andén derecho: ${data.anchoAndenDer ?? 'No disponible'} m` },
+        { text: `Ancho calzada: ${data.anchoCalzada ?? 'No disponible'} m` },
+        { text: `Ancho entre bordillos: ${data.anchoEntreBordillos ?? 'No disponible'} m` },
+        { text: `Ancho acceso: ${data.anchoAcceso ?? 'No disponible'} m` },
+        { text: `Altura pilas: ${data.alturaPilas ?? 'No disponible'} m` },
+        { text: `Altura estribos: ${data.alturaEstribos ?? 'No disponible'} m` },
+        { text: `Longitud apoyo pilas: ${data.longitudApoyoPilas ?? 'No disponible'} m` },
+        { text: `Longitud apoyo estribos: ${data.longitudApoyoEstribos ?? 'No disponible'} m` },
+        { text: `Puente terraplén: ${data.puenteTerraplen ? 'Sí' : 'No'}` },
+        { text: `Curva/tangente: ${data.puenteCurvaTangente ?? 'No disponible'}` },
+        { text: `Esviajamiento: ${data.esviajamiento ? 'Sí' : 'No'}` },
+  
+        { text: 'Superestructura Principal', style: 'sectionHeader', margin: [0, 10, 0, 0] },
+        { text: `Diseño tipo: ${data.disenioTipo ?? 'No disponible'}` },
+        { text: `Tipo estructuración transversal: ${data.tipoEstructuracionTransversal ?? 'No disponible'}` },
+        { text: `Tipo estructuración longitudinal: ${data.tipoEstructuracionLongitudinal ?? 'No disponible'}` },
+        { text: `Material: ${data.material ?? 'No disponible'}` },
+  
+        { text: 'Superestructura Secundaria', style: 'sectionHeader', margin: [0, 10, 0, 0] },
+        { text: `Diseño tipo: ${data.disenoTipoSec ?? 'No disponible'}` },
+        { text: `Tipo estructuración transversal: ${data.tipoEstructuracionTransversalSec ?? 'No disponible'}` },
+        { text: `Tipo estructuración longitudinal: ${data.tipoEstructuracionLongitudinalSec ?? 'No disponible'}` },
+        { text: `Material: ${data.materialSec ?? 'No disponible'}` },
+  
+        { text: 'Subestructura - Estribos', style: 'sectionHeader', margin: [0, 10, 0, 0] },
+        { text: `Tipo: ${data.tipoEstribos ?? 'No disponible'}` },
+        { text: `Material: ${data.materialEstribos ?? 'No disponible'}` },
+        { text: `Tipo cimentación: ${data.tipoCimentacion ?? 'No disponible'}` },
+  
+        { text: 'Subestructura - Pilas', style: 'sectionHeader', margin: [0, 10, 0, 0] },
+        { text: `Tipo: ${data.tipoPilas ?? 'No disponible'}` },
+        { text: `Material: ${data.materialPilas ?? 'No disponible'}` },
+        { text: `Tipo cimentación: ${data.tipoCimentacionPilas ?? 'No disponible'}` },
+  
+        { text: 'Subestructura - Detalles', style: 'sectionHeader', margin: [0, 10, 0, 0] },
+        { text: `Tipo baranda: ${data.tipoBaranda ?? 'No disponible'}` },
+        { text: `Superficie rodadura: ${data.superficieRodadura ?? 'No disponible'}` },
+        { text: `Junta expansión: ${data.juntaExpansion ?? 'No disponible'}` },
+  
+        { text: 'Señalización', style: 'sectionHeader', margin: [0, 10, 0, 0] },
+        { text: `Carga máxima: ${data.cargaMaxima ?? 'No disponible'}` },
+        { text: `Velocidad máxima: ${data.velocidadMaxima ?? 'No disponible'}` },
+        { text: `Otra información: ${data.otraInfo ?? 'No disponible'}` },
+  
+        { text: 'Apoyos', style: 'sectionHeader', margin: [0, 10, 0, 0] },
+        { text: `Fijo sobre estribo: ${data.fijoSobreEstribo ? 'Sí' : 'No'}` },
+        { text: `Móvil sobre estribo: ${data.movilSobreEstribo ? 'Sí' : 'No'}` },
+        { text: `Fijo en pila: ${data.fijoEnPila ? 'Sí' : 'No'}` },
+        { text: `Móvil en pila: ${data.movilEnPila ? 'Sí' : 'No'}` },
+        { text: `Fijo en viga: ${data.fijoEnViga ? 'Sí' : 'No'}` },
+        { text: `Móvil en viga: ${data.movilEnViga ? 'Sí' : 'No'}` },
+        { text: `Vehículo de diseño: ${data.vehiculoDiseno ?? 'No disponible'}` },
+        { text: `Clase distribución carga: ${data.claseDistribucionCarga ?? 'No disponible'}` },
+  
+        { text: 'Miembros Interesados', style: 'sectionHeader', margin: [0, 10, 0, 0] },
+        { text: `Propietario: ${data.propietario ?? 'No disponible'}` },
+        { text: `Departamento: ${data.departamento ?? 'No disponible'}` },
+        { text: `Administrador vial: ${data.administradorVial ?? 'No disponible'}` },
+        { text: `Proyectista: ${data.proyectista ?? 'No disponible'}` },
+        { text: `Municipio: ${data.municipio ?? 'No disponible'}` },
+  
+        { text: 'Posición Geográfica', style: 'sectionHeader', margin: [0, 10, 0, 0] },
+        { text: `Latitud: ${data.latitud ?? 'No disponible'}` },
+        { text: `Longitud: ${data.longitud ?? 'No disponible'}` },
+        { text: `Altitud: ${data.altitud ?? 'No disponible'} msnm` },
+        { text: `Coef. Aceleración sísmica: ${data.coeficienteAceleracionSismica ?? 'No disponible'}` },
+        { text: `Paso sobre cauce: ${data.pasoCauce ? 'Sí' : 'No'}` },
+        { text: `Existe variante: ${data.existeVariante ? 'Sí' : 'No'}` },
+        { text: `Longitud variante: ${data.longitudVariante ?? 'No disponible'}` },
+        { text: `Estado: ${data.estado ?? 'No disponible'}` },
+  
+        { text: 'Capacidad de Carga', style: 'sectionHeader', margin: [0, 10, 0, 0] },
+        { text: `Longitud luz crítica: ${data.longitudLuzCritica ?? 'No disponible'} m` },
+        { text: `Factor clasificación: ${data.factorClasificacion ?? 'No disponible'}` },
+        { text: `Fuerza cortante: ${data.fuerzaCortante ?? 'No disponible'}` },
+        { text: `Momento: ${data.momento ?? 'No disponible'}` },
+        { text: `Línea carga por rueda: ${data.lineaCargaPorRueda ?? 'No disponible'}` },
+      ],
+      styles: {
+        header: { fontSize: 24, bold: true },
+        sectionHeader: { fontSize: 18, bold: true, margin: [0, 10, 0, 5] }
+      }
+    };
+  
+    pdfMake.createPdf(documentDefinition as any).download(`Inventario ${data.nombre}.pdf`);
+  }
+  
+  
+
+  
   
 }

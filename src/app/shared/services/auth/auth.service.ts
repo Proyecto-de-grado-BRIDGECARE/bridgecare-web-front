@@ -9,7 +9,6 @@ interface LoginResponse {
   [key: string]: any; // Allows additional fields if needed
 }
 
-
 @Injectable({
   providedIn: 'root'
 })

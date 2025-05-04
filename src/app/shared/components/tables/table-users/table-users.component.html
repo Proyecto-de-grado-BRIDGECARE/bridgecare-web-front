@@ -56,64 +56,76 @@
         <h5 class="modal-title" id="editModalLabel">Editar Usuario</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
+
       <form [formGroup]="editUserForm" (ngSubmit)="onSubmitEdit()">
-      <div class="modal-body">
-        
-        <div class="d-flex">
-          <div class="col">
-            <!-- <label *ngFor="old_name">Identificación</label> -->
-            <label>Identificación</label>
-            <input type="text" class="form-control" [placeholder]="currentUser?.identification" id="old_identification"
-              disabled />
-            <input type="text" class="form-control" placeholder="Identificación Nueva"
-              formControlName="new_identification" id="new_identification" required />
+        <div class="modal-body">
+
+          <!-- Primera fila -->
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <label>Identificación</label>
+              <input type="text" class="form-control mb-2" [placeholder]="currentUser?.identification" disabled />
+              <input type="text" class="form-control" placeholder="Identificación Nueva" formControlName="new_identification" required />
+            </div>
+            <div class="col-md-6">
+              <label>Correo Electrónico</label>
+              <input type="text" class="form-control mb-2" [placeholder]="currentUser?.email" disabled />
+              <input type="text" class="form-control" placeholder="Correo Nuevo" formControlName="new_email" required />
+            </div>
           </div>
-          <div class="col">
-            <!-- <label>Correo Electrónico</label> -->
-            <label for="old_name">Correo Electrónico</label>
-            <input type="text" class="form-control" [placeholder]="currentUser?.email" id="old_email" disabled />
-            <input type="text" class="form-control" placeholder="Correo Nuevo" formControlName="new_email" id="new_email"
-              required />
+
+          <!-- Segunda fila -->
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <label>Nombre</label>
+              <input type="text" class="form-control mb-2" [placeholder]="currentUser?.name" disabled />
+              <input type="text" class="form-control" placeholder="Nombre Nuevo" formControlName="new_name" required />
+            </div>
+            <div class="col-md-6">
+              <label>Apellido</label>
+              <input type="text" class="form-control mb-2" [placeholder]="currentUser?.surname" disabled />
+              <input type="text" class="form-control" placeholder="Apellido Nuevo" formControlName="new_surname" required />
+            </div>
           </div>
-          <div class="col">
-            <!-- <label *ngFor="old_name">Nombre</label> -->
-            <label>Nombre</label>
-            <input type="text" class="form-control" [placeholder]="currentUser?.name" id="old_name" disabled />
-            <input type="text" class="form-control" placeholder="Nombre Nuevo" formControlName="new_name" id="new_name"
-              required />
+
+          <!-- Tercera fila -->
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <label>Municipio</label>
+              <input type="text" class="form-control mb-2" [placeholder]="currentUser?.municipality" disabled />
+              <input type="text" class="form-control" placeholder="Municipio Nuevo" formControlName="new_municipality" required />
+            </div>
+            <div class="col-md-6">
+              <label>Tipo de Usuario</label>
+              <input type="text" class="form-control mb-2" [placeholder]="currentUser?.type" disabled />
+              <select class="form-control" formControlName="new_type" required>
+                <option value="" disabled selected>Seleccione el nuevo tipo</option>
+                <option value="0">Municipal</option>
+                <option value="1">Ingeniero</option>
+                <option value="2">Administrador</option>
+              </select>
+            </div>
           </div>
-          <div class="col">
-            <!-- <label *ngFor="old_name">Apellido</label> -->
-            <label>Apellido</label>
-            <input type="text" class="form-control" [placeholder]="currentUser?.surname" id="old_surname" disabled />
-            <input type="text" class="form-control" placeholder="Apellido Nuevo" formControlName="new_surname"
-              id="new_surname" required />
+
+          <!-- Cuarta fila -->
+          <div class="row mb-3">
+            <div class="col-md-12">
+              <label>Cambiar Contraseña</label>
+              <input type="password" class="form-control" placeholder="Contraseña Nueva" formControlName="new_password" required />
+            </div>
           </div>
-          <div class="col">
-            <!-- <label *ngFor="old_name">Municipio</label> -->
-            <label>Municipio</label>
-            <input type="text" class="form-control" [placeholder]="currentUser?.municipality" id="old_municipality"
-              disabled />
-            <input type="text" class="form-control" placeholder="Municipio Nuevo" formControlName="new_municipality"
-              id="new_municipality" required />
-          </div>
+
         </div>
-        <div class="d-flex mt-4">
-          <div class="col-md-6">
-            <!-- <label *ngFor="old_name">Cambiar Contraseña</label> -->
-            <label>Cambiar Contraseña</label>
-            <input type="text" class="form-control" placeholder="Contraseña Nueva" formControlName="new_password"
-              id="new_password" required />
-          </div>
+
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-primary">Guardar Cambios</button>
         </div>
-      </div>
-      <div class="modal-footer">
-        <button type="submit" class="btn btn-primary" data-bs-dismiss="toast">Guardar Cambios</button>
-      </div>
-    </form>
+      </form>
+
     </div>
   </div>
 </div>
+
 
 <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
   <div class="modal-dialog">

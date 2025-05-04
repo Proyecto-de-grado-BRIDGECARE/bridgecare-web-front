@@ -1,37 +1,45 @@
-export interface Inspection {
-  inspectionId: number;
-  date: Date;
-  temperature: number;
-  inspector: string;
-  administrator: string;
-  nextInspectionYear: number;
-  inspectionComponents: inspectionComponent[];
-  generalComments: string;
+import { User } from "../account/user";
+import { Puente } from "./puente";
 
+
+export interface Inspection {
+  id: number;
+  fecha: Date;
+  temperatura: number;
+  administrador: string;
+  inspector: string;
+  anioProximaInspeccion: number;
+  observacionesGenerales: string;
+  componentes: inspectionComponent[];
+  usuario: User;
+  puente: Puente;
 }
 
+
 export interface inspectionComponent {
-  name: string;
-  rating: number;
-  maintenance: string;
-  specializedInspection: string;
-  damageType: string;
-  repairs: repair[];
-  photos: String[];
+  nomb: string; 
+  calificacion: number;
+  mantenimiento: string;
+  inspEesp: string;
+  tipoDanio: string | number; 
+  reparacion: repair[];
+  numeroFfotos?: number;
+  danio: string;
+  fotos?: String[]; 
 }
 
 export interface repair {
-  type: string;
-  quantity: number;
-  unit: string;
-  year: number;
-  cost: number;
-  damage: string;
+  tipo: string;
+  cantidad: number;
+  unidad?: string;
+  anio: number;
+  costo: number;
+  danio?: string; 
 }
 
 export interface basicInspection {
   id: number;
-  administrator: string;
+  administrador: string;
   inspector: string;
-  date: Date;
+  fecha: Date;
 }

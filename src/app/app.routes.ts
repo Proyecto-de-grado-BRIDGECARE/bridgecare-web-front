@@ -9,6 +9,8 @@ import { ManageUsersComponent } from "./features/account-management/manage-users
 import { NotFoundComponent } from "./features/general/not-found/not-found.component";
 
 import { roleGuard } from './shared/guards/role.guard';
+import { TableInspectionsComponent } from './shared/components/tables/table-inspections/table-inspections.component';
+import { InspectionFormComponent } from './shared/components/forms/inspection-form/inspection-form.component';
 
 export const routes: Routes = [
   {
@@ -88,6 +90,22 @@ export const routes: Routes = [
       {
         path: 'inventories/:BridgeId/view-inventory-bridge',
         component: InventoryBridgeComponent,
+        canActivate: [roleGuard],
+        data: {
+          requiredRole: [0, 1, 2]
+        }
+      },
+      {
+        path: 'home/bridge-management/inventories/:bridgeIdentification/inspections',
+        component: TableInspectionsComponent,
+        canActivate: [roleGuard],
+        data: {
+          requiredRole: [0, 1, 2]
+        }
+      },
+      {
+        path: 'inventories/:bridgeIdentification/inspections/:inspectionId/view',
+        component: InspectionFormComponent,
         canActivate: [roleGuard],
         data: {
           requiredRole: [0, 1, 2]

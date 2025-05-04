@@ -5,30 +5,30 @@
       <div class="form-row">
         <div class="form-group col-md-6">
           <label for="inputName">Nombre</label>
-          <input type="text" class="form-control" id="inputName" placeholder="Nombre" [(ngModel)]="bridgeBasicInfo.name"
+          <input type="text" class="form-control" id="inputName" placeholder="Nombre" [(ngModel)]="bridgeBasicInfo.nombre"
                  name="bridgrName" readonly>
         </div>
         <div class="form-group col-md-2">
           <label for="inputRegional">Identificación</label>
           <input type="number" class="form-control" id="inputRegional" placeholder="Regional"
-                 [(ngModel)]="bridgeBasicInfo.regionalId" name="bridgeRegionalId" readonly>
+                 [(ngModel)]="bridgeBasicInfo.regional" name="bridgeRegionalId" readonly>
         </div>
         <div class="form-group col-md-2">
           <label for="inputRoadID" class="color">h</label>
           <input type="number" class="form-control" id="inputRoadID" placeholder="Carretera"
-                 [(ngModel)]="bridgeBasicInfo.roadId" name="bridgeRoadId" readonly>
+                 [(ngModel)]="bridgeBasicInfo.carretera" name="bridgeRoadId" readonly>
         </div>
         <div class="form-group col-md-2">
           <label for="inputBridge" class="color">h </label>
           <input type="number" class="form-control" id="inputBridge" placeholder="Puente"
-                 [(ngModel)]="bridgeBasicInfo.bridgeId" name="bridgeBridgeDd" readonly>
+                 [(ngModel)]="bridgeBasicInfo.id" name="bridgeBridgeDd" readonly>
         </div>
       </div>
       <div class="form-row">
         <div class="form-group col-md-6">
           <label for="inputRoad">Carretera</label>
           <input type="text" class="form-control" id="inputRoad" placeholder="Carretera"
-                 [(ngModel)]="bridgeBasicInfo.road"
+                 [(ngModel)]="bridgeBasicInfo.carretera"
                  name="bridgeRoad" readonly>
         </div>
         <div class="form-group col-md-3">
@@ -37,23 +37,13 @@
                  name="bridgePR" readonly>
         </div>
         <div class="form-group col-md-3">
-          <label for="inputDate">Fecha</label>
-          <input type="Date" class="form-control" id="inputDate" placeholder="Fecha" [(ngModel)]="formInspection.date"
-                 name="inspectionDate" [min]="currentMonthStart"
-                 [max]="currentMonthEnd"
-                 #dateField="ngModel"
-                 [ngClass]="{'is-invalid': dateField.invalid && dateField.touched}"
-                 [readonly]="viewMode === 'view'"
-                 [required]="viewMode !== 'view'"
-          >
-
-          <div *ngIf="dateField.invalid && dateField.touched" class="invalid-feedback">
-            Este campo es obligatorio.
-          </div>
-
+          <label>Fecha</label>
+          <p class="form-control-plaintext">{{ formInspection.fecha| date: 'dd/MM/yyyy' }}</p>
         </div>
+        
       </div>
       <div class="form-row">
+        <!-- TEMPERATURA -->
         <div class="form-group col-md-3">
           <label for="inputTemperat">Temperatura</label>
           <input
@@ -61,71 +51,89 @@
             class="form-control"
             id="inputTemperat"
             placeholder="Temperatura"
-            [(ngModel)]="formInspection.temperature"
+            [(ngModel)]="formInspection.temperatura"
             name="inspectionTemperature"
             [readonly]="viewMode === 'view'"
             [required]="viewMode !== 'view'"
-            [ngClass]="{'is-invalid': (temperatureField.invalid && temperatureField.touched) || temperatureField.value < 0 || temperatureField.value > 50}"
+            [ngClass]="{
+              'is-invalid':
+                (temperatureField.invalid && temperatureField.touched) ||
+                temperatureField.value < 0 ||
+                temperatureField.value > 50
+            }"
             #temperatureField="ngModel"
           >
-
           <div
             *ngIf="(temperatureField.touched && temperatureField.invalid) || temperatureField.value < 0 || temperatureField.value > 50"
             class="invalid-feedback">
             Debe estar entre 0 y 50
           </div>
-
         </div>
+      
+        <!-- INSPECTOR -->
         <div class="form-group col-md-3">
           <label for="inputInspector">Inspector</label>
-          <input type="text" class="form-control" id="inputInspector" placeholder="Inspector"
-                 [(ngModel)]="formInspection.inspector" name="inspectionInspector"
-                 [ngClass]="{'is-invalid': inspectorField.invalid && inspectorField.touched}"
-                 #inspectorField="ngModel"
-                 [readonly]="viewMode === 'view'"
-                 [required]="viewMode !== 'view'"
+          <input
+            type="text"
+            class="form-control"
+            id="inputInspector"
+            placeholder="Inspector"
+            [(ngModel)]="formInspection.inspector"
+            name="inspectionInspector"
+            [readonly]="viewMode === 'view'"
+            [required]="viewMode !== 'view'"
+            [ngClass]="{'is-invalid': inspectorField.invalid && inspectorField.touched}"
+            #inspectorField="ngModel"
           >
           <div *ngIf="inspectorField.invalid && inspectorField.touched" class="invalid-feedback">
             Este campo es obligatorio.
           </div>
         </div>
+      
+        <!-- ADMINISTRADOR -->
         <div class="form-group col-md-3">
-          <label for="inputAdministrador">Adminsitrador</label>
-          <input type="text" class="form-control" id="inputAdministrador" placeholder="Administrador"
-                 [(ngModel)]="formInspection.administrator" name="inspectionAdministrator"
-                 #administratorField="ngModel"
-                 [ngClass]="{'is-invalid': administratorField.invalid && administratorField.touched}"
-                 [readOnly]="viewMode === 'view'"
-                 [required]="viewMode !== 'view'"
+          <label for="inputAdministrador">Administrador</label>
+          <input
+            type="text"
+            class="form-control"
+            id="inputAdministrador"
+            placeholder="Administrador"
+            [(ngModel)]="formInspection.administrador"
+            name="inspectionAdministrator"
+            [readonly]="viewMode === 'view'"
+            [required]="viewMode !== 'view'"
+            [ngClass]="{'is-invalid': administratorField.invalid && administratorField.touched}"
+            #administratorField="ngModel"
           >
           <div *ngIf="administratorField.invalid && administratorField.touched" class="invalid-feedback">
             Este campo es obligatorio.
           </div>
         </div>
+      
+        <!-- AÑO PRÓXIMA INSPECCIÓN -->
         <div class="form-group col-md-3">
           <label for="inputNextYearInspection">Año prox. insp.</label>
           <select
             class="form-control"
             id="inputNextYearInspection"
-            [(ngModel)]="formInspection.nextInspectionYear"
+            [(ngModel)]="formInspection.anioProximaInspeccion"
             name="inspectionYear"
             [disabled]="viewMode === 'view'"
             [required]="viewMode !== 'view'"
           >
-            <option value="-1" disabled selected>Seleccionar Año</option>
+            <option value="-1" disabled [selected]="formInspection.anioProximaInspeccion">Seleccionar Año</option>
             <option *ngFor="let year of yearList" [value]="year">{{ year }}</option>
           </select>
         </div>
-      </div>
+      </div>      
     </div>
 
     <div class="cont">
       <h2 class="inspection-subtitle">PASOS</h2>
-
-
-      <div *ngFor="let component of formInspection.inspectionComponents; let i = index" class="card mb-4">
+    
+      <div *ngFor="let component of formInspection.componentes; let i = index" class="card mb-4">
         <div class="card-header">
-          <h2>{{ componentNames[i] }}</h2>
+          <h2>{{ component.nomb }}</h2> 
         </div>
         <div class="card-body">
           <form>
@@ -135,177 +143,154 @@
                 <select
                   class="form-control"
                   id="damageRating{{i}}"
-                  [(ngModel)]="component.rating"
+                  [(ngModel)]="component.calificacion"
                   name="damageRating{{i}}"
                   [disabled]="viewMode === 'view'"
-                  [required]="viewMode !== 'view'"
-                >
-                  <option value="-1" disabled selected>Seleccione una calificación</option>
+                  [required]="viewMode !== 'view'">
+                  <option value="-1" disabled>Seleccione una calificación</option>
                   <option *ngFor="let option of damageRatingList" [value]="option.value">
                     {{ option.label }}
                   </option>
-
                 </select>
               </div>
               <div class="form-group col-md-5">
                 <label for="maintenance{{i}}">Mantenimiento</label>
-                <select
+                <input
+                  type="text"
                   class="form-control"
                   id="maintenance{{i}}"
-                  [(ngModel)]="component.maintenance"
+                  [(ngModel)]="component.mantenimiento"
                   name="maintenance{{i}}"
-                  [disabled]="viewMode === 'view'"
-                  [required]="viewMode !== 'view'"
-                >
-                  <option value="" disabled selected>Seleccione una opción</option>
-                  <option value="1">+</option>
-                  <option value="2">-</option>
-                </select>
+                  [readonly]="viewMode === 'view'">
               </div>
             </div>
+    
             <div class="form-row">
               <div class="form-group col-md-5">
                 <label for="specializedInspection{{i}}">Insp. Esp.</label>
-                <select
+                <input
+                  type="text"
                   class="form-control"
                   id="specializedInspection{{i}}"
-                  [(ngModel)]="component.specializedInspection"
+                  [(ngModel)]="component.inspEesp"
                   name="specializedInspection{{i}}"
-                  [disabled]="viewMode === 'view'"
-                  [required]="viewMode !== 'view'"
-                >
-                  <option value="" disabled selected>Seleccione una opción</option>
-                  <option value="1">+</option>
-                  <option value="2"></option>
-                </select>
+                  [readonly]="viewMode === 'view'">
               </div>
               <div class="form-group col-md-5">
                 <label for="damageType{{i}}">Tipo de daño</label>
-
                 <select
                   class="form-control"
                   id="damageType{{i}}"
-                  [(ngModel)]="component.damageType"
+                  [(ngModel)]="component.tipoDanio"
                   name="damageType{{i}}"
                   [disabled]="viewMode === 'view'"
-                  [required]="viewMode !== 'view'"
-                >
-                  <option value="" disabled selected>Seleccione un tipo de daño</option>
+                  [required]="viewMode !== 'view'">
+                  <option value="" disabled>Seleccione un tipo de daño</option>
                   <option *ngFor="let option of damageTypeList" [value]="option.value">
                     {{ option.label }}
                   </option>
-
                 </select>
               </div>
-
             </div>
-            <div>
-              <div class="form-group">
-                <div *ngIf="viewMode !== 'view'">
-                  <input
-                    type="file"
-                    accept="image/*"
-                    multiple
-                    (change)="uploadPhotos($event, component)"
-                    id="componentPhoto{{i}}"
-                    style="display: none;"
-                  >
-                </div>
-
-                <div *ngIf="viewMode !== 'view'">
-                  <button
-                    class="btn btn-warning"
-                    (click)="clickFileInput(i)"
-                  >
-                    <i class="fa fa-upload" aria-hidden="true"></i>
-                    Subir Fotos
-                  </button>
-                </div>
-
-              </div>
-
-
-              <div class="form-group " *ngIf="component.photos.length>0">
-                <label>Fotos Cargadas:</label>
-                <ul>
-                  <li *ngFor="let photoUrl of component.photos; let k = index" class="mt-1">
-                    <a [href]="photoUrl" target="_blank">Foto {{ k + 1 }} {{ component.name }}</a>
-
-                    <button class="btn btn-danger btn-sm ml-5" [hidden]="viewMode ==='view'"
-                            (click)="deletePhoto(component, k)">Eliminar
-                    </button>
-
-                  </li>
-                </ul>
-              </div>
-
+    
+            <!--Fotos cargadas desde backend -->
+            <div class="form-group" *ngIf="component.fotos && component.fotos.length > 0">
+              <label>Fotos Cargadas:</label>
+              <ul>
+                <li *ngFor="let photoUrl of component.fotos; let k = index">
+                  <a [href]="photoUrl" target="_blank">Foto {{ k + 1 }}</a>
+                </li>
+              </ul>
+            </div>
+  
+            <!-- ✅ MOSTRAR SOLO FOTOS CARGADAS (si existen) -->
+            <div class="form-group" *ngIf="component.fotos && component.fotos.length > 0">
+              <label>Fotos Cargadas:</label>
+              <ul>
+                <li *ngFor="let photoUrl of component.fotos; let k = index">
+                  <a [href]="photoUrl" target="_blank">Foto {{ k + 1 }} {{ component.nomb }}</a>
+                </li>
+              </ul>
             </div>
 
+            <!-- ✅ OCULTAR COMPLETAMENTE BOTONES DE SUBIR -->
+            <!-- <div class="form-group" *ngIf="viewMode !== 'view'">
+              <input ...>
+              <button ...>Subir Fotos</button>
+            </div> -->
 
+            <!-- ✅ MOSTRAR INFORMACIÓN DE LAS REPARACIONES COMO TEXTO -->
+            <div *ngIf="component.reparacion && component.reparacion.length > 0">
+              <h3>Reparaciones</h3>
+              <div *ngFor="let repair of component.reparacion; let j = index" class="border rounded p-2 mb-2">
+                <p><strong>Tipo de reparación:</strong> {{ repair.tipo }}</p>
+                <p><strong>Cantidad:</strong> {{ repair.cantidad }} {{ repair.unidad }}</p>
+                <p><strong>Año:</strong> {{ repair.anio }}</p>
+                <p><strong>Costo:</strong> {{ repair.costo| currency:'COP' }}</p>
+                <p><strong>Observaciones:</strong> {{ repair.danio }}</p>
+              </div>
+
+            <!-- ✅ OCULTAR COMPLETAMENTE FORMULARIO DE REPARACIONES -->
+            <!--
             <div *ngFor="let repair of component.repairs; let j = index">
-              <h2>Reparación {{ j + 1 }}</h2>
-
+              <h3>Reparación {{ j + 1 }}</h3>
               <div class="form-group">
-                <label for="repairType{{i}}{{j}}">Tipo de reparación</label>
-                <select
-                  class="form-control"
-                  id="repairType{{i}}{{j}}"
-                  [(ngModel)]="repair.type"
-                  (change)="updateUnit(i, j, repair.type, componentNames[i])"
-                  name="repairType{{i}}{{j}}"
-                  [disabled]="viewMode === 'view'"
-                  [required]="viewMode !== 'view'"
-                >
-                  <option value="" disabled selected>Seleccione un tipo de reparación</option>
-                  <option *ngFor="let option of updateRepairOptions(componentNames[i])" [value]="option.type">
-                    {{ option.description }}
-                  </option>
-                </select>
+                <label>Tipo de reparación</label>
+                <select ...></select>
               </div>
-              <div class="form-group">
-                <label for="repairQuantity{{i}}{{j}}">Cantidad</label>
-                <div class="input-group">
-                  <input
-                    type="number"
-                    class="form-control"
-                    id="repairQuantity{{i}}{{j}}"
-                    [(ngModel)]="repair.quantity"
-                    name="repairQuantity{{i}}{{j}}"
-                    [readOnly]="viewMode === 'view'"
-                    [required]="viewMode !== 'view'"
-                    min="0.00001"
-                    #repairQuantity="ngModel"
-                    [ngClass]="{'is-invalid': repairQuantity.invalid && repairQuantity.touched}"
-                  >
-                  <div *ngIf="repairQuantity.invalid && repairQuantity.touched" class="invalid-feedback">
-                    Debe ser mayor que cero.
-                  </div>
-                  <div class="input-group-append">
-      <span class="input-group-text">
-        <ng-container [ngSwitch]="repair.unit">
-          <span *ngSwitchCase="'m2'">m<sup>2</sup></span>
-          <span *ngSwitchCase="'m3'">m<sup>3</sup></span>
-          <span *ngSwitchDefault>{{ repair.unit }}</span>
-        </ng-container>
-      </span>
-                  </div>
+              ...
+            </div>
+            -->
+
+              <div *ngFor="let repair of component.reparacion; let j = index">
+                <div class="form-group">
+                  <label>Cantidad:</label>
+                  <p>{{ repair.cantidad }}</p>
+                </div>
+              
+                <div class="form-group">
+                  <label>Año:</label>
+                  <p>{{ repair.anio }}</p>
+                </div>
+              
+                <div class="form-group">
+                  <label>Costo:</label>
+                  <p>{{ repair.costo| currency:'COP' }}</p>
+                </div>
+              
+                <div class="form-group">
+                  <label>Observaciones:</label>
+                  <p>{{ repair.danio }}</p>
                 </div>
               </div>
+              
 
+              <!--CAMPOS OCULTOS PARA FUTURA EDICIÓN -->
+              <!--
+              <div class="form-group" *ngIf="viewMode !== 'view'">
+                <label for="repairQuantity{{i}}{{j}}">Cantidad</label>
+                <input
+                  type="number"
+                  class="form-control"
+                  id="repairQuantity{{i}}{{j}}"
+                  [(ngModel)]="repair.quantity"
+                  name="repairQuantity{{i}}{{j}}"
+                  min="0.00001">
+              </div>
 
-              <div class="form-group">
+              <div class="form-group" *ngIf="viewMode !== 'view'">
                 <label for="repairYear{{i}}{{j}}">Año</label>
                 <select
-                  class="form-control" id="repairYear{{i}}{{j}}" [(ngModel)]="repair.year"
-                  name="repairYear{{i}}{{j}}"
-                  [disabled]="viewMode === 'view'"
-                  [required]="viewMode !== 'view'"
-                >
-                  <option value="-1" disabled selected>Seleccionar Año</option>
+                  class="form-control"
+                  id="repairYear{{i}}{{j}}"
+                  [(ngModel)]="repair.year"
+                  name="repairYear{{i}}{{j}}">
+                  <option value="-1" disabled>Seleccionar Año</option>
                   <option *ngFor="let year of yearList" [value]="year">{{ year }}</option>
                 </select>
               </div>
-              <div class="form-group">
+
+              <div class="form-group" *ngIf="viewMode !== 'view'">
                 <label for="repairCost{{i}}{{j}}">Costo</label>
                 <input
                   type="number"
@@ -313,55 +298,36 @@
                   id="repairCost{{i}}{{j}}"
                   [(ngModel)]="repair.cost"
                   name="repairCost{{i}}{{j}}"
-                  [readOnly]="viewMode === 'view'"
-                  [required]="viewMode !== 'view'"
-                  min="0"
-                  #repairCost="ngModel"
-                  [ngClass]="{'is-invalid': repairCost.invalid && repairCost.touched}"
-                >
-                <div *ngIf="repairCost.invalid && repairCost.touched" class="invalid-feedback">
-                  El costo debe ser un número positivo.
-                </div>
-
+                  min="0">
               </div>
-              <div class="form-group">
+
+              <div class="form-group" *ngIf="viewMode !== 'view'">
                 <label for="repairDamage{{i}}{{j}}">Observaciones</label>
-                <input type="text" class="form-control" id="repairDamage{{i}}{{j}}" [(ngModel)]="repair.damage"
-                       name="repairDamage{{i}}{{j}}"
-                       [readOnly]="viewMode === 'view'"
-                       [required]="viewMode !== 'view'"
-                >
+                <input
+                  type="text"
+                  class="form-control"
+                  id="repairDamage{{i}}{{j}}"
+                  [(ngModel)]="repair.damage"
+                  name="repairDamage{{i}}{{j}}">
               </div>
+-->
 
             </div>
-
-            <div class="form-group d-flex justify-content-lg-start" *ngIf="viewMode !== 'view'">
-              <button type="button" class="btn btn-warning " (click)="addRepair(i)">Adicionar reparación</button>
-              <button type="button" class="btn btn-danger mx-1" (click)="removeRepair(i)">Eliminar reparación</button>
-            </div>
-
           </form>
         </div>
       </div>
-
     </div>
+    
 
     <div class="cont">
       <div class="form-group">
         <label for="inputGeneralObservations">OBSERVACIONES GENERALES</label>
-        <textarea class="form-control" id="inputGeneralObservations" [(ngModel)]="formInspection.generalComments"
+        <textarea class="form-control" id="inputGeneralObservations" [(ngModel)]="formInspection.observacionesGenerales"
                   name="inputGeneralObservations"
                   [readOnly]="viewMode === 'view'"
                   [required]="viewMode !== 'view'"
         ></textarea>
       </div>
     </div>
-    <div class="text-center mb-1" *ngIf="viewMode !== 'view'">
-      <button type="submit" class="btn btn-warning rounded-4">GUARDAR FORMULARIO</button>
-    </div>
-    <div class="text-center mb-5" *ngIf="viewMode !== 'view'">
-      <button type="button" class="btn btn-outline-danger rounded-4" (click)="cancel()">CANCELAR</button>
-    </div>
-
   </form>
 </div>

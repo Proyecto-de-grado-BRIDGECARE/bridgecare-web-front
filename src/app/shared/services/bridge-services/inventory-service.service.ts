@@ -53,7 +53,7 @@ export class InventoryServiceService {
     return this.http.put(`${this.apiUrl}/${id}`, inventory);
   }
 
-  deleteInventory(id: string): Observable<any> {
+  deleteInventory(id: number): Observable<any> {
     return this.http.delete(`${this.apiUrl}/${id}`);
   }
 

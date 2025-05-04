@@ -33,7 +33,7 @@
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let inventory of filteredInventories; let i = index" style="cursor: pointer;" (click)="navigateToInspections((inventory.puente?.id ?? 0).toString())">
+        <tr *ngFor="let inventory of filteredInventories; let i = index">
           <th class="text-center" scope="row">{{ i + 1 }}</th>
           <td class="text-center">{{ inventory.puente.id }}</td>
           <td class="text-center">{{ inventory.puente.nombre }}</td>
@@ -44,6 +44,7 @@
 
           <td class="text-center">
             <i class="fas fa-eye text-info me-2" (click)="navigateToViewInventory((inventory.puente.id ?? 0), $event)"></i>
+            <i class="fas fa-tools text-primary me-2" title="Ver inspecciones"(click)="navigateToInspections((inventory.puente.id ?? 0), $event)"></i>
             <!-- <i class="fas fa-edit text-warning me-2" *ngIf="isPrivilegedUser$ | async" (click)="navigateToEditInventory(inventory.puente.id.toString(), $event)"></i> -->
             <!-- <i class="fas fa-trash text-danger" *ngIf="isPrivilegedUser$ | async" (click)="deleteInventory(inventory.puente.id.toString(), $event)"></i> -->
           </td>

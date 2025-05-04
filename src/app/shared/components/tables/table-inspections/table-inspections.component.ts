@@ -1,15 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from "@angular/router";
-import { InspectionServiceService } from "../../../services/bridge-services/inspection-service.service";
 import { CommonModule, NgForOf } from "@angular/common";
 import { IconDelete } from "../../../../../assets/icons/delete";
 import { IconEdit } from "../../../../../assets/icons/edit";
 import { IconSettings } from "../../../../../assets/icons/settings";
 import { IconView } from "../../../../../assets/icons/view";
 import { FormsModule } from "@angular/forms";
-import { InventoryServiceService } from "../../../services/bridge-services/inventory-service.service";
-import { waitForAsync } from "@angular/core/testing";
-import { AuthService } from '../../../services/auth/auth.service';
+import { Inspection } from '../../../../models/bridge/inspection';
+import { InspectionServiceService } from '../../../services/bridge-services/inspection-service.service';
 
 @Component({
     selector: 'app-table-inspections',
@@ -26,102 +24,51 @@ import { AuthService } from '../../../services/auth/auth.service';
     styleUrl: './table-inspections.component.css'
 })
 export class TableInspectionsComponent implements OnInit {
-  searchTerm: string = '';
-  bridgeId: any;
+  
+  bridgeId!: number;
   bridgeName: string = '';
-  inspections: any[] = [
-    {
-      id: 0,
-      administrator: '',
-      inspector: '',
-      date: Date,
-    }
-  ]
-  filteredInspections: any[] = this.inspections;
-
-  isPrivilegedUser$ = this.authService.isPrivilegedUser$;
+  inspections: Inspection[] = [];
+  filteredInspections: Inspection[] = [];
+  searchTerm: string = '';
 
   constructor(
-    private inventoryService: InventoryServiceService,
     private inspectionService: InspectionServiceService,
     private route: ActivatedRoute,
-    private router: Router,
-    private authService: AuthService
-  ) {
-  }
+    private router: Router
+  ) {}
 
   ngOnInit(): void {
-    console.log('PRIVILEGED: ' + this.isPrivilegedUser$);
-    this.route.params.subscribe(params => {
-      this.bridgeId = (params['bridgeIdentification']);
-    });
-    this.inventoryService.getBridgeName(this.bridgeId).subscribe((bridgeName) => {
-      if (bridgeName != null) {
-        this.bridgeName = bridgeName;
-      }
-    });
-    //Get inspections from database
-    this.inspectionService.getInspections(this.bridgeId).subscribe(
-      (data: any) => {
-        //reset inspections array
-        this.inspections = [];
-        if (data.length !== 0) {
-          //ITERATE THE DATA
-          data.forEach((inspection: any) => {
-            //PUSH DATA TO INSPECTIONS ARRAY
-            this.inspections.push({
-              id: inspection.id,
-              administrator: inspection.administrator,
-              inspector: inspection.inspector,
-              date: inspection.date,
-            });
-          });
+    this.bridgeId = +this.route.snapshot.paramMap.get('bridgeIdentification')!;
+    this.loadInspections(this.bridgeId);
+  }
+  
+  
+  loadInspections(puenteId: number): void {
+    this.inspectionService.getInspectionsByBridge(puenteId).subscribe({
+      next: (data) => {
+        this.inspections = data;
+        this.filteredInspections = [...data];
+        if (data.length > 0) {
+          this.bridgeName = data[0].puente.nombre;
         }
-        this.filteredInspections = this.inspections;
+      },
+      error: (err) => {
+        console.error('Error al cargar inspecciones', err);
       }
+    });
+  }
+
+  filterInspections(): void {
+    const term = this.searchTerm.toLowerCase();
+    this.filteredInspections = this.inspections.filter(inspection =>
+      inspection.id.toString().includes(term) ||
+      inspection.administrador?.toLowerCase().includes(term) ||
+      inspection.fecha?.toString().includes(term)
     );
   }
 
-  viewInspection(inspectionId: number) {
-    this.router.navigate([`home/bridge-management/inventories/${this.bridgeId}/inspections/inspection-bridge`], {
-      queryParams: {
-        mode: 'view',
-        inspid: inspectionId
-      }
-    });
+  viewInspection(inspectionId: number): void {
+    this.router.navigate([`home/bridge-management/inventories/${this.bridgeId}/inspections/${inspectionId}/view`]);
   }
 
-  editInspection(inspectionId: number) {
-    this.router.navigate([`home/bridge-management/inventories/${this.bridgeId}/inspections/inspection-bridge`], {
-      queryParams: {
-        mode: 'edit',
-        inspid: inspectionId
-      }
-    });
-  }
-
-  createInspection() {
-    this.router.navigate([`home/bridge-management/inventories/${this.bridgeId}/inspections/inspection-bridge`], { queryParams: { mode: 'new' } });
-  }
-
-  filterInspections() {
-    if (!this.searchTerm.trim()) {
-      // If searchTerm is empty, show all inspections
-      this.filteredInspections = this.inspections;
-    } else {
-      // Filter inspections based on searchTerm
-      this.filteredInspections = this.inspections.filter(inspection =>
-        inspection.administrator.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-        inspection.inspector.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-        inspection.id.toString().includes(this.searchTerm.toLowerCase()) || // Filter by ID
-        inspection.date.toString().toLowerCase().includes(this.searchTerm.toLowerCase()) // Ensure date is in string format
-      );
-    }
-  }
-
-  deleteInspection(id: any) {
-    this.inspectionService.deleteInspection(this.bridgeId, id).then(() => {
-      waitForAsync(this.ngOnInit);
-    });
-  }
 }
