@@ -1,11 +1,29 @@
-img {
-  width: 80px;
+/* Imagen del logo */
+img { 
+  width: 140px;
   height: auto;
+  margin-left: 30px;
 }
 
-@media (max-width: 480px) {
-  img {
-    width: 90px;
-    height: auto;
-  }
+
+/* Color de los enlaces */
+.navbar-nav .nav-link {
+  color: black;
+}
+
+/* Color al pasar el mouse */
+.navbar-nav .nav-link:hover {
+  color: #3a8fe4;
+}
+
+
+
+nav.navbar {
+  margin-top: 5px;
+  box-shadow: inset 0px -3px 0px #F29E23;
+}
+
+
+.btn {
+  margin-right: 50px; /* ajusta el valor a lo que necesites */
 }
