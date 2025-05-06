@@ -8,6 +8,9 @@ import swal from "sweetalert";
 import { InspectionServiceService } from "../../../services/bridge-services/inspection-service.service";
 import { InventoryServiceService } from "../../../services/bridge-services/inventory-service.service";
 import { Puente } from '../../../../models/bridge/puente';
+import pdfMake from 'pdfmake/build/pdfmake';
+import pdfFonts from 'pdfmake/build/vfs_fonts';
+
 
 @Component({
     selector: 'app-inspection-form',
@@ -125,4 +128,64 @@ export class InspectionFormComponent implements OnInit {
 
     }
   }
+
+  generatePDF() {
+    const data = this.formInspection; // el objeto cargado con la inspección
+    
+    const documentDefinition = {
+      content: [
+        { text: `INFORME DE INSPECCIÓN - ${data.puente?.nombre ?? 'Puente desconocido'}`, style: 'header', alignment: 'center', margin: [0, 0, 0, 20] },
+  
+        { text: 'Información General', style: 'sectionHeader' },
+        { text: `ID Inspección: ${data.id ?? 'No disponible'}` },
+        { text: `Fecha: ${data.fecha ?? 'No disponible'}` },
+        { text: `Inspector: ${data.usuario?.name ?? 'No disponible'} ${data.usuario?.surname ?? ''}` },
+        { text: `Administrador: ${data.administrador ?? 'No disponible'}` },
+        { text: `Temperatura: ${data.temperatura ?? 'No disponible'} °C` },
+        { text: `Año próxima inspección: ${data.anioProximaInspeccion ?? 'No disponible'}` },
+        { text: `Observaciones generales: ${data.observacionesGenerales ?? 'No disponible'}` },
+  
+        { text: 'Componentes Inspeccionados', style: 'sectionHeader', margin: [0, 10, 0, 5] },
+        ...data.componentes.map((comp, index) => ({
+          stack: [
+            { text: `Componente ${index + 1}: ${comp.nomb ?? 'No disponible'}`, bold: true },
+            { text: `Calificación: ${comp.calificacion ?? 'No disponible'}` },
+            { text: `Mantenimiento: ${comp.mantenimiento ?? 'No disponible'}` },
+            { text: `Inspección Especializada: ${comp.inspEesp ?? 'No disponible'}` },
+            { text: `Tipo Daño: ${comp.tipoDanio ?? 'No disponible'}` },
+            { text: `Daño: ${comp.danio ?? 'No disponible'}` },
+            { text: `Número de fotos: ${comp.numeroFfotos ?? '0'}` },
+  
+            ...(comp.reparacion?.length > 0
+              ? comp.reparacion.map((rep, repIndex) => ({
+                  stack: [
+                    { text: `  Reparación ${repIndex + 1}:`, italics: true },
+                    { text: `    Tipo: ${rep.tipo ?? 'No disponible'}` },
+                    { text: `    Cantidad: ${rep.cantidad ?? 'No disponible'}` },
+                    { text: `    Año: ${rep.anio ?? 'No disponible'}` },
+                    { text: `    Costo: ${rep.costo?.toLocaleString('es-CO', { style: 'currency', currency: 'COP' }) ?? 'No disponible'}` },
+                  ],
+                }))
+              : [{ text: `  No hay reparaciones registradas.` }]
+            )
+          ],
+          margin: [0, 0, 0, 10]
+        })),
+  
+        { text: 'Puente Asociado', style: 'sectionHeader', margin: [0, 10, 0, 5] },
+        { text: `Nombre: ${data.puente?.nombre ?? 'No disponible'}` },
+        { text: `Identificador: ${data.puente?.identif ?? 'No disponible'}` },
+        { text: `Carretera: ${data.puente?.carretera ?? 'No disponible'}` },
+        { text: `PR: ${data.puente?.pr ?? 'No disponible'}` },
+        { text: `Regional: ${data.puente?.regional ?? 'No disponible'}` },
+      ],
+      styles: {
+        header: { fontSize: 22, bold: true },
+        sectionHeader: { fontSize: 18, bold: true, margin: [0, 10, 0, 5] }
+      }
+    };
+  
+    pdfMake.createPdf(documentDefinition as any).download(`Inspeccion_Puente_${data.puente?.nombre ?? 'SinNombre'}.pdf`);
+  }
+  
 }
