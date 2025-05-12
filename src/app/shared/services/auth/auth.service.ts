@@ -13,7 +13,7 @@ interface LoginResponse {
   providedIn: 'root'
 })
 export class AuthService {
-  private readonly apiUrl = 'http://localhost:8080/api/auth';
+  private readonly apiUrl = ' https://api.bridgecare.com.co/auth';
   
   private currentUserRoleSubject = new BehaviorSubject<string | null>(null);
   private currentUserMunicipalitySubject = new BehaviorSubject<string | null>(null);
