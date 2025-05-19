@@ -1,3 +1,4 @@
+import { Bytes } from "firebase/firestore";
 import { User } from "../account/user";
 import { Puente } from "./puente";
 
@@ -17,15 +18,17 @@ export interface Inspection {
 
 
 export interface inspectionComponent {
-  nomb: string; 
-  calificacion: number;
-  mantenimiento: string;
-  inspEesp: string;
-  tipoDanio: string | number; 
-  reparacion: repair[];
-  numeroFfotos?: number;
-  danio: string;
-  fotos?: String[]; 
+  id: number;
+    nombre: string;
+    calificacion: number;
+    mantenimiento: string;
+    insp_esp: string;
+    num_fotos: number;
+    tipo_danio: number;
+    danio: string;
+    imagen: string[];
+    inspeccion_id: number;
+    reparacion: repair[];
 }
 
 export interface repair {

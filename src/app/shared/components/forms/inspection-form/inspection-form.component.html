@@ -138,7 +138,7 @@
     
       <div *ngFor="let component of formInspection.componentes; let i = index" class="card mb-4">
         <div class="card-header">
-          <h2>{{ component.nomb }}</h2> 
+          <h2>{{ component.nombre }}</h2> 
         </div>
         <div class="card-body">
           <form>
@@ -177,7 +177,7 @@
                   type="text"
                   class="form-control"
                   id="specializedInspection{{i}}"
-                  [(ngModel)]="component.inspEesp"
+                  [(ngModel)]="component.insp_esp"
                   name="specializedInspection{{i}}"
                   [readonly]="viewMode === 'view'">
               </div>
@@ -186,7 +186,7 @@
                 <select
                   class="form-control"
                   id="damageType{{i}}"
-                  [(ngModel)]="component.tipoDanio"
+                  [(ngModel)]="component.tipo_danio"
                   name="damageType{{i}}"
                   [disabled]="viewMode === 'view'"
                   [required]="viewMode !== 'view'">
@@ -199,21 +199,21 @@
             </div>
     
             <!--Fotos cargadas desde backend -->
-            <div class="form-group" *ngIf="component.fotos && component.fotos.length > 0">
+            <div class="form-group" *ngIf="component.imagen">
               <label>Fotos Cargadas:</label>
               <ul>
-                <li *ngFor="let photoUrl of component.fotos; let k = index">
-                  <a [href]="photoUrl" target="_blank">Foto {{ k + 1 }}</a>
+                <li *ngFor="let photoUrl of component.imagen; let k = index">
+                  <a [href]="'data:image/jpeg;base64,' + photoUrl" target="_blank">Foto {{ k + 1 }}</a>
                 </li>
               </ul>
             </div>
   
             <!-- ✅ MOSTRAR SOLO FOTOS CARGADAS (si existen) -->
-            <div class="form-group" *ngIf="component.fotos && component.fotos.length > 0">
+            <div class="form-group" *ngIf="component.imagen && component.imagen.length > 0">
               <label>Fotos Cargadas:</label>
               <ul>
-                <li *ngFor="let photoUrl of component.fotos; let k = index">
-                  <a [href]="photoUrl" target="_blank">Foto {{ k + 1 }} {{ component.nomb }}</a>
+                <li *ngFor="let photoUrl of component.imagen; let k = index">
+                  <a [href]="photoUrl" target="_blank">Foto {{ k + 1 }} {{ component.imagen }}</a>
                 </li>
               </ul>
             </div>

@@ -10,6 +10,7 @@ import { InventoryServiceService } from "../../../services/bridge-services/inven
 import { Puente } from '../../../../models/bridge/puente';
 import pdfMake from 'pdfmake/build/pdfmake';
 import pdfFonts from 'pdfmake/build/vfs_fonts';
+import { Bytes } from 'firebase/firestore';
 
 
 @Component({
@@ -66,24 +67,30 @@ export class InspectionFormComponent implements OnInit {
       observacionesGenerales: '',
       componentes: [
         {
-          nomb: 'Superestructura',
+          id: 0,
+          nombre: 'Superestructura',
           calificacion: -1,
           mantenimiento: '',
-          inspEesp: '',
-          tipoDanio: '',
-          reparacion: [],
-          fotos: [],
-          danio: ''
+          insp_esp: '',
+          num_fotos: 0,
+          tipo_danio: 0,
+          danio: '',
+          imagen: [], 
+          inspeccion_id: 0,
+          reparacion: []
         },
         {
-          nomb: 'Apoyo estructural',
+          id: 0,
+          nombre: 'Apoyo estructural',
           calificacion: -1,
           mantenimiento: '',
-          inspEesp: '',
-          tipoDanio: '',
-          reparacion: [],
-          fotos: [],
-          danio: ''
+          insp_esp: '',
+          num_fotos: 0,
+          tipo_danio: 0,
+          danio: '',
+          imagen: [], 
+          inspeccion_id: 0,
+          reparacion: []
         }
       ],
       usuario: {
@@ -105,6 +112,7 @@ export class InspectionFormComponent implements OnInit {
         regional: ''
       }
     }
+
   }
 
   loadInspection(): void {
@@ -148,13 +156,13 @@ export class InspectionFormComponent implements OnInit {
         { text: 'Componentes Inspeccionados', style: 'sectionHeader', margin: [0, 10, 0, 5] },
         ...data.componentes.map((comp, index) => ({
           stack: [
-            { text: `Componente ${index + 1}: ${comp.nomb ?? 'No disponible'}`, bold: true },
+            { text: `Componente ${index + 1}: ${comp.nombre ?? 'No disponible'}`, bold: true },
             { text: `Calificación: ${comp.calificacion ?? 'No disponible'}` },
             { text: `Mantenimiento: ${comp.mantenimiento ?? 'No disponible'}` },
-            { text: `Inspección Especializada: ${comp.inspEesp ?? 'No disponible'}` },
-            { text: `Tipo Daño: ${comp.tipoDanio ?? 'No disponible'}` },
+            { text: `Inspección Especializada: ${comp.insp_esp ?? 'No disponible'}` },
+            { text: `Tipo Daño: ${comp.tipo_danio ?? 'No disponible'}` },
             { text: `Daño: ${comp.danio ?? 'No disponible'}` },
-            { text: `Número de fotos: ${comp.numeroFfotos ?? '0'}` },
+            { text: `Número de fotos: ${comp.num_fotos ?? '0'}` },
   
             ...(comp.reparacion?.length > 0
               ? comp.reparacion.map((rep, repIndex) => ({
