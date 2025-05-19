@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 @Injectable({
@@ -12,7 +12,19 @@ export class AlertaServiceService {
 
   obtenerAlertasInspeccion(inspectionId: number): Observable<any[]> {
     const token = localStorage.getItem('userToken');
-    const headers = { Authorization: `Bearer ${token}` };
-    return this.http.get<any[]>(`${this.baseUrl}/inspeccion/${inspectionId}`, {headers});
+
+    if (!token) {
+      console.warn('❌ No se encontró token en localStorage');
+      return new Observable<any[]>(observer => {
+        observer.error('No token available');
+        observer.complete();
+      });
+    }
+
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${token}`
+    });
+
+    return this.http.get<any[]>(`${this.baseUrl}/inspeccion/${inspectionId}`, { headers });
   }
 }

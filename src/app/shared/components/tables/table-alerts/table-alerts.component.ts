@@ -22,17 +22,27 @@ export class TableAlertsComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.inspeccionId = Number(this.route.snapshot.paramMap.get('inspeccionId'));
-    console.log('🔍 inspectionId: ', this.inspeccionId);
-    this.alertaService.obtenerAlertasInspeccion(this.inspeccionId).subscribe(data => {
-      this.alertas = data;
-    });
-    if (!this.inspeccionId || this.inspeccionId === 0) {
+    const rawId = this.route.snapshot.paramMap.get('inspectionId');
+    this.inspeccionId = Number(rawId);
+
+    console.log('🔍 inspectionId:', this.inspeccionId);
+
+    if (!this.inspeccionId || this.inspeccionId === 0 || isNaN(this.inspeccionId)) {
       console.error('❌ ID de inspección inválido');
       return;
     }
-    console.log(this.alertas);
+
+    this.alertaService.obtenerAlertasInspeccion(this.inspeccionId).subscribe(
+      data => {
+        this.alertas = data;
+        console.log('✅ Alertas recibidas:', this.alertas);
+      },
+      error => {
+        console.error('❌ Error al obtener alertas:', error);
+      }
+    );
   }
+
 
   getTipoClase(tipo: string): string {
     switch (tipo.toLowerCase()) {
