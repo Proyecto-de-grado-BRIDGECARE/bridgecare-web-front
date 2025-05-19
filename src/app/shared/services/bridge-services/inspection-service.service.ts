@@ -11,7 +11,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 })
 export class InspectionServiceService {
 
-  private readonly apiUrl = 'http://localhost:8083/api/inspeccion';
+  private readonly apiUrl = 'https://api.bridgecare.com.co/inspeccion';
 
   constructor(private http: HttpClient){
 

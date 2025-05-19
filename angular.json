@@ -61,6 +61,11 @@
         },
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
+          "options": {
+            "port": 4200,
+            "host": "0.0.0.0",
+            "allowedHosts": ["bridgecare.com.co", "localhost", "api.bridgecare.com.co"]
+          },
           "configurations": {
             "production": {
               "buildTarget": "sgpm:build:production"

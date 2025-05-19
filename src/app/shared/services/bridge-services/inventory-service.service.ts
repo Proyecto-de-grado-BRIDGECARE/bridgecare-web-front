@@ -10,7 +10,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 })
 export class InventoryServiceService {
 
-  private readonly apiUrl = 'http://localhost:8082/api/inventario';
+  private readonly apiUrl = 'https://api.bridgecare.com.co/inventario';
 
   constructor(private http: HttpClient) {
   }

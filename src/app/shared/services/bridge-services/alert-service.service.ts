@@ -6,7 +6,7 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class AlertaServiceService {
-  private baseUrl = 'http://localhost:8086/api/alerta';
+  private baseUrl = 'https://api.bridgecare.com.co/alerta';
 
   constructor(private http: HttpClient) {}
 
