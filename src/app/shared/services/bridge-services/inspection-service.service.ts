@@ -18,11 +18,15 @@ export class InspectionServiceService {
   }
 
   getInspectionsByBridge(bridgeId: number): Observable<Inspection[]> {
-    return this.http.get<Inspection[]>(`${this.apiUrl}/puente/${bridgeId}`);
+    const token = localStorage.getItem('userToken');
+    const headers = { Authorization: `Bearer ${token}` };
+    return this.http.get<Inspection[]>(`${this.apiUrl}/puente/${bridgeId}`, { headers });
   }
 
   getInspectionById(inspectionId: number): Observable<Inspection> {
-    return this.http.get<Inspection>(`${this.apiUrl}/${inspectionId}`);
+    const token = localStorage.getItem('userToken');
+    const headers = { Authorization: `Bearer ${token}` };
+    return this.http.get<Inspection>(`${this.apiUrl}/${inspectionId}`, { headers });
   }
 
   // async deleteInspectionPhotosFolder(bridgeId: number, inspectionId: number): Promise<void> {

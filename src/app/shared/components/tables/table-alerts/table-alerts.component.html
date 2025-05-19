@@ -1,0 +1,34 @@
+<div class="container mt-5">
+  <h2 class="text-center mb-4">Alertas de la Inspección</h2>
+
+  <div class="table-responsive" *ngIf="alertas.length > 0; else sinAlertas">
+    <table class="table table-bordered table-hover text-center align-middle">
+      <thead class="table-dark">
+        <tr>
+          <th scope="col">Tipo</th>
+          <th scope="col">Fecha</th>
+          <th scope="col">Mensaje</th>
+          <th scope="col">Estado</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let alerta of alertas">
+          <td [ngClass]="getTipoClase(alerta.tipo)">
+            {{ alerta.tipo | titlecase }}
+          </td>
+          <td>{{ alerta.fecha }}</td>
+          <td>{{ alerta.mensaje }}</td>
+          <td>
+            <span class="badge bg-secondary">{{ alerta.estado }}</span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <ng-template #sinAlertas>
+    <div class="alert alert-info text-center" role="alert">
+      No se encontraron alertas para esta inspección.
+    </div>
+  </ng-template>
+</div>

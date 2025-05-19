@@ -7,6 +7,7 @@ import { InventoriesComponent } from "./features/bridge-management/inventories/i
 import { InventoryBridgeComponent } from "./features/bridge-management/inventory-bridge/inventory-bridge.component";
 import { ManageUsersComponent } from "./features/account-management/manage-users/manage-users.component";
 import { NotFoundComponent } from "./features/general/not-found/not-found.component";
+import { AlertsComponent } from './features/bridge-management/alerts/alerts.component';
 
 import { roleGuard } from './shared/guards/role.guard';
 import { TableInspectionsComponent } from './shared/components/tables/table-inspections/table-inspections.component';
@@ -106,6 +107,14 @@ export const routes: Routes = [
       {
         path: 'inventories/:bridgeIdentification/inspections/:inspectionId/view',
         component: InspectionFormComponent,
+        canActivate: [roleGuard],
+        data: {
+          requiredRole: [0, 1, 2]
+        }
+      },
+      {
+        path: 'inventories/:puenteId/inspections/:inspectionId/alerts', //mejorar esto
+        component: AlertsComponent,
         canActivate: [roleGuard],
         data: {
           requiredRole: [0, 1, 2]
