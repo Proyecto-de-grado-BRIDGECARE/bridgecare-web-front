@@ -36,6 +36,8 @@
           <td class="text-center">{{inspection.fecha}}</td>
           <td class="text-center">
             <i class="fas fa-eye text-info me-2" (click)="viewInspection(inspection.id)"></i>
+            <i class="fas fa-bell text-warning me-2" title="Ver alertas"(click)="navigateToAlertas(inspection.id)"style="cursor: pointer;"></i>
+
             <!-- <i class="fas fa-edit text-warning me-2" *ngIf="isPrivilegedUser$ | async" (click)="editInspection(inspection.id)"></i>
             <i class="fas fa-trash text-danger" *ngIf="isPrivilegedUser$ | async" (click)="deleteInspection(inspection.id)"></i> -->
           </td>

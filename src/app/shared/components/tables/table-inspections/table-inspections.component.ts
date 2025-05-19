@@ -12,14 +12,10 @@ import { InspectionServiceService } from '../../../services/bridge-services/insp
 @Component({
     selector: 'app-table-inspections',
     imports: [
-        NgForOf,
-        IconDelete,
-        IconEdit,
-        IconSettings,
-        IconView,
-        FormsModule,
-        CommonModule
-    ],
+    NgForOf,
+    FormsModule,
+    CommonModule
+],
     templateUrl: './table-inspections.component.html',
     styleUrl: './table-inspections.component.css'
 })
@@ -69,6 +65,12 @@ export class TableInspectionsComponent implements OnInit {
 
   viewInspection(inspectionId: number): void {
     this.router.navigate([`home/bridge-management/inventories/${this.bridgeId}/inspections/${inspectionId}/view`]);
+  }
+
+  navigateToAlertas(inspectionId: number): void {
+    this.router.navigate([
+      `home/bridge-management/inventories/${this.bridgeId}/inspections/${inspectionId}/alerts`
+    ]);
   }
 
 }
