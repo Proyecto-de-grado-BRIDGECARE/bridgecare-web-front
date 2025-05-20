@@ -18,7 +18,7 @@ export class InventoryServiceService {
   getInventories(): Observable<Inventory[]> {
     const token = localStorage.getItem('userToken');
     const headers = { Authorization: `Bearer ${token}` };
-    return this.http.get<Inventory[]>(`http://localhost:8082/api/inventario`, { headers });
+    return this.http.get<Inventory[]>(`https://api.bridgecare.com.co/inventario`, { headers });
   }
   
 
