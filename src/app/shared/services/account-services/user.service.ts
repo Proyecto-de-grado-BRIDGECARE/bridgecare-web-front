@@ -8,7 +8,7 @@ import { AuthService } from '../auth/auth.service';
   providedIn: 'root'
 })
 export class UsersService {
-  private readonly apiUrl = 'https://api.bridgecare.com.co/usuarios';
+  private readonly apiUrl = ' https://api.bridgecare.com.co/usuarios';
 
   constructor(private http: HttpClient, private authService: AuthService) {}
 
