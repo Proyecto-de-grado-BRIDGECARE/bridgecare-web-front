@@ -34,7 +34,7 @@ export class HomePageComponent {
     }
     
     private initMap(): void {
-        this.map = L.map('map').setView([4.5709, -74.2973], 6); // Centro de Colombia
+        this.map = L.map('map').setView([4.5709, -74.2973], 10); // Centro de Colombia
     
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '© OpenStreetMap contributors'

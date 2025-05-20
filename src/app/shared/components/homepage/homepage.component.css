@@ -109,6 +109,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  padding: 5%;
 }
 
 
@@ -117,5 +118,9 @@ app-mapa-inventarios, #map {
   height: 50vh;      /* Media pantalla de alto */
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.map-section{
+  padding: 5%;
 }
 
