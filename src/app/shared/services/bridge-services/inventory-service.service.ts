@@ -4,13 +4,14 @@ import { getDownloadURL, ref, uploadBytes, Storage, FirebaseStorage } from "@ang
 import { AbstractControl, AsyncValidatorFn, FormControl, ValidationErrors } from "@angular/forms";
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
+import { GeographicInformation } from '../../../models/bridge/posicionGeografica';
 
 @Injectable({
   providedIn: 'root'
 })
 export class InventoryServiceService {
 
-  private readonly apiUrl = 'https://api.bridgecare.com.co/inventario';
+  private readonly apiUrl = 'http://localhost:8082/api/inventario';
 
   constructor(private http: HttpClient) {
   }
@@ -18,7 +19,7 @@ export class InventoryServiceService {
   getInventories(): Observable<Inventory[]> {
     const token = localStorage.getItem('userToken');
     const headers = { Authorization: `Bearer ${token}` };
-    return this.http.get<Inventory[]>(`http://localhost:8082/api/inventario`, { headers });
+    return this.http.get<Inventory[]>(`${this.apiUrl}`, { headers });
   }
   
 
@@ -63,6 +64,14 @@ export class InventoryServiceService {
 
   getBridgeBasicInfo(bridgeId: string): Observable<any> {
     return this.http.get<any>(`${this.apiUrl}/basic-info/${bridgeId}`);
+  }
+
+  getGeographicInventories(): Observable<GeographicInformation[]> {
+    const token = localStorage.getItem('userToken');
+    const headers = {
+      Authorization: `Bearer ${token}`
+    };
+    return this.http.get<GeographicInformation[]>(`${this.apiUrl}/mapa`, {headers});
   }
 
 
