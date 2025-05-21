@@ -1,5 +1,3 @@
-import { Bytes } from "firebase/firestore";
-
 export interface componentes{
     id: number;
     nombre: string;
@@ -9,6 +7,5 @@ export interface componentes{
     num_fotos: number;
     tipo_danio: number;
     danio: string;
-    imagen: Bytes[];
     inspeccion_id: number;
 }

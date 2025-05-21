@@ -2,7 +2,6 @@ import { Component, OnInit, Input, inject, Output, EventEmitter } from '@angular
 import { CommonModule } from '@angular/common';
 import { FormsModule, FormBuilder, FormControl, ReactiveFormsModule, Validators, ValidationErrors, FormGroup } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { UserForm } from '../../../../models/account/user';
 import { UsersService } from '../../../services/account-services/user.service';
 import { AuthService } from '../../../services/auth/auth.service';
 
@@ -79,7 +78,7 @@ export class AccountFormComponent implements OnInit {
         correo: formValues.email,
         tipoUsuario: formValues.type,
         municipio: formValues.municipality,
-        contrasenia: await this.authService.hashPassword(formValues.password)
+        contrasenia: formValues.password
       };
   
       console.log("📤 Enviando usuario:", userToSend);

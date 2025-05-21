@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core';
-import * as bcrypt from 'bcryptjs';
 import { BehaviorSubject, combineLatest, firstValueFrom, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
@@ -113,17 +112,7 @@ export class AuthService {
     sessionStorage.clear();
     this.currentUserRoleSubject.next(null);
   }
-
-  hashPassword(password: string): Promise<string> {
-    const saltRounds = 10;
-    const hashed = bcrypt.hash(password, saltRounds);
-    return hashed;
-  }
-
-  comparePasswords(password: string, hash: string): Promise<boolean> {
-    return bcrypt.compare(password, hash);
-  }
-
+  
   get userMunicipality$() {
     return this.currentUserMunicipalitySubject.asObservable();
   }

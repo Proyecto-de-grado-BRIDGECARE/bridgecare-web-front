@@ -10,7 +10,6 @@ import { InventoryServiceService } from "../../../services/bridge-services/inven
 import { Puente } from '../../../../models/bridge/puente';
 import pdfMake from 'pdfmake/build/pdfmake';
 import pdfFonts from 'pdfmake/build/vfs_fonts';
-import { Bytes } from 'firebase/firestore';
 
 
 @Component({

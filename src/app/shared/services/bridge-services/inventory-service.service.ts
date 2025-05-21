@@ -1,7 +1,5 @@
 import { Inventory } from '../../../models/bridge/inventory';
 import { Observable } from 'rxjs';
-import { getDownloadURL, ref, uploadBytes, Storage, FirebaseStorage } from "@angular/fire/storage";
-import { AbstractControl, AsyncValidatorFn, FormControl, ValidationErrors } from "@angular/forms";
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { GeographicInformation } from '../../../models/bridge/posicionGeografica';

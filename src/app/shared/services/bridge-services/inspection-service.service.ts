@@ -1,7 +1,4 @@
 import {inject, Injectable} from '@angular/core';
-import { ref, listAll, deleteObject } from '@angular/fire/storage';
-import { Storage, uploadBytes, getDownloadURL } from '@angular/fire/storage';
-
 import {map, Observable, of, switchMap} from "rxjs";
 import {Inspection} from "../../../models/bridge/inspection";
 import { HttpClient, HttpParams } from '@angular/common/http';

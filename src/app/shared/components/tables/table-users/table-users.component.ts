@@ -164,10 +164,7 @@ export class TableUsersComponent {
     if (ns) this.currentUser.surname = ns;
     if (nm) this.currentUser.municipality = nm;
     if (nt) this.currentUser.type = nt;
-    if (np) {
-      const hashed = await this._authService.hashPassword(np);
-      this.currentUser.password = hashed;
-    }
+    if (np) this.currentUser.password = np;
   }
 
   async onSubmitEdit() {

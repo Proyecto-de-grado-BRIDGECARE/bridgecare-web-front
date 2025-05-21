@@ -1,7 +1,6 @@
 import { Component } from '@angular/core';
 import { HomeImage } from '../../../../assets/images/home'; 
 import { InventoryServiceService } from '../../services/bridge-services/inventory-service.service';
-import { GeographicInformation } from '../../../models/bridge/posicionGeografica';
 import * as L from 'leaflet';
 
 @Component({
@@ -40,5 +39,4 @@ export class HomePageComponent {
             attribution: '© OpenStreetMap contributors'
         }).addTo(this.map);
     }
-
 }

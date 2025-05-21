@@ -1,4 +1,3 @@
-import { Bytes } from "firebase/firestore";
 import { User } from "../account/user";
 import { Puente } from "./puente";
 
