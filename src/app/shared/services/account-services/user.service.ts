@@ -35,7 +35,12 @@ export class UsersService {
   }
 
   createUser(user: any): Observable<User> {
-    return this.http.post<User>(`${this.apiUrl}/register`, user);
+    const token = localStorage.getItem('userToken');
+    const headers = {
+      Authorization: `Bearer ${token}`
+    };
+
+    return this.http.post<User>(`${this.apiUrl}/register`, user, { headers });
   }
 
   updateUser(id: number, user: any): Observable<User> {
