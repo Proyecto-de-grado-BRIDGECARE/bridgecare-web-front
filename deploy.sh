@@ -30,6 +30,9 @@ else
     echo "No dependency changes detected, skipping npm install."
 fi
 
+# Clean previous Angular cache and build files
+rm -rf .angular/cache dist
+
 # Build Angular project
 echo "Building Angular project..."
 /home/dan/.nvm/versions/node/v22.15.1/bin/ng build --configuration=production
