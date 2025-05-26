@@ -28,6 +28,7 @@ export interface inspectionComponent {
     imagen: string[];
     inspeccion_id: number;
     reparacion: repair[];
+    imagenes: string[];
 }
 
 export interface repair {

@@ -74,9 +74,10 @@ export class InspectionFormComponent implements OnInit {
           num_fotos: 0,
           tipo_danio: 0,
           danio: '',
-          imagen: [], 
+          imagen: [],
           inspeccion_id: 0,
-          reparacion: []
+          reparacion: [],
+          imagenes: []
         },
         {
           id: 0,
@@ -87,9 +88,10 @@ export class InspectionFormComponent implements OnInit {
           num_fotos: 0,
           tipo_danio: 0,
           danio: '',
-          imagen: [], 
+          imagen: [],
           inspeccion_id: 0,
-          reparacion: []
+          reparacion: [],
+          imagenes: []
         }
       ],
       usuario: {
@@ -135,6 +137,11 @@ export class InspectionFormComponent implements OnInit {
 
     }
   }
+
+  getFullImageUrl(relativePath: string): string {
+    return `https://api.bridgecare.com.co/images/${relativePath}`; // o tu ruta base real
+  }
+
 
   generatePDF() {
     const data = this.formInspection; // el objeto cargado con la inspección

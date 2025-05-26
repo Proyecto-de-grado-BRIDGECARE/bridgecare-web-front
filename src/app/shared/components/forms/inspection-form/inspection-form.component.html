@@ -199,15 +199,16 @@
             </div>
     
             <!--Fotos cargadas desde backend -->
-            <div class="form-group" *ngIf="component.imagen">
-              <label>Fotos Cargadas:</label>
-              <ul>
-                <li *ngFor="let photoUrl of component.imagen; let k = index">
-                  <a [href]="'data:image/jpeg;base64,' + photoUrl" target="_blank">Foto {{ k + 1 }}</a>
-                </li>
-              </ul>
+            <!-- Lista de imágenes -->
+            <div *ngIf="component.imagenes">
+              <h5>Imágenes</h5>
+              <div class="row">
+                <div class="col-md-4 mb-3" *ngFor="let imagePath of component.imagenes">
+                  <img [src]="getFullImageUrl(imagePath)" class="img-fluid rounded border shadow-sm" alt="Imagen del componente">
+                </div>
+              </div>
             </div>
-  
+
             <!-- ✅ MOSTRAR SOLO FOTOS CARGADAS (si existen) -->
             <div class="form-group" *ngIf="component.imagen && component.imagen.length > 0">
               <label>Fotos Cargadas:</label>
