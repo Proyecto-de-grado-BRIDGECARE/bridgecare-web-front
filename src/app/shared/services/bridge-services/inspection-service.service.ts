@@ -7,11 +7,9 @@ import { HttpClient, HttpParams } from '@angular/common/http';
   providedIn: 'root'
 })
 export class InspectionServiceService {
-
   private readonly apiUrl = 'https://api.bridgecare.com.co/inspeccion';
 
   constructor(private http: HttpClient){
-
   }
 
   getInspectionsByBridge(bridgeId: number): Observable<Inspection[]> {
@@ -38,7 +36,6 @@ export class InspectionServiceService {
   //   }
   // }
 
-
   // async uploadPhoto(bridgeId: number, inspectionId: number, file: File): Promise<string> {
   //   const storageRef = ref(this._storage, `images/${bridgeId}/inspections/${inspectionId}/${file.name}`);
   //   await uploadBytes(storageRef, file);
@@ -54,6 +51,4 @@ export class InspectionServiceService {
   //     console.error('Error al eliminar la foto:', error);
   //   }
   // }
-
-
 }
