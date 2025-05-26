@@ -31,7 +31,6 @@ export class HomePageComponent {
       attribution: '© OpenStreetMap contributors'
     }).addTo(this.map);
 
-    // Cargar puentes reales
     this.inventoryService.getGeographicInventories().subscribe((inventarios) => {
       inventarios.forEach(inv => {
         const lat = inv.posicionGeografica.latitud;
