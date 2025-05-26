@@ -13,10 +13,12 @@ import * as L from 'leaflet';
 })
 export class HomePageComponent {
 
+    
     private map!: L.Map;
     
     constructor(private inventoryService: InventoryServiceService) {}
-    
+
+
     ngOnInit(): void {
         this.initMap();
         this.inventoryService.getGeographicInventories().subscribe((inventarios) => {
