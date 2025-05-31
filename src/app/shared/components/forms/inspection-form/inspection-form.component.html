@@ -210,13 +210,23 @@
             </div>
 
             <!-- ✅ MOSTRAR SOLO FOTOS CARGADAS (si existen) -->
-            <div class="form-group" *ngIf="component.imagen && component.imagen.length > 0">
+            <!-- <div class="form-group" *ngIf="component.imagen && component.imagen.length > 0">
               <label>Fotos Cargadas:</label>
               <ul>
                 <li *ngFor="let photoUrl of component.imagen; let k = index">
                   <a [href]="photoUrl" target="_blank">Foto {{ k + 1 }} {{ component.imagen }}</a>
                 </li>
               </ul>
+            </div> -->
+
+            <!-- Mostrar imagen si existe -->
+            <div *ngIf="component.imagenes?.length">
+              <h5 class="mt-3">Imágenes del componente</h5>
+              <div class="row">
+                <div class="col-md-4" *ngFor="let imagePath of component.imagenes">
+                  <img [src]="imagePath" class="img-fluid rounded border shadow-sm" alt="Imagen del componente">
+                </div>
+              </div>
             </div>
 
             <!-- ✅ OCULTAR COMPLETAMENTE BOTONES DE SUBIR -->

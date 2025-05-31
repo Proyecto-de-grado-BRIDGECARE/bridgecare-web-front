@@ -54,8 +54,6 @@ export class InspectionFormComponent implements OnInit {
     console.log('id de la inspeccion: ', this.inspectionId);
     this.loadInspection();
 
-    
-
     this.formInspection = {
       id: 0,
       fecha: new Date(),
@@ -114,6 +112,11 @@ export class InspectionFormComponent implements OnInit {
       }
     }
 
+    this.formInspection.componentes[0].imagenes = [
+    'https://media.tenor.com/9clb3ZrMWnMAAAAe/mario-mario-flipping-off.png'
+  ];
+
+
   }
 
   loadInspection(): void {
@@ -137,6 +140,7 @@ export class InspectionFormComponent implements OnInit {
 
     }
   }
+  
 
   getFullImageUrl(relativePath: string): string {
     return `https://api.bridgecare.com.co/images/${relativePath}`; // o tu ruta base real
