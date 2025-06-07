@@ -18,18 +18,19 @@ export interface Inspection {
 
 export interface inspectionComponent {
   id: number;
-    nombre: string;
-    calificacion: number;
-    mantenimiento: string;
-    insp_esp: string;
-    num_fotos: number;
-    tipo_danio: number;
-    danio: string;
-    imagen: string[];
-    inspeccion_id: number;
-    reparacion: repair[];
-    imagenes: string[];
+  nomb: string; 
+  calificacion: number;
+  mantenimiento: string;
+  inspEesp: string; 
+  numeroFfotos: number; 
+  tipoDanio: number; 
+  danio: string;
+  imagen: string[];
+  inspeccionId: number;
+  reparacion: repair[];
+  imagenes: string[];
 }
+
 
 export interface repair {
   tipo: string;

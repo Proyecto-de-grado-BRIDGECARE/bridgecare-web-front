@@ -1,15 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from "@angular/forms";
-import { Inspection, inspectionComponent } from "../../../../models/bridge/inspection";
-import { ActivatedRoute, Router } from "@angular/router";
-import { inspectionLists } from "../../../../models/lists/inspectionLists";
-import { CommonModule, NgClass, NgForOf, NgIf, NgSwitch, NgSwitchCase, NgSwitchDefault } from "@angular/common";
-import swal from "sweetalert";
+import { Inspection } from "../../../../models/bridge/inspection";
+import { ActivatedRoute } from "@angular/router";
+import { CommonModule, NgClass, NgForOf, NgIf } from "@angular/common";
 import { InspectionServiceService } from "../../../services/bridge-services/inspection-service.service";
-import { InventoryServiceService } from "../../../services/bridge-services/inventory-service.service";
 import { Puente } from '../../../../models/bridge/puente';
 import pdfMake from 'pdfmake/build/pdfmake';
-import pdfFonts from 'pdfmake/build/vfs_fonts';
 
 
 @Component({
@@ -19,10 +15,7 @@ import pdfFonts from 'pdfmake/build/vfs_fonts';
         CommonModule,
         NgForOf,
         NgIf,
-        NgClass,
-        NgSwitch,
-        NgSwitchCase,
-        NgSwitchDefault
+        NgClass
     ],
     templateUrl: './inspection-form.component.html',
     styleUrl: './inspection-form.component.css'
@@ -38,6 +31,7 @@ export class InspectionFormComponent implements OnInit {
   damageRatingList: any;
   damageTypeList: any;
   repairOptionsByComponent: any;
+  isDataLoaded = false;
 
 
   constructor(
@@ -51,9 +45,18 @@ export class InspectionFormComponent implements OnInit {
 
     this.bridgeId = +this.route.snapshot.paramMap.get('bridgeIdentification')!;
     this.inspectionId = +this.route.snapshot.paramMap.get('inspectionId')!;
-    console.log('id de la inspeccion: ', this.inspectionId);
-    this.loadInspection();
+    console.log('id de la inspección: ', this.inspectionId);
 
+    // Si hay ID, es edición → cargar la inspección
+    if (this.inspectionId && this.inspectionId !== 0) {
+      this.loadInspection();
+    } else {
+      // Inspección nueva → inicializar valores por defecto
+      this.initializeEmptyForm();
+    }
+  }
+
+  initializeEmptyForm(): void {
     this.formInspection = {
       id: 0,
       fecha: new Date(),
@@ -65,31 +68,31 @@ export class InspectionFormComponent implements OnInit {
       componentes: [
         {
           id: 0,
-          nombre: 'Superestructura',
+          nomb: 'Superestructura',
           calificacion: -1,
           mantenimiento: '',
-          insp_esp: '',
-          num_fotos: 0,
-          tipo_danio: 0,
+          inspEesp: '',
+          numeroFfotos: 0,
+          tipoDanio: 0,
           danio: '',
           imagen: [],
-          inspeccion_id: 0,
+          inspeccionId: 0,
           reparacion: [],
-          imagenes: []
+          imagenes: ['']
         },
         {
           id: 0,
-          nombre: 'Apoyo estructural',
+          nomb: 'Apoyo estructural',
           calificacion: -1,
           mantenimiento: '',
-          insp_esp: '',
-          num_fotos: 0,
-          tipo_danio: 0,
+          inspEesp: '',
+          numeroFfotos: 0,
+          tipoDanio: 0,
           danio: '',
           imagen: [],
-          inspeccion_id: 0,
+          inspeccionId: 0,
           reparacion: [],
-          imagenes: []
+          imagenes: ['']
         }
       ],
       usuario: {
@@ -103,32 +106,37 @@ export class InspectionFormComponent implements OnInit {
         password: ''
       },
       puente: {
-        id: 0,
+        id: this.bridgeId,
         nombre: '',
         identif: '',
         carretera: '',
         pr: '',
         regional: ''
       }
-    }
-
-    this.formInspection.componentes[0].imagenes = [
-    'https://media.tenor.com/9clb3ZrMWnMAAAAe/mario-mario-flipping-off.png'
-  ];
-
-
+    };
+    this.isDataLoaded = true;
   }
 
   loadInspection(): void {
     this.inspectionService.getInspectionById(this.inspectionId).subscribe({
       next: (inspection) => {
-        console.log(inspection);
         this.formInspection = inspection;
-        this.bridgeBasicInfo = inspection.puente; 
+        this.bridgeBasicInfo = inspection.puente;
+
+        // Asegurar que todas las imágenes estén cargadas
+        if (inspection.componentes && inspection.componentes.length > 0) {
+          this.formInspection.componentes.forEach((comp, index) => {
+            comp.imagenes = inspection.componentes[index]?.imagenes || [''];
+          });
+        }
+
+        this.isDataLoaded = true;
+        console.log("Inspección cargada: ", inspection);
       },
       error: (err) => {
         console.error('Error al cargar inspección', err);
-      }
+        this.isDataLoaded = true; // Evita que la pantalla se quede "congelada"
+      },
     });
   }
 
@@ -143,12 +151,12 @@ export class InspectionFormComponent implements OnInit {
   
 
   getFullImageUrl(relativePath: string): string {
-    return `https://api.bridgecare.com.co/images/${relativePath}`; // o tu ruta base real
+    return `https://api.bridgecare.com.co/images/${relativePath}`; 
   }
 
 
   generatePDF() {
-    const data = this.formInspection; // el objeto cargado con la inspección
+    const data = this.formInspection;
     
     const documentDefinition = {
       content: [
@@ -166,13 +174,13 @@ export class InspectionFormComponent implements OnInit {
         { text: 'Componentes Inspeccionados', style: 'sectionHeader', margin: [0, 10, 0, 5] },
         ...data.componentes.map((comp, index) => ({
           stack: [
-            { text: `Componente ${index + 1}: ${comp.nombre ?? 'No disponible'}`, bold: true },
+            { text: `Componente ${index + 1}: ${comp.nomb ?? 'No disponible'}`, bold: true },
             { text: `Calificación: ${comp.calificacion ?? 'No disponible'}` },
             { text: `Mantenimiento: ${comp.mantenimiento ?? 'No disponible'}` },
-            { text: `Inspección Especializada: ${comp.insp_esp ?? 'No disponible'}` },
-            { text: `Tipo Daño: ${comp.tipo_danio ?? 'No disponible'}` },
+            { text: `Inspección Especializada: ${comp.inspEesp ?? 'No disponible'}` },
+            { text: `Tipo Daño: ${comp.tipoDanio ?? 'No disponible'}` },
             { text: `Daño: ${comp.danio ?? 'No disponible'}` },
-            { text: `Número de fotos: ${comp.num_fotos ?? '0'}` },
+            { text: `Número de fotos: ${comp.numeroFfotos ?? '0'}` },
   
             ...(comp.reparacion?.length > 0
               ? comp.reparacion.map((rep, repIndex) => ({
