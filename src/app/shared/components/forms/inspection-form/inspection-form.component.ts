@@ -31,7 +31,6 @@ export class InspectionFormComponent implements OnInit {
   damageRatingList: any;
   damageTypeList: any;
   repairOptionsByComponent: any;
-  isDataLoaded = false;
 
 
   constructor(
@@ -45,18 +44,8 @@ export class InspectionFormComponent implements OnInit {
 
     this.bridgeId = +this.route.snapshot.paramMap.get('bridgeIdentification')!;
     this.inspectionId = +this.route.snapshot.paramMap.get('inspectionId')!;
-    console.log('id de la inspección: ', this.inspectionId);
+    console.log('id de la inspeccion: ', this.inspectionId);
 
-    // Si hay ID, es edición → cargar la inspección
-    if (this.inspectionId && this.inspectionId !== 0) {
-      this.loadInspection();
-    } else {
-      // Inspección nueva → inicializar valores por defecto
-      this.initializeEmptyForm();
-    }
-  }
-
-  initializeEmptyForm(): void {
     this.formInspection = {
       id: 0,
       fecha: new Date(),
@@ -78,7 +67,7 @@ export class InspectionFormComponent implements OnInit {
           imagen: [],
           inspeccionId: 0,
           reparacion: [],
-          imagenes: ['']
+          imagenes: []
         },
         {
           id: 0,
@@ -92,7 +81,7 @@ export class InspectionFormComponent implements OnInit {
           imagen: [],
           inspeccionId: 0,
           reparacion: [],
-          imagenes: ['']
+          imagenes: []
         }
       ],
       usuario: {
@@ -106,39 +95,40 @@ export class InspectionFormComponent implements OnInit {
         password: ''
       },
       puente: {
-        id: this.bridgeId,
+        id: 0,
         nombre: '',
         identif: '',
         carretera: '',
         pr: '',
         regional: ''
       }
-    };
-    this.isDataLoaded = true;
+    }
+
+    this.formInspection.componentes[0].imagenes = [''];
+      this.loadInspection();
   }
 
   loadInspection(): void {
-    this.inspectionService.getInspectionById(this.inspectionId).subscribe({
-      next: (inspection) => {
-        this.formInspection = inspection;
-        this.bridgeBasicInfo = inspection.puente;
+  this.inspectionService.getInspectionById(this.inspectionId).subscribe({
+    next: (inspection) => {
+      this.formInspection = inspection;
+      this.bridgeBasicInfo = inspection.puente;
 
-        // Asegurar que todas las imágenes estén cargadas
-        if (inspection.componentes && inspection.componentes.length > 0) {
-          this.formInspection.componentes.forEach((comp, index) => {
-            comp.imagenes = inspection.componentes[index]?.imagenes || [''];
-          });
-        }
+      if (inspection.componentes && inspection.componentes.length > 0) {
+        this.formInspection.componentes.forEach((comp, index) => {
+          comp.imagenes = inspection.componentes[index]?.imagenes || [];
+        });
+      }
 
-        this.isDataLoaded = true;
-        console.log("Inspección cargada: ", inspection);
-      },
-      error: (err) => {
-        console.error('Error al cargar inspección', err);
-        this.isDataLoaded = true; // Evita que la pantalla se quede "congelada"
-      },
-    });
-  }
+      console.log("inspección: ", inspection);
+      console.log('Componentes:', this.formInspection.componentes);
+
+    },
+    error: (err) => {
+      console.error('Error al cargar inspección', err);
+    },
+  });
+}
 
   onSubmit(viewMode: string): void {
     if (viewMode === 'view') {

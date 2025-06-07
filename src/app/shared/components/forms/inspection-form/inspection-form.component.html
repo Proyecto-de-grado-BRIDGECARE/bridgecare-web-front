@@ -135,6 +135,8 @@
 
     <div class="cont">
       <h2 class="inspection-subtitle">COMPONENTES</h2>
+
+
     
       <div *ngFor="let component of formInspection.componentes; let i = index" class="card mb-4">
         <div class="card-header">
@@ -144,20 +146,9 @@
           <form>
             <div class="form-row">
               <div class="form-group col-md-5">
-                <label for="rating{{i}}">Calificación</label>
-                <select
-                  class="form-control"
-                  id="damageRating{{i}}"
-                  [(ngModel)]="component.calificacion"
-                  name="damageRating{{i}}"
-                  [disabled]="viewMode === 'view'"
-                  [required]="viewMode !== 'view'">
-                  <option value="-1" disabled>Seleccione una calificación</option>
-                  <option *ngFor="let option of damageRatingList" [value]="option.value">
-                    {{ option.label }}
-                  </option>
-                </select>
-              </div>
+              <label>Calificación</label>
+              <input type="number" [value]="component.calificacion" readonly class="form-control" />
+            </div>
               <div class="form-group col-md-5">
                 <label for="maintenance{{i}}">Mantenimiento</label>
                 <input
@@ -181,6 +172,7 @@
                   name="specializedInspection{{i}}"
                   [readonly]="viewMode === 'view'">
               </div>
+              
               <div class="form-group col-md-5">
                 <label for="damageType{{i}}">Tipo de daño</label>
                 <select
