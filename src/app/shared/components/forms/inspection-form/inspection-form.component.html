@@ -143,9 +143,8 @@
                   type="text"
                   class="form-control"
                   id="maintenance{{i}}"
-                  [(ngModel)]="component.mantenimiento"
-                  name="maintenance{{i}}"
-                  [readonly]="viewMode === 'view'">
+                  [value]="component.mantenimiento || ''"
+                  readonly>
               </div>
             </div>
     
@@ -155,26 +154,19 @@
                 <input
                   type="text"
                   class="form-control"
-                  id="specializedInspection{{i}}"
-                  [(ngModel)]="component.inspEesp"
-                  name="specializedInspection{{i}}"
-                  [readonly]="viewMode === 'view'">
+                  id="damageType{{i}}"
+                  [value]="component.inspEesp"
+                  readonly>
               </div>
 
               <div class="form-group col-md-5">
                 <label for="damageType{{i}}">Tipo de daño</label>
-                <select
+                <input
+                  type="text"
                   class="form-control"
                   id="damageType{{i}}"
-                  [(ngModel)]="component.tipoDanio"
-                  name="damageType{{i}}"
-                  [disabled]="viewMode === 'view'"
-                  [required]="viewMode !== 'view'">
-                  <option value="" disabled>Seleccione un tipo de daño</option>
-                  <option *ngFor="let option of damageTypeList" [value]="option.value">
-                    {{ option.label }}
-                  </option>
-                </select>
+                  [value]="component.tipoDanio"
+                  readonly>
               </div>
             </div>
     

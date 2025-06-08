@@ -103,9 +103,18 @@ export class InspectionFormComponent implements OnInit {
         regional: ''
       }
     }
-
     this.formInspection.componentes[0].imagenes = [''];
-      this.loadInspection();
+    this.loadInspection();
+
+    this.formInspection.componentes.forEach((comp) => {
+      if (typeof comp.imagenes === 'string') {
+        try {
+          comp.imagenes = JSON.parse(comp.imagenes);
+        } catch (e) {
+          comp.imagenes = [];
+        }
+      }
+    });
   }
 
   loadInspection(): void {
