@@ -6,6 +6,9 @@ import { CommonModule, NgClass, NgForOf, NgIf } from "@angular/common";
 import { InspectionServiceService } from "../../../services/bridge-services/inspection-service.service";
 import { Puente } from '../../../../models/bridge/puente';
 import pdfMake from 'pdfmake/build/pdfmake';
+import { logoBase64 } from '../../../../../assets/images/logoBase64'; 
+import { image } from 'html2canvas/dist/types/css/types/image';
+import { style } from '@angular/animations';
 
 
 @Component({
@@ -118,26 +121,26 @@ export class InspectionFormComponent implements OnInit {
   }
 
   loadInspection(): void {
-  this.inspectionService.getInspectionById(this.inspectionId).subscribe({
-    next: (inspection) => {
-      this.formInspection = inspection;
-      this.bridgeBasicInfo = inspection.puente;
+    this.inspectionService.getInspectionById(this.inspectionId).subscribe({
+      next: (inspection) => {
+        this.formInspection = inspection;
+        this.bridgeBasicInfo = inspection.puente;
 
-      if (inspection.componentes && inspection.componentes.length > 0) {
-        this.formInspection.componentes.forEach((comp, index) => {
-          comp.imagenes = inspection.componentes[index]?.imagenes || [];
-        });
-      }
+        if (inspection.componentes && inspection.componentes.length > 0) {
+          this.formInspection.componentes.forEach((comp, index) => {
+            comp.imagenes = inspection.componentes[index]?.imagenes || [];
+          });
+        }
 
-      console.log("inspección: ", inspection);
-      console.log('Componentes:', this.formInspection.componentes);
+        console.log("inspección: ", inspection);
+        console.log('Componentes:', this.formInspection.componentes);
 
-    },
-    error: (err) => {
-      console.error('Error al cargar inspección', err);
-    },
-  });
-}
+      },
+      error: (err) => {
+        console.error('Error al cargar inspección', err);
+      },
+    });
+  }
 
   onSubmit(viewMode: string): void {
     if (viewMode === 'view') {
@@ -156,11 +159,19 @@ export class InspectionFormComponent implements OnInit {
 
   generatePDF() {
     const data = this.formInspection;
+    const currentDate = new Date();
+    const dd = String(currentDate.getDate()).padStart(2, '0');
+    const mm = String(currentDate.getMonth()).padStart(2, '0');
+    const yyyy = String(currentDate.getFullYear());
+    const date = `${dd}-${mm}-${yyyy}`;
     
     const documentDefinition = {
       content: [
+        { image: logoBase64.miVar, width: 80, absolutePosition: { x: 30, y: 15 }},
+        { text: `BRIDGECARE`, style: 'header', alignment: 'center', margin: [0, 0, 0, 20] },
         { text: `INFORME DE INSPECCIÓN - ${data.puente?.nombre ?? 'Puente desconocido'}`, style: 'header', alignment: 'center', margin: [0, 0, 0, 20] },
   
+        { text: `Reporte generado en: ${date}`, margin: [0, 0, 0, 20] },
         { text: 'Información General', style: 'sectionHeader' },
         { text: `ID Inspección: ${data.id ?? 'No disponible'}` },
         { text: `Fecha: ${data.fecha ?? 'No disponible'}` },

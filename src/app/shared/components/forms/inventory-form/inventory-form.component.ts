@@ -9,6 +9,7 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import pdfMake from 'pdfmake/build/pdfmake';
 import pdfFonts from 'pdfmake/build/vfs_fonts';
+import { logoBase64 } from '../../../../../assets/images/logoBase64';
 
 
 @Component({
@@ -675,17 +676,24 @@ export class InventoryFormComponent implements OnInit {
   }
 
   generatePDF() {
-    const data = this.form.value; // datos ya cargados en el formulario
+    const data = this.form.value;
+    const currentDate = new Date();
+    const dd = String(currentDate.getDate()).padStart(2, '0');
+    const mm = String(currentDate.getMonth()).padStart(2, '0');
+    const yyyy = String(currentDate.getFullYear());
+    const date = `${dd}-${mm}-${yyyy}`;
   
     const documentDefinition = {
       content: [
+        { image: logoBase64.miVar, width: 80, absolutePosition: { x: 30, y: 15 }},
+        { text: `BRIDGECARE`, style: 'header', alignment: 'center', margin: [0, 0, 0, 20] },
         {
           text: `INVENTARIO DE ${data.nombre}`,
           style: 'header',
           alignment: 'center',
           margin: [0, 0, 0, 20],
         },
-  
+        { text: `Reporte generado en: ${date}`, margin: [0, 0, 0, 20] },
         { text: 'Información General', style: 'sectionHeader' },
         { text: `Nombre del puente: ${data.nombre ?? 'No disponible'}` },
         { text: `Identificador: ${data.identificador ?? 'No disponible'}` },
